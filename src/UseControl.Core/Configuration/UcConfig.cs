@@ -16,6 +16,9 @@ public sealed class UcConfig
     /// <summary>Places found on the PC and blocked automatically.</summary>
     public AutoBlockOptions Auto { get; set; } = new();
 
+    /// <summary>Windows tools and settings taken away from restricted accounts.</summary>
+    public AccountRestrictions Restrictions { get; set; } = new();
+
     /// <summary>Folders (or files) from which programs may not start.</summary>
     public List<PathEntry> BlockedPaths { get; set; } = [];
 
@@ -63,6 +66,32 @@ public sealed class AutoBlockOptions
 
     /// <summary>Program folders (in Program Files and on other drives) that ordinary users can write to.</summary>
     public bool WritableProgramFolders { get; set; } = true;
+}
+
+/// <summary>
+/// Windows tools taken away from restricted accounts (per-account policies). The defaults block what
+/// could be used to undo the restrictions and leave everyday tools alone.
+/// </summary>
+public sealed class AccountRestrictions
+{
+    /// <summary>Command prompt and .bat/.cmd scripts.</summary>
+    public bool DisableCommandPrompt { get; set; } = true;
+
+    public bool DisableRegistryEditor { get; set; } = true;
+
+    public bool DisableTaskManager { get; set; }
+
+    /// <summary>Control Panel and Settings.</summary>
+    public bool DisableControlPanel { get; set; }
+
+    /// <summary>Win+R.</summary>
+    public bool DisableRunDialog { get; set; }
+
+    /// <summary>Programs starting by themselves from USB sticks and discs.</summary>
+    public bool DisableAutorun { get; set; } = true;
+
+    /// <summary>Useful for a shared account: nobody changes its password and locks the others out.</summary>
+    public bool DisablePasswordChange { get; set; }
 }
 
 public sealed class PathEntry

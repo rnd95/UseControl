@@ -36,6 +36,13 @@ public static class Loc
 
     public static bool Has(string key) => Resources.GetString(key, CultureInfo.InvariantCulture) is not null;
 
+    /// <summary>The English text, whatever the current language (for logs and machine-readable output).</summary>
+    public static string English(string key, params object?[] args)
+    {
+        var text = Resources.GetString(key, CultureInfo.InvariantCulture) ?? key;
+        return args.Length == 0 ? text : string.Format(CultureInfo.InvariantCulture, text, args);
+    }
+
     public static string T(string key, params object?[] args)
     {
         var text = Resources.GetString(key, Culture) ?? key;

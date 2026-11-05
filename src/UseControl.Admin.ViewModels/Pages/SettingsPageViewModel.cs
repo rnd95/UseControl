@@ -9,10 +9,10 @@ namespace UseControl.Admin.ViewModels.Pages;
 
 public sealed record LanguageChoice(CultureInfo Culture, string Text);
 
+/// <summary>Settings of UseControl itself: language, backup, version. What restricted accounts may do is on other pages.</summary>
 public sealed partial class SettingsPageViewModel : PageViewModel
 {
     private readonly Action<CultureInfo> _saveLanguage;
-    private bool _loading;
 
     public SettingsPageViewModel(PanelSession session, Action<CultureInfo> saveLanguage)
         : base(session, "Ui.Nav.Settings", "")
@@ -27,52 +27,19 @@ public sealed partial class SettingsPageViewModel : PageViewModel
     [ObservableProperty]
     private LanguageChoice _language;
 
+    [ObservableProperty]
+    private string _panelVersion = typeof(SettingsPageViewModel).Assembly.GetName().Version?.ToString(3) ?? "?";
+
+    [ObservableProperty]
+    private string _serviceVersion = "—";
+
+    [ObservableProperty]
+    private string _dataDirectory = "—";
+
     partial void OnLanguageChanged(LanguageChoice value)
     {
         TranslationSource.Instance.Culture = value.Culture;
         _saveLanguage(value.Culture);
-    }
-
-    [ObservableProperty] private bool _systemDriveRoot;
-    [ObservableProperty] private bool _writableDriveRoots;
-    [ObservableProperty] private bool _otherDriveLetters;
-    [ObservableProperty] private bool _recycleBins;
-    [ObservableProperty] private bool _systemWritableFolders;
-    [ObservableProperty] private bool _writableProgramFolders;
-    [ObservableProperty] private bool _blockStoreInstalls;
-
-    /// <summary>One entry per line.</summary>
-    [ObservableProperty] private string _admins = "";
-    [ObservableProperty] private string _privateFolders = "";
-    [ObservableProperty] private string _hiddenAccounts = "";
-    [ObservableProperty] private string _knownRemoteServices = "";
-
-    [RelayCommand]
-    private Task Save()
-    {
-        var auto = new AutoBlockOptions
-        {
-            SystemDriveRoot = SystemDriveRoot,
-            WritableDriveRoots = WritableDriveRoots,
-            OtherDriveLetters = OtherDriveLetters,
-            RecycleBins = RecycleBins,
-            SystemWritableFolders = SystemWritableFolders,
-            WritableProgramFolders = WritableProgramFolders,
-        };
-        var store = BlockStoreInstalls;
-        var admins = Lines(Admins);
-        var priv = Lines(PrivateFolders);
-        var hidden = Lines(HiddenAccounts);
-        var remote = Lines(KnownRemoteServices);
-        return Session.EditAsync(c =>
-        {
-            c.Auto = auto;
-            c.BlockStoreInstalls = store;
-            c.Audit.Admins = admins;
-            c.Audit.PrivateFolders = priv;
-            c.Audit.HiddenAccounts = hidden;
-            c.Audit.KnownRemoteServices = remote;
-        });
     }
 
     [RelayCommand]
@@ -102,31 +69,9 @@ public sealed partial class SettingsPageViewModel : PageViewModel
         });
     }
 
-    private static List<string> Lines(string text) =>
-        [.. text.Split(['\r', '\n', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct(StringComparer.OrdinalIgnoreCase)];
-
     protected override void Rebuild()
     {
-        var c = Session.Config;
-        if (c is null || _loading) return;
-        _loading = true;
-        try
-        {
-            SystemDriveRoot = c.Auto.SystemDriveRoot;
-            WritableDriveRoots = c.Auto.WritableDriveRoots;
-            OtherDriveLetters = c.Auto.OtherDriveLetters;
-            RecycleBins = c.Auto.RecycleBins;
-            SystemWritableFolders = c.Auto.SystemWritableFolders;
-            WritableProgramFolders = c.Auto.WritableProgramFolders;
-            BlockStoreInstalls = c.BlockStoreInstalls;
-            Admins = string.Join(Environment.NewLine, c.Audit.Admins);
-            PrivateFolders = string.Join(Environment.NewLine, c.Audit.PrivateFolders);
-            HiddenAccounts = string.Join(Environment.NewLine, c.Audit.HiddenAccounts);
-            KnownRemoteServices = string.Join(Environment.NewLine, c.Audit.KnownRemoteServices);
-        }
-        finally
-        {
-            _loading = false;
-        }
+        ServiceVersion = Session.Status?.Version ?? "—";
+        DataDirectory = Session.Status?.DataDirectory ?? "—";
     }
 }

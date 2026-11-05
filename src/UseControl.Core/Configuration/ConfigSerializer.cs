@@ -111,6 +111,7 @@ public static class ConfigSerializer
     {
         c.Users = [.. (c.Users ?? []).Where(u => !string.IsNullOrWhiteSpace(u)).Select(u => u.Trim())];
         c.Auto ??= new AutoBlockOptions();
+        c.Restrictions ??= new AccountRestrictions();
         c.BlockedPaths = [.. (c.BlockedPaths ?? []).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Path))];
         c.AllowedPaths = [.. (c.AllowedPaths ?? []).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Path))];
         c.BlockedNames = [.. (c.BlockedNames ?? []).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Name))];

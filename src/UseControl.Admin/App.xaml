@@ -15,12 +15,14 @@
       <l:TextToVisibilityConverter x:Key="TextToVisibility" />
       <l:InverseBoolConverter x:Key="InverseBool" />
       <l:ZeroToVisibilityConverter x:Key="ZeroToVisibility" />
+      <l:StatusGlyphConverter x:Key="StatusGlyph" />
       <l:StateBrushConverter x:Key="StateBrush" />
       <l:HoursConverter x:Key="Hours" />
 
       <!-- Which view draws which page: replace a view here to redesign a page. -->
       <DataTemplate DataType="{x:Type pages:StatusPageViewModel}"><views:StatusView /></DataTemplate>
       <DataTemplate DataType="{x:Type pages:AccountsPageViewModel}"><views:AccountsView /></DataTemplate>
+      <DataTemplate DataType="{x:Type pages:RestrictionsPageViewModel}"><views:RestrictionsView /></DataTemplate>
       <DataTemplate DataType="{x:Type pages:GamesPageViewModel}"><views:GamesView /></DataTemplate>
       <DataTemplate DataType="{x:Type pages:ProgramsPageViewModel}"><views:ProgramsView /></DataTemplate>
       <DataTemplate DataType="{x:Type pages:FileAccessPageViewModel}"><views:FileAccessView /></DataTemplate>

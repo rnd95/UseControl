@@ -61,10 +61,10 @@ The panel is split so that its look can change without touching its behaviour:
 To see every page filled in without installing the service, run the panel with sample data:
 
 ```
-UseControl.exe --demo [--page 0-7] [--lang en|uk]
+UseControl.exe --demo [--page 0-8] [--lang en|uk]
 ```
 
-Pages are numbered from 0: 0 Status, 1 Accounts, 2 Games, 3 Programs, 4 Files and folders, 5 Browsers, 6 Security check, 7 Settings.
+Pages are numbered from 0: 0 Status, 1 Accounts, 2 Restrictions, 3 Games, 4 Programs, 5 Files and folders, 6 Browsers, 7 Security check, 8 Settings.
 
 ## Languages
 

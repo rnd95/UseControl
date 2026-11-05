@@ -78,11 +78,15 @@ public sealed class DemoServiceClient : IServiceClient
 
     public Task<IReadOnlyList<AuditCheck>> AuditAsync(CancellationToken ct = default) => Task.FromResult<IReadOnlyList<AuditCheck>>(
     [
-        new("services", AuditStatus.Ok, "No service program or folder is writable by ordinary users (94 checked)."),
-        new("uac", AuditStatus.Warning, "EnableLUA=1 ConsentPromptBehaviorAdmin=0 PromptOnSecureDesktop=0 ConsentPromptBehaviorUser=3 (recommended: 1, 5, 1, 3)"),
-        new("privateFolder", AuditStatus.Fail, @"Others have access: BUILTIN\Users ReadAndExecute", @"D:\Private"),
-        new("restrictions", AuditStatus.Ok, "47 blocked and 4 allowed folders, 1 blocked files, 41 names, policy keys locked: True", "kids"),
+        Check("services", AuditStatus.Ok, "ServicesOk", null, "94"),
+        Check("uac", AuditStatus.Warning, "UacWeak", null, "1", "0", "0", "3"),
+        Check("privateFolder", AuditStatus.Fail, "PrivateOpen", @"D:\Private", @"BUILTIN\Users ReadAndExecute"),
+        Check("remoteTools", AuditStatus.Ok, "RemoteKnown", null, "Mesh Agent, TeamViewer"),
+        Check("restrictions", AuditStatus.Ok, "RestrictionsOk", "kids", "47", "4", "1", "41"),
     ]);
+
+    private static AuditCheck Check(string id, AuditStatus status, string key, string? subject, params string[] args) =>
+        new(id, status, Localization.Loc.English("AuditDetail." + key, args), subject) { DetailKey = "AuditDetail." + key, DetailArgs = args };
 
     public Task<IReadOnlyList<string>> FindGamesAsync(CancellationToken ct = default) =>
         Task.FromResult<IReadOnlyList<string>>([@"C:\Program Files (x86)\Steam", @"E:\SteamLibrary"]);

@@ -16,7 +16,10 @@ public sealed partial class FileAccessPageViewModel : PageViewModel
     public ObservableCollection<AccessRow> Rules { get; } = [];
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(AddCommand))]
     private string _path = "";
+
+    private bool HasPath() => !string.IsNullOrWhiteSpace(Path);
 
     [ObservableProperty]
     private bool _deny = true;
@@ -49,7 +52,7 @@ public sealed partial class FileAccessPageViewModel : PageViewModel
         if (Session.Dialogs.PickFile(Loc.T("Ui.Access.PickFile"), "*.*|*.*") is { } p) Path = p;
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(HasPath))]
     private async Task Add()
     {
         var rights = (Read ? FileAccessRights.Read : 0) | (Write ? FileAccessRights.Write : 0) | (Execute ? FileAccessRights.Execute : 0) | (Delete ? FileAccessRights.Delete : 0);

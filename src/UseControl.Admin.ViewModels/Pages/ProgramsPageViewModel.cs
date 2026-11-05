@@ -34,7 +34,10 @@ public sealed partial class ProgramsPageViewModel : PageViewModel
     private Choice<RuleCategory>? _category;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(BlockNameCommand))]
     private string _newName = "";
+
+    private bool HasName() => !string.IsNullOrWhiteSpace(NewName);
 
     private RuleCategory SelectedCategory => Category?.Value ?? RuleCategory.Games;
 
@@ -53,7 +56,7 @@ public sealed partial class ProgramsPageViewModel : PageViewModel
         return path is null ? Task.CompletedTask : Session.EditAsync(c => ConfigEditor.AddAllowedPath(c, path));
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(HasName))]
     private async Task BlockName()
     {
         var name = NewName;

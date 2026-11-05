@@ -30,10 +30,16 @@ public sealed partial class BrowsersPageViewModel : PageViewModel
     public ObservableCollection<PolicyRow> Policies { get; } = [];
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(AddExtensionCommand))]
     private string _newExtension = "";
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SetPolicyCommand))]
     private string _policyName = "";
+
+    private bool HasExtension() => !string.IsNullOrWhiteSpace(NewExtension);
+
+    private bool HasPolicyName() => !string.IsNullOrWhiteSpace(PolicyName);
 
     [ObservableProperty]
     private string _policyValue = "";
@@ -62,7 +68,7 @@ public sealed partial class BrowsersPageViewModel : PageViewModel
         _ = Session.EditAsync(change);
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(HasExtension))]
     private async Task AddExtension()
     {
         var b = Browser;
@@ -77,7 +83,7 @@ public sealed partial class BrowsersPageViewModel : PageViewModel
         return id is null ? Task.CompletedTask : Session.EditAsync(c => ConfigEditor.RemoveExtension(c, b, id));
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(HasPolicyName))]
     private async Task SetPolicy()
     {
         var b = Browser;

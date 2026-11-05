@@ -2,60 +2,12 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:l="clr-namespace:UseControl.Admin.Infrastructure">
-  <UserControl.Resources>
-    <Style x:Key="ListBoxText" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-      <Setter Property="AcceptsReturn" Value="True" />
-      <Setter Property="Height" Value="80" />
-      <Setter Property="VerticalContentAlignment" Value="Top" />
-      <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-      <Setter Property="Margin" Value="0,4,0,12" />
-    </Style>
-  </UserControl.Resources>
   <StackPanel>
     <Border Style="{StaticResource Card}">
-      <StackPanel Orientation="Horizontal">
-        <TextBlock Text="{l:Tr Ui.Settings.Language}" Style="{StaticResource Label}" />
-        <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" DisplayMemberPath="Text" Width="200" />
-      </StackPanel>
-    </Border>
-
-    <Border Style="{StaticResource Card}">
       <StackPanel>
-        <TextBlock Text="{l:Tr Ui.Settings.AutoHeader}" Style="{StaticResource SectionTitle}" />
-        <CheckBox Content="{l:Tr Ui.Settings.Auto.SystemDriveRoot}" IsChecked="{Binding SystemDriveRoot}" />
-        <CheckBox Content="{l:Tr Ui.Settings.Auto.WritableDriveRoots}" IsChecked="{Binding WritableDriveRoots}" />
-        <CheckBox Content="{l:Tr Ui.Settings.Auto.WritableProgramFolders}" IsChecked="{Binding WritableProgramFolders}" />
-        <CheckBox Content="{l:Tr Ui.Settings.Auto.OtherDriveLetters}" IsChecked="{Binding OtherDriveLetters}" />
-        <CheckBox Content="{l:Tr Ui.Settings.Auto.SystemWritableFolders}" IsChecked="{Binding SystemWritableFolders}" />
-        <CheckBox Content="{l:Tr Ui.Settings.Auto.RecycleBins}" IsChecked="{Binding RecycleBins}" />
-        <Separator Margin="0,10" />
-        <CheckBox Content="{l:Tr Ui.Settings.Store}" IsChecked="{Binding BlockStoreInstalls}" />
-      </StackPanel>
-    </Border>
-
-    <Border Style="{StaticResource Card}">
-      <StackPanel>
-        <TextBlock Text="{l:Tr Ui.Settings.AuditHeader}" Style="{StaticResource SectionTitle}" />
-        <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="16" />
-            <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
-          <StackPanel>
-            <TextBlock Text="{l:Tr Ui.Settings.Admins}" Style="{StaticResource Label}" />
-            <TextBox Text="{Binding Admins, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ListBoxText}" />
-            <TextBlock Text="{l:Tr Ui.Settings.HiddenAccounts}" Style="{StaticResource Label}" />
-            <TextBox Text="{Binding HiddenAccounts, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ListBoxText}" />
-          </StackPanel>
-          <StackPanel Grid.Column="2">
-            <TextBlock Text="{l:Tr Ui.Settings.PrivateFolders}" Style="{StaticResource Label}" />
-            <TextBox Text="{Binding PrivateFolders, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ListBoxText}" />
-            <TextBlock Text="{l:Tr Ui.Settings.KnownRemoteServices}" Style="{StaticResource Label}" />
-            <TextBox Text="{Binding KnownRemoteServices, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ListBoxText}" />
-          </StackPanel>
-        </Grid>
-        <Button Content="{l:Tr Ui.Settings.Save}" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" HorizontalAlignment="Left" />
+        <TextBlock Text="{l:Tr Ui.Settings.Language}" Style="{StaticResource SectionTitle}" />
+        <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" DisplayMemberPath="Text" Width="220" HorizontalAlignment="Left" />
+        <TextBlock Text="{l:Tr Ui.Settings.LanguageHelp}" Style="{StaticResource Help}" />
       </StackPanel>
     </Border>
 
@@ -66,6 +18,29 @@
           <Button Content="{l:Tr Ui.Settings.Export}" Command="{Binding ExportCommand}" />
           <Button Content="{l:Tr Ui.Settings.Import}" Command="{Binding ImportCommand}" />
         </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <Border Style="{StaticResource Card}">
+      <StackPanel>
+        <TextBlock Text="{l:Tr Ui.Settings.AboutHeader}" Style="{StaticResource SectionTitle}" />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <TextBlock Text="{l:Tr Ui.Settings.Version}" Style="{StaticResource Label}" Margin="0,3" />
+          <TextBlock Grid.Column="1" Text="{Binding PanelVersion}" Margin="0,3" />
+          <TextBlock Grid.Row="1" Text="{l:Tr Ui.Status.Service}" Style="{StaticResource Label}" Margin="0,3" />
+          <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServiceVersion}" Margin="0,3" />
+          <TextBlock Grid.Row="2" Text="{l:Tr Ui.Settings.DataFolder}" Style="{StaticResource Label}" Margin="0,3" />
+          <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DataDirectory}" Margin="0,3" />
+        </Grid>
       </StackPanel>
     </Border>
   </StackPanel>

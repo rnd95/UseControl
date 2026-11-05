@@ -262,4 +262,67 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Ui.Settings.Export" xml:space="preserve"><value>Export configuration…</value></data>
   <data name="Ui.Settings.Import" xml:space="preserve"><value>Import configuration…</value></data>
   <data name="Ui.Settings.ConfirmImport" xml:space="preserve"><value>Replace the whole configuration with the file and apply it?</value></data>
+  <data name="AuditDetail.AccountMissing" xml:space="preserve"><value>There is no local account &apos;{0}&apos;.</value></data>
+  <data name="AuditDetail.AccountIsAdmin" xml:space="preserve"><value>{0} is an administrator and cannot be restricted.</value></data>
+  <data name="AuditDetail.NoUsers" xml:space="preserve"><value>No accounts are restricted yet.</value></data>
+  <data name="AuditDetail.ServicesWritable" xml:space="preserve"><value>Ordinary users can change these service programs (a way to get SYSTEM rights): {0}</value></data>
+  <data name="AuditDetail.ServicesOk" xml:space="preserve"><value>No service program or folder can be changed by ordinary users ({0} checked).</value></data>
+  <data name="AuditDetail.WritableOff" xml:space="preserve"><value>Automatic blocking of writable places is switched off (Restrictions page).</value></data>
+  <data name="AuditDetail.WritableBlocked" xml:space="preserve"><value>Ordinary users can write here, so programs cannot start from these places (blocked automatically): {0}</value></data>
+  <data name="AuditDetail.WritableNone" xml:space="preserve"><value>No program folder that ordinary users can change was found.</value></data>
+  <data name="AuditDetail.AllowedWritable" xml:space="preserve"><value>Allowed but writable by ordinary users (a copied program would run): {0}</value></data>
+  <data name="AuditDetail.AllowedOk" xml:space="preserve"><value>{0} allowed folder(s); none can be changed by ordinary users.</value></data>
+  <data name="AuditDetail.PrivateMissing" xml:space="preserve"><value>The folder does not exist.</value></data>
+  <data name="AuditDetail.PrivateOpen" xml:space="preserve"><value>Others can open it: {0}</value></data>
+  <data name="AuditDetail.PrivateOk" xml:space="preserve"><value>Only administrators, SYSTEM and the owners listed in its permissions can open it.</value></data>
+  <data name="AuditDetail.AdminsUnexpected" xml:space="preserve"><value>Unexpected members: {0}</value></data>
+  <data name="AuditDetail.AdminsOk" xml:space="preserve"><value>Members: {0}</value></data>
+  <data name="AuditDetail.AdminsNotChecked" xml:space="preserve"><value>Members: {0}. List the expected ones below to be warned about others.</value></data>
+  <data name="AuditDetail.BuiltinEnabled" xml:space="preserve"><value>The built-in Administrator account is enabled.</value></data>
+  <data name="AuditDetail.BuiltinDisabled" xml:space="preserve"><value>The built-in Administrator account is disabled.</value></data>
+  <data name="AuditDetail.EmptyPasswords" xml:space="preserve"><value>May have an empty password (fix: net user &lt;name&gt; /passwordreq:yes): {0}</value></data>
+  <data name="AuditDetail.EmptyPasswordsOk" xml:space="preserve"><value>No enabled account may have an empty password.</value></data>
+  <data name="AuditDetail.HiddenVisible" xml:space="preserve"><value>Shown on the sign-in screen: {0}</value></data>
+  <data name="AuditDetail.HiddenOk" xml:space="preserve"><value>Hidden: {0}</value></data>
+  <data name="AuditDetail.UacOk" xml:space="preserve"><value>Administrators confirm every elevation on the secure desktop (EnableLUA={0}, ConsentPromptBehaviorAdmin={1}, PromptOnSecureDesktop={2}, ConsentPromptBehaviorUser={3}).</value></data>
+  <data name="AuditDetail.UacWeak" xml:space="preserve"><value>Programs of administrators may get full rights without asking. Recommended: 1, 5, 1, 3; now EnableLUA={0}, ConsentPromptBehaviorAdmin={1}, PromptOnSecureDesktop={2}, ConsentPromptBehaviorUser={3}.</value></data>
+  <data name="AuditDetail.AieOn" xml:space="preserve"><value>AlwaysInstallElevated is on: any .msi installs with SYSTEM rights.</value></data>
+  <data name="AuditDetail.AieOff" xml:space="preserve"><value>Off.</value></data>
+  <data name="AuditDetail.RdpOff" xml:space="preserve"><value>Remote Desktop is off.</value></data>
+  <data name="AuditDetail.RdpUnknown" xml:space="preserve"><value>Remote Desktop is on; the firewall rules could not be read.</value></data>
+  <data name="AuditDetail.RdpNoRule" xml:space="preserve"><value>Remote Desktop is on, but no firewall rule lets it in.</value></data>
+  <data name="AuditDetail.RdpOn" xml:space="preserve"><value>Remote Desktop is on with network level authentication; allowed from: {0}</value></data>
+  <data name="AuditDetail.RdpOnNoNla" xml:space="preserve"><value>Remote Desktop is on WITHOUT network level authentication; allowed from: {0}</value></data>
+  <data name="AuditDetail.RemoteUnknown" xml:space="preserve"><value>Remote-access services you have not listed as known: {0}. Make sure you know them.</value></data>
+  <data name="AuditDetail.RemoteKnown" xml:space="preserve"><value>Only known remote-access services: {0}</value></data>
+  <data name="AuditDetail.RemoteNone" xml:space="preserve"><value>No remote-access services found.</value></data>
+  <data name="AuditDetail.DefenderOn" xml:space="preserve"><value>Real-time protection is on; signatures from {0}.</value></data>
+  <data name="AuditDetail.DefenderOff" xml:space="preserve"><value>Real-time protection is OFF; signatures from {0}.</value></data>
+  <data name="AuditDetail.DefenderUnknown" xml:space="preserve"><value>Status unavailable (another antivirus?).</value></data>
+  <data name="AuditDetail.FirewallOn" xml:space="preserve"><value>On for all networks.</value></data>
+  <data name="AuditDetail.FirewallOff" xml:space="preserve"><value>Off for: {0}</value></data>
+  <data name="AuditDetail.FirewallUnknown" xml:space="preserve"><value>Status unavailable.</value></data>
+  <data name="AuditDetail.RestrictionsUnreadable" xml:space="preserve"><value>The settings of this account could not be read.</value></data>
+  <data name="AuditDetail.RestrictionsMissing" xml:space="preserve"><value>Restrictions are NOT in place.</value></data>
+  <data name="AuditDetail.RestrictionsOk" xml:space="preserve"><value>In place: {0} blocked and {1} allowed folders, {2} blocked files, {3} blocked names; the account cannot change them.</value></data>
+  <data name="AuditDetail.RestrictionsUnlocked" xml:space="preserve"><value>In place ({0} blocked and {1} allowed folders, {2} files, {3} names), but the account COULD change them.</value></data>
+  <data name="Ui.Nav.Restrictions" xml:space="preserve"><value>Restrictions</value></data>
+  <data name="Ui.Restrictions.ToolsHeader" xml:space="preserve"><value>Windows tools the restricted accounts cannot use</value></data>
+  <data name="Ui.Restrictions.CommandPrompt" xml:space="preserve"><value>Command prompt and .bat/.cmd scripts</value></data>
+  <data name="Ui.Restrictions.RegistryEditor" xml:space="preserve"><value>Registry editor</value></data>
+  <data name="Ui.Restrictions.TaskManager" xml:space="preserve"><value>Task Manager</value></data>
+  <data name="Ui.Restrictions.ControlPanel" xml:space="preserve"><value>Control Panel and Settings</value></data>
+  <data name="Ui.Restrictions.RunDialog" xml:space="preserve"><value>The Run dialog (Win+R)</value></data>
+  <data name="Ui.Restrictions.Autorun" xml:space="preserve"><value>Autorun from USB sticks and discs</value></data>
+  <data name="Ui.Restrictions.PasswordChange" xml:space="preserve"><value>Changing the account password (useful for a shared account)</value></data>
+  <data name="Ui.Restrictions.ToolsHelp" xml:space="preserve"><value>Command prompt, registry editor and PowerShell can be used to undo restrictions, so they are blocked by default. PowerShell and other tools are blocked by name on the Programs page (category &quot;system tools&quot;).</value></data>
+  <data name="Ui.Restrictions.InstallHeader" xml:space="preserve"><value>Installing programs</value></data>
+  <data name="Ui.Restrictions.InstallHelp" xml:space="preserve"><value>Installers that need administrator rights already ask for the password. The automatic blocking below stops the rest: programs downloaded or copied by the account do not start.</value></data>
+  <data name="Ui.Restrictions.Save" xml:space="preserve"><value>Save and apply</value></data>
+  <data name="Ui.Audit.ExpectHeader" xml:space="preserve"><value>What the check expects (one per line)</value></data>
+  <data name="Ui.Audit.ExpectSave" xml:space="preserve"><value>Save</value></data>
+  <data name="Ui.Settings.AboutHeader" xml:space="preserve"><value>About</value></data>
+  <data name="Ui.Settings.Version" xml:space="preserve"><value>Version</value></data>
+  <data name="Ui.Settings.DataFolder" xml:space="preserve"><value>Settings are kept in</value></data>
+  <data name="Ui.Settings.LanguageHelp" xml:space="preserve"><value>Applies to this panel only; uc.exe follows the Windows language (or --lang).</value></data>
 </root>

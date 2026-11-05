@@ -21,6 +21,7 @@ public sealed partial class MainViewModel : ObservableObject
         [
             new StatusPageViewModel(session),
             new AccountsPageViewModel(session, standardAccounts),
+            new RestrictionsPageViewModel(session),
             new GamesPageViewModel(session),
             new ProgramsPageViewModel(session, fingerprint),
             new FileAccessPageViewModel(session),

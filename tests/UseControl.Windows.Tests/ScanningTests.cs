@@ -85,4 +85,27 @@ public class ScanningTests
         Assert.Contains(checks, x => x.Id == "uac");
         Assert.Contains(checks, x => x.Id == "restrictions" && x.Status == AuditStatus.Warning);
     }
+
+    [Fact]
+    public void Security_check_texts_exist_in_every_language()
+    {
+        var checks = SecurityAudit.Run(new UcConfig(), [], new Dictionary<string, Restrictions.RestrictionState?>());
+        Assert.All(checks, c =>
+        {
+            Assert.NotNull(c.DetailKey);
+            Assert.True(Localization.Loc.Has(c.DetailKey!), c.DetailKey);
+            Assert.DoesNotContain("AuditDetail.", c.Detail, StringComparison.Ordinal);
+        });
+        var previous = Localization.Loc.Culture;
+        try
+        {
+            Localization.Loc.Culture = Localization.Loc.Pick("uk");
+            var uac = checks.Single(c => c.Id == "uac");
+            Assert.NotEqual(uac.Detail, uac.LocalizedDetail());
+        }
+        finally
+        {
+            Localization.Loc.Culture = previous;
+        }
+    }
 }

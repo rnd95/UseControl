@@ -1,8 +1,9 @@
+using System.Globalization;
 using System.Management;
-using Microsoft.Win32;
 using UseControl.Core.Configuration;
 using UseControl.Core.Paths;
 using UseControl.Core.Rules;
+using UseControl.Localization;
 using UseControl.Windows.Accounts;
 using UseControl.Windows.FileSystem;
 using UseControl.Windows.Restrictions;
@@ -19,8 +20,19 @@ public enum AuditStatus
 /// <summary>
 /// One result of the security check. <see cref="Id"/> is stable (for translations and scripts);
 /// <see cref="Subject"/> names what was checked when a check has several results (a folder, an account).
+/// <see cref="Detail"/> is English; <see cref="DetailKey"/> and <see cref="DetailArgs"/> let a client
+/// show it in its own language.
 /// </summary>
-public sealed record AuditCheck(string Id, AuditStatus Status, string Detail, string? Subject = null);
+public sealed record AuditCheck(string Id, AuditStatus Status, string Detail, string? Subject = null)
+{
+    public string? DetailKey { get; init; }
+
+    public IReadOnlyList<string> DetailArgs { get; init; } = [];
+
+    /// <summary>The detail in the current language (falls back to English).</summary>
+    public string LocalizedDetail() =>
+        DetailKey is not null && Loc.Has(DetailKey) ? Loc.T(DetailKey, [.. DetailArgs]) : Detail;
+}
 
 /// <summary>The security check. Read-only: it reports, it never changes anything.</summary>
 public static class SecurityAudit
@@ -30,6 +42,15 @@ public static class SecurityAudit
         "ScreenConnect", "AnyDesk", "TeamViewer", "RustDesk", "Mesh Agent", "Radmin", "RServer", "Splashtop",
         "vncserver", "tvnserver", "uvnc", "LogMeIn", "Ammyy", "Atera", "Kaseya",
     ];
+
+    /// <summary>A result whose text comes from Strings.resx ("AuditDetail." + key).</summary>
+    private static AuditCheck R(string id, AuditStatus status, string key, string? subject = null, params object[] args)
+    {
+        var texts = args.Select(a => Convert.ToString(a, CultureInfo.InvariantCulture) ?? "").ToArray();
+        return new AuditCheck(id, status, Loc.English("AuditDetail." + key, texts), subject) { DetailKey = "AuditDetail." + key, DetailArgs = texts };
+    }
+
+    private static string List(IEnumerable<string> items) => string.Join("; ", items.Distinct());
 
     /// <param name="config">What the administrator expects (admins, private folders...).</param>
     /// <param name="autoPaths">The result of the automatic scan (writable places).</param>
@@ -45,8 +66,8 @@ public static class SecurityAudit
         foreach (var u in config.Users)
         {
             var a = LocalAccounts.Find(u);
-            if (a is null) results.Add(new("account", AuditStatus.Fail, $"There is no local account '{u}'.", u));
-            else if (a.IsAdministrator) results.Add(new("account", AuditStatus.Fail, $"{u} is an administrator and cannot be restricted.", u));
+            if (a is null) results.Add(R("account", AuditStatus.Fail, "AccountMissing", u, u));
+            else if (a.IsAdministrator) results.Add(R("account", AuditStatus.Fail, "AccountIsAdmin", u, u));
             else accounts.Add(a);
         }
         var weak = AclInspector.OrdinaryUserSids.Concat(accounts.Select(a => a.Sid)).ToList();
@@ -63,7 +84,7 @@ public static class SecurityAudit
         results.Add(CheckDefender());
         results.Add(CheckFirewall());
         foreach (var a in accounts) results.Add(CheckRestrictions(a.Name, restrictionStates.GetValueOrDefault(a.Name)));
-        if (config.Users.Count == 0) results.Add(new("restrictions", AuditStatus.Warning, "No accounts are restricted yet."));
+        if (config.Users.Count == 0) results.Add(R("restrictions", AuditStatus.Warning, "NoUsers"));
         return results;
     }
 
@@ -86,8 +107,8 @@ public static class SecurityAudit
             }
         }
         return bad.Count > 0
-            ? new("services", AuditStatus.Fail, "Writable by ordinary users: " + string.Join("; ", bad.Distinct()))
-            : new("services", AuditStatus.Ok, $"No service program or folder is writable by ordinary users ({seen.Count} checked).");
+            ? R("services", AuditStatus.Fail, "ServicesWritable", null, List(bad))
+            : R("services", AuditStatus.Ok, "ServicesOk", null, seen.Count);
     }
 
     internal static string? ServiceExecutable(string? imagePath)
@@ -109,12 +130,12 @@ public static class SecurityAudit
     private static AuditCheck CheckWritableFolders(UcConfig config, IReadOnlyList<AutoPath> auto)
     {
         var on = config.Auto.WritableProgramFolders && config.Auto.WritableDriveRoots && config.Auto.SystemDriveRoot;
+        if (!on) return R("writableFolders", AuditStatus.Warning, "WritableOff");
         var found = auto.Where(a => a.Reason.StartsWith("program folder", StringComparison.Ordinal) || a.Reason.StartsWith("drive writable", StringComparison.Ordinal))
             .Select(a => a.Path).ToList();
-        if (!on) return new("writableFolders", AuditStatus.Warning, "Automatic blocking of writable places is switched off (auto in config.json).");
-        return new("writableFolders", AuditStatus.Ok, found.Count > 0
-            ? "Programs cannot start from these (blocked automatically): " + string.Join("; ", found)
-            : "None found.");
+        return found.Count > 0
+            ? R("writableFolders", AuditStatus.Ok, "WritableBlocked", null, List(found))
+            : R("writableFolders", AuditStatus.Ok, "WritableNone");
     }
 
     private static AuditCheck CheckAllowedFolders(UcConfig config, IReadOnlyList<string> weak)
@@ -123,17 +144,17 @@ public static class SecurityAudit
             .Select(e => PathRules.TryNormalize(e.Path, out var p) ? p : null).OfType<string>()
             .Where(p => Directory.Exists(p) && AclInspector.WritableBy(p, weak).Count > 0).ToList();
         return open.Count > 0
-            ? new("allowedFolders", AuditStatus.Warning, "Allowed but writable by ordinary users (a copied program would run): " + string.Join("; ", open))
-            : new("allowedFolders", AuditStatus.Ok, $"{config.AllowedPaths.Count} allowed folder(s), none writable by ordinary users.");
+            ? R("allowedFolders", AuditStatus.Warning, "AllowedWritable", null, List(open))
+            : R("allowedFolders", AuditStatus.Ok, "AllowedOk", null, config.AllowedPaths.Count);
     }
 
     private static AuditCheck CheckPrivateFolder(string folder, IReadOnlyList<string> weak)
     {
-        if (!Directory.Exists(folder) && !File.Exists(folder)) return new("privateFolder", AuditStatus.Warning, "Not found.", folder);
+        if (!Directory.Exists(folder) && !File.Exists(folder)) return R("privateFolder", AuditStatus.Warning, "PrivateMissing", folder);
         var others = AclInspector.AccessFor(folder, weak);
         return others.Count > 0
-            ? new("privateFolder", AuditStatus.Fail, "Others have access: " + string.Join("; ", others), folder)
-            : new("privateFolder", AuditStatus.Ok, "Only administrators, SYSTEM and the owners listed in its permissions.", folder);
+            ? R("privateFolder", AuditStatus.Fail, "PrivateOpen", folder, List(others))
+            : R("privateFolder", AuditStatus.Ok, "PrivateOk", folder);
     }
 
     private static IEnumerable<AuditCheck> CheckAccounts(UcConfig config)
@@ -145,28 +166,28 @@ public static class SecurityAudit
         {
             var extra = adminNames.Where(n => !config.Audit.Admins.Contains(n, StringComparer.OrdinalIgnoreCase) && n != builtin?.Name).ToList();
             yield return extra.Count > 0
-                ? new("administrators", AuditStatus.Fail, "Unexpected members: " + string.Join(", ", extra))
-                : new("administrators", AuditStatus.Ok, string.Join(", ", adminNames));
+                ? R("administrators", AuditStatus.Fail, "AdminsUnexpected", null, string.Join(", ", extra))
+                : R("administrators", AuditStatus.Ok, "AdminsOk", null, string.Join(", ", adminNames));
         }
         else
         {
-            yield return new("administrators", AuditStatus.Ok, string.Join(", ", adminNames) + " (list the expected ones in audit.admins to be warned about others)");
+            yield return R("administrators", AuditStatus.Ok, "AdminsNotChecked", null, string.Join(", ", adminNames));
         }
         yield return builtin is { Enabled: true }
-            ? new("builtinAdministrator", AuditStatus.Warning, "Enabled.")
-            : new("builtinAdministrator", AuditStatus.Ok, "Disabled.");
+            ? R("builtinAdministrator", AuditStatus.Warning, "BuiltinEnabled")
+            : R("builtinAdministrator", AuditStatus.Ok, "BuiltinDisabled");
 
         var noPassword = all.Where(a => a.Enabled && a.PasswordNotRequired).Select(a => a.Name).ToList();
         yield return noPassword.Count > 0
-            ? new("emptyPasswords", AuditStatus.Warning, "May have an empty password (fix: net user <name> /passwordreq:yes): " + string.Join(", ", noPassword))
-            : new("emptyPasswords", AuditStatus.Ok, "No enabled account may have an empty password.");
+            ? R("emptyPasswords", AuditStatus.Warning, "EmptyPasswords", null, string.Join(", ", noPassword))
+            : R("emptyPasswords", AuditStatus.Ok, "EmptyPasswordsOk");
 
         if (config.Audit.HiddenAccounts.Count > 0)
         {
             var visible = config.Audit.HiddenAccounts.Where(n => !LocalAccounts.IsHiddenFromSignIn(n)).ToList();
             yield return visible.Count > 0
-                ? new("hiddenAccounts", AuditStatus.Warning, "Shown on the sign-in screen: " + string.Join(", ", visible))
-                : new("hiddenAccounts", AuditStatus.Ok, string.Join(", ", config.Audit.HiddenAccounts) + " hidden.");
+                ? R("hiddenAccounts", AuditStatus.Warning, "HiddenVisible", null, string.Join(", ", visible))
+                : R("hiddenAccounts", AuditStatus.Ok, "HiddenOk", null, string.Join(", ", config.Audit.HiddenAccounts));
         }
     }
 
@@ -179,24 +200,23 @@ public static class SecurityAudit
         var secure = Get("PromptOnSecureDesktop", 1);
         var user = Get("ConsentPromptBehaviorUser", 3);
         var ok = lua == 1 && admin is 1 or 2 or 5 && secure == 1 && user is 1 or 3;
-        return new("uac", ok ? AuditStatus.Ok : AuditStatus.Warning,
-            $"EnableLUA={lua} ConsentPromptBehaviorAdmin={admin} PromptOnSecureDesktop={secure} ConsentPromptBehaviorUser={user} (recommended: 1, 5, 1, 3)");
+        return R("uac", ok ? AuditStatus.Ok : AuditStatus.Warning, ok ? "UacOk" : "UacWeak", null, lua, admin, secure, user);
     }
 
     private static AuditCheck CheckAlwaysInstallElevated()
     {
         using var k = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Policies\Microsoft\Windows\Installer");
         return k?.GetValue("AlwaysInstallElevated") is int v && v == 1
-            ? new("alwaysInstallElevated", AuditStatus.Fail, "On: any .msi installs with SYSTEM rights.")
-            : new("alwaysInstallElevated", AuditStatus.Ok, "Off.");
+            ? R("alwaysInstallElevated", AuditStatus.Fail, "AieOn")
+            : R("alwaysInstallElevated", AuditStatus.Ok, "AieOff");
     }
 
     private static AuditCheck CheckRdp()
     {
         using var ts = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Terminal Server");
-        if (ts?.GetValue("fDenyTSConnections") is int deny && deny == 1) return new("rdp", AuditStatus.Ok, "Off.");
+        if (ts?.GetValue("fDenyTSConnections") is int deny && deny == 1) return R("rdp", AuditStatus.Ok, "RdpOff");
         using var tcp = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp");
-        var nla = tcp?.GetValue("UserAuthentication") is int n ? n : 0;
+        var nla = tcp?.GetValue("UserAuthentication") is int n && n == 1;
         var scopes = new List<string>();
         var any = false;
         try
@@ -209,28 +229,29 @@ public static class SecurityAudit
         }
         catch (Exception e) when (e is System.Runtime.InteropServices.COMException or UnauthorizedAccessException or InvalidOperationException)
         {
-            return new("rdp", AuditStatus.Warning, $"On, NLA={nla}; firewall rules could not be read.");
+            return R("rdp", AuditStatus.Warning, "RdpUnknown");
         }
-        var status = nla != 1 || any || scopes.Count == 0 ? AuditStatus.Warning : AuditStatus.Ok;
-        return new("rdp", status, $"On, NLA={nla}, allowed from: " + (scopes.Count > 0 ? string.Join(", ", scopes.Distinct()) : "no enabled Remote Desktop firewall rule"));
+        if (scopes.Count == 0) return R("rdp", AuditStatus.Warning, "RdpNoRule");
+        var status = !nla || any ? AuditStatus.Warning : AuditStatus.Ok;
+        return R("rdp", status, nla ? "RdpOn" : "RdpOnNoNla", null, string.Join(", ", scopes.Distinct()));
     }
 
     private static AuditCheck CheckRemoteTools(UcConfig config)
     {
-        var found = new List<(string Name, string Text)>();
+        var found = new List<string>();
         using var services = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services");
         foreach (var name in services?.GetSubKeyNames() ?? [])
         {
             if (!RemoteToolPatterns.Any(p => name.Contains(p, StringComparison.OrdinalIgnoreCase))) continue;
             using var s = services!.OpenSubKey(name);
-            if (s?.GetValue("Type") is int type && (type & 0x30) != 0) found.Add((name, name));
+            if (s?.GetValue("Type") is int type && (type & 0x30) != 0) found.Add(name);
         }
-        var unknown = found.Where(f => !config.Audit.KnownRemoteServices.Contains(f.Name, StringComparer.OrdinalIgnoreCase)).Select(f => f.Text).ToList();
-        var known = found.Where(f => config.Audit.KnownRemoteServices.Contains(f.Name, StringComparer.OrdinalIgnoreCase)).Select(f => f.Text).ToList();
-        if (unknown.Count > 0)
-            return new("remoteTools", AuditStatus.Warning, "Not in audit.knownRemoteServices, make sure you know them: " + string.Join(", ", unknown)
-                + (known.Count > 0 ? "; known: " + string.Join(", ", known) : ""));
-        return new("remoteTools", AuditStatus.Ok, known.Count > 0 ? "Known: " + string.Join(", ", known) : "None found.");
+        var unknown = found.Where(f => !config.Audit.KnownRemoteServices.Contains(f, StringComparer.OrdinalIgnoreCase)).ToList();
+        var known = found.Except(unknown).ToList();
+        if (unknown.Count > 0) return R("remoteTools", AuditStatus.Warning, "RemoteUnknown", null, string.Join(", ", unknown));
+        return known.Count > 0
+            ? R("remoteTools", AuditStatus.Ok, "RemoteKnown", null, string.Join(", ", known))
+            : R("remoteTools", AuditStatus.Ok, "RemoteNone");
     }
 
     private static AuditCheck CheckDefender()
@@ -243,15 +264,15 @@ public static class SecurityAudit
                 using (o)
                 {
                     var rt = o["RealTimeProtectionEnabled"] is bool b && b;
-                    var sig = o["AntivirusSignatureLastUpdated"] is string s ? ManagementDateTimeConverter.ToDateTime(s).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) : "?";
-                    return new("defender", rt ? AuditStatus.Ok : AuditStatus.Warning, $"Real-time protection: {(rt ? "on" : "OFF")}, signatures {sig}.");
+                    var sig = o["AntivirusSignatureLastUpdated"] is string s ? ManagementDateTimeConverter.ToDateTime(s).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : "?";
+                    return rt ? R("defender", AuditStatus.Ok, "DefenderOn", null, sig) : R("defender", AuditStatus.Warning, "DefenderOff", null, sig);
                 }
             }
         }
         catch (Exception e) when (e is ManagementException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException)
         {
         }
-        return new("defender", AuditStatus.Warning, "Status unavailable (another antivirus?).");
+        return R("defender", AuditStatus.Warning, "DefenderUnknown");
     }
 
     private static AuditCheck CheckFirewall()
@@ -265,21 +286,21 @@ public static class SecurityAudit
                 if (!(bool)policy.get_FirewallEnabled(bit)) off.Add(name);
             }
             return off.Count > 0
-                ? new("firewall", AuditStatus.Warning, "Off for: " + string.Join(", ", off))
-                : new("firewall", AuditStatus.Ok, "On for all profiles.");
+                ? R("firewall", AuditStatus.Warning, "FirewallOff", null, string.Join(", ", off))
+                : R("firewall", AuditStatus.Ok, "FirewallOn");
         }
         catch (Exception e) when (e is System.Runtime.InteropServices.COMException or Microsoft.CSharp.RuntimeBinder.RuntimeBinderException or UnauthorizedAccessException)
         {
-            return new("firewall", AuditStatus.Warning, "Status unavailable.");
+            return R("firewall", AuditStatus.Warning, "FirewallUnknown");
         }
     }
 
     private static AuditCheck CheckRestrictions(string user, RestrictionState? st)
     {
-        if (st is null) return new("restrictions", AuditStatus.Warning, "Could not read the account's settings (run as administrator).", user);
-        var status = !st.Applied ? AuditStatus.Fail : !st.KeysLocked ? AuditStatus.Warning : AuditStatus.Ok;
-        return new("restrictions", status,
-            $"{st.BlockedPathRules} blocked and {st.AllowedPathRules} allowed folders, {st.HashRules / 2} blocked files, {st.BlockedNames} names, policy keys locked: {st.KeysLocked}", user);
+        if (st is null) return R("restrictions", AuditStatus.Warning, "RestrictionsUnreadable", user);
+        if (!st.Applied) return R("restrictions", AuditStatus.Fail, "RestrictionsMissing", user);
+        return R("restrictions", st.KeysLocked ? AuditStatus.Ok : AuditStatus.Warning, st.KeysLocked ? "RestrictionsOk" : "RestrictionsUnlocked", user,
+            st.BlockedPathRules, st.AllowedPathRules, st.HashRules / 2, st.BlockedNames);
     }
 
     private sealed record FwRule(string Group, bool Enabled, bool Inbound, string RemoteAddresses);

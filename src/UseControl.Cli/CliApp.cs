@@ -182,7 +182,7 @@ internal sealed class CliApp
             var name = Loc.Has("Audit." + c.Id) ? Loc.T("Audit." + c.Id) : c.Id;
             if (c.Subject is not null) name += ": " + c.Subject;
             await _out.WriteLineAsync($"[{Loc.T("Audit." + c.Status),-7}] {name}").ConfigureAwait(false);
-            await _out.WriteLineAsync("          " + c.Detail).ConfigureAwait(false);
+            await _out.WriteLineAsync("          " + c.LocalizedDetail()).ConfigureAwait(false);
         }
         var fail = checks.Count(c => c.Status == AuditStatus.Fail);
         var warn = checks.Count(c => c.Status == AuditStatus.Warning);

@@ -34,7 +34,14 @@ public partial class App : Application
         var window = new MainWindow { DataContext = main };
         MainWindow = window;
         window.Show();
-        _ = main.StartAsync();
+        _ = StartAsync(main, demo);
+    }
+
+    private static async Task StartAsync(MainViewModel main, bool demo)
+    {
+        await main.StartAsync().ConfigureAwait(true);
+        // In demo mode the security check page shows results straight away.
+        if (demo && main.SelectedPage is ViewModels.Pages.AuditPageViewModel audit) await audit.RunCommand.ExecuteAsync(null).ConfigureAwait(true);
     }
 
     private static string? Arg(string[] args, string name)

@@ -239,17 +239,55 @@ public sealed class PanelTests
     }
 
     [Fact]
-    public async Task Settings_are_saved_and_the_language_switches_live()
+    public async Task Restrictions_page_switches_windows_tools_and_automatic_blocking()
+    {
+        await _main.StartAsync();
+        var page = Page<RestrictionsPageViewModel>();
+        Assert.True(page.DisableCommandPrompt);
+        Assert.False(page.DisableTaskManager);
+        page.DisableTaskManager = true;
+        page.DisablePasswordChange = true;
+        page.OtherDriveLetters = false;
+        page.BlockStoreInstalls = false;
+        await page.SaveCommand.ExecuteAsync(null);
+        Assert.True(_svc.Config.Restrictions.DisableTaskManager);
+        Assert.True(_svc.Config.Restrictions.DisablePasswordChange);
+        Assert.True(_svc.Config.Restrictions.DisableCommandPrompt);
+        Assert.False(_svc.Config.Auto.OtherDriveLetters);
+        Assert.False(_svc.Config.BlockStoreInstalls);
+    }
+
+    [Fact]
+    public async Task Security_check_expectations_are_saved_one_per_line()
+    {
+        await _main.StartAsync();
+        var page = Page<AuditPageViewModel>();
+        page.Admins = "Stanislav\r\nOtherAdmin";
+        page.KnownRemoteServices = "Mesh Agent, TeamViewer";
+        await page.SaveExpectationsCommand.ExecuteAsync(null);
+        Assert.Equal(["Stanislav", "OtherAdmin"], _svc.Config.Audit.Admins);
+        Assert.Equal(["Mesh Agent", "TeamViewer"], _svc.Config.Audit.KnownRemoteServices);
+    }
+
+    [Fact]
+    public async Task Empty_fields_keep_their_buttons_disabled()
+    {
+        await _main.StartAsync();
+        var browsers = Page<BrowsersPageViewModel>();
+        Assert.False(browsers.AddExtensionCommand.CanExecute(null));
+        Assert.False(browsers.SetPolicyCommand.CanExecute(null));
+        browsers.NewExtension = "x";
+        Assert.True(browsers.AddExtensionCommand.CanExecute(null));
+        Assert.False(Page<ProgramsPageViewModel>().BlockNameCommand.CanExecute(null));
+        Assert.False(Page<FileAccessPageViewModel>().AddCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task The_language_switches_live()
     {
         await _main.StartAsync();
         var page = Page<SettingsPageViewModel>();
-        page.OtherDriveLetters = false;
-        page.Admins = "Stanislav\r\nOtherAdmin";
-        page.KnownRemoteServices = "Mesh Agent, TeamViewer";
-        await page.SaveCommand.ExecuteAsync(null);
-        Assert.False(_svc.Config.Auto.OtherDriveLetters);
-        Assert.Equal(["Stanislav", "OtherAdmin"], _svc.Config.Audit.Admins);
-        Assert.Equal(["Mesh Agent", "TeamViewer"], _svc.Config.Audit.KnownRemoteServices);
+        Assert.Equal("0.1.0", page.ServiceVersion);
 
         var status = Page<StatusPageViewModel>();
         Assert.Equal("Status", status.Title);
@@ -268,6 +306,7 @@ public sealed class PanelTests
         await page.RunCommand.ExecuteAsync(null);
         Assert.Equal(AuditStatus.Warning, page.Checks[0].Status);
         Assert.Equal("UAC", page.Checks[0].Name);
+        Assert.Equal("EnableLUA=1", page.Checks[0].Detail);   // no translation key: the English text is shown
         Assert.Contains("1 warnings", page.Summary, StringComparison.Ordinal);
     }
 
@@ -279,5 +318,10 @@ public sealed class PanelTests
         Assert.True(main.Session.IsConnected);
         Assert.NotEmpty(main.Pages.OfType<FileAccessPageViewModel>().Single().Rules);
         Assert.NotEmpty(main.Pages.OfType<ProgramsPageViewModel>().Single().BlockedFiles);
+
+        var audit = main.Pages.OfType<AuditPageViewModel>().Single();
+        await audit.RunCommand.ExecuteAsync(null);
+        Assert.Equal(AuditStatus.Fail, audit.Checks[0].Status);
+        Assert.Contains(@"BUILTIN\Users", audit.Checks[0].Detail, StringComparison.Ordinal);
     }
 }

@@ -1,0 +1,37 @@
+<UserControl x:Class="UseControl.Admin.Views.RestrictionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:UseControl.Admin.Infrastructure">
+  <StackPanel>
+    <Border Style="{StaticResource Card}">
+      <StackPanel>
+        <TextBlock Text="{l:Tr Ui.Restrictions.ToolsHeader}" Style="{StaticResource SectionTitle}" />
+        <CheckBox Content="{l:Tr Ui.Restrictions.CommandPrompt}" IsChecked="{Binding DisableCommandPrompt}" />
+        <CheckBox Content="{l:Tr Ui.Restrictions.RegistryEditor}" IsChecked="{Binding DisableRegistryEditor}" />
+        <CheckBox Content="{l:Tr Ui.Restrictions.TaskManager}" IsChecked="{Binding DisableTaskManager}" />
+        <CheckBox Content="{l:Tr Ui.Restrictions.ControlPanel}" IsChecked="{Binding DisableControlPanel}" />
+        <CheckBox Content="{l:Tr Ui.Restrictions.RunDialog}" IsChecked="{Binding DisableRunDialog}" />
+        <CheckBox Content="{l:Tr Ui.Restrictions.Autorun}" IsChecked="{Binding DisableAutorun}" />
+        <CheckBox Content="{l:Tr Ui.Restrictions.PasswordChange}" IsChecked="{Binding DisablePasswordChange}" />
+        <TextBlock Text="{l:Tr Ui.Restrictions.ToolsHelp}" Style="{StaticResource Help}" />
+      </StackPanel>
+    </Border>
+
+    <Border Style="{StaticResource Card}">
+      <StackPanel>
+        <TextBlock Text="{l:Tr Ui.Restrictions.InstallHeader}" Style="{StaticResource SectionTitle}" />
+        <CheckBox Content="{l:Tr Ui.Settings.Store}" IsChecked="{Binding BlockStoreInstalls}" />
+        <TextBlock Text="{l:Tr Ui.Restrictions.InstallHelp}" Style="{StaticResource Help}" Margin="0,8,0,12" />
+        <TextBlock Text="{l:Tr Ui.Settings.AutoHeader}" Style="{StaticResource SectionTitle}" />
+        <CheckBox Content="{l:Tr Ui.Settings.Auto.SystemDriveRoot}" IsChecked="{Binding SystemDriveRoot}" />
+        <CheckBox Content="{l:Tr Ui.Settings.Auto.WritableDriveRoots}" IsChecked="{Binding WritableDriveRoots}" />
+        <CheckBox Content="{l:Tr Ui.Settings.Auto.WritableProgramFolders}" IsChecked="{Binding WritableProgramFolders}" />
+        <CheckBox Content="{l:Tr Ui.Settings.Auto.OtherDriveLetters}" IsChecked="{Binding OtherDriveLetters}" />
+        <CheckBox Content="{l:Tr Ui.Settings.Auto.SystemWritableFolders}" IsChecked="{Binding SystemWritableFolders}" />
+        <CheckBox Content="{l:Tr Ui.Settings.Auto.RecycleBins}" IsChecked="{Binding RecycleBins}" />
+      </StackPanel>
+    </Border>
+
+    <Button Content="{l:Tr Ui.Restrictions.Save}" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" HorizontalAlignment="Left" Margin="0,0,0,12" />
+  </StackPanel>
+</UserControl>

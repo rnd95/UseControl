@@ -262,4 +262,67 @@
   <data name="Ui.Settings.Export" xml:space="preserve"><value>Експортувати налаштування…</value></data>
   <data name="Ui.Settings.Import" xml:space="preserve"><value>Імпортувати налаштування…</value></data>
   <data name="Ui.Settings.ConfirmImport" xml:space="preserve"><value>Замінити всі налаштування вмістом файлу й застосувати їх?</value></data>
+  <data name="AuditDetail.AccountMissing" xml:space="preserve"><value>Локального облікового запису «{0}» немає.</value></data>
+  <data name="AuditDetail.AccountIsAdmin" xml:space="preserve"><value>{0} — адміністратор, його не можна обмежити.</value></data>
+  <data name="AuditDetail.NoUsers" xml:space="preserve"><value>Обмежених облікових записів ще немає.</value></data>
+  <data name="AuditDetail.ServicesWritable" xml:space="preserve"><value>Звичайні користувачі можуть змінити програми цих служб (шлях до прав SYSTEM): {0}</value></data>
+  <data name="AuditDetail.ServicesOk" xml:space="preserve"><value>Жодну програму чи папку служб звичайні користувачі змінити не можуть (перевірено {0}).</value></data>
+  <data name="AuditDetail.WritableOff" xml:space="preserve"><value>Автоматичне блокування місць із записом вимкнено (сторінка «Обмеження»).</value></data>
+  <data name="AuditDetail.WritableBlocked" xml:space="preserve"><value>Сюди звичайні користувачі можуть записувати, тому програми звідси не запускаються (блокується автоматично): {0}</value></data>
+  <data name="AuditDetail.WritableNone" xml:space="preserve"><value>Папок програм, які можуть змінювати звичайні користувачі, не знайдено.</value></data>
+  <data name="AuditDetail.AllowedWritable" xml:space="preserve"><value>Дозволені, але звичайні користувачі можуть сюди записувати (скопійована програма запуститься): {0}</value></data>
+  <data name="AuditDetail.AllowedOk" xml:space="preserve"><value>Дозволених папок: {0}; жодну звичайні користувачі змінити не можуть.</value></data>
+  <data name="AuditDetail.PrivateMissing" xml:space="preserve"><value>Папки не існує.</value></data>
+  <data name="AuditDetail.PrivateOpen" xml:space="preserve"><value>Її можуть відкрити інші: {0}</value></data>
+  <data name="AuditDetail.PrivateOk" xml:space="preserve"><value>Відкрити можуть лише адміністратори, SYSTEM і власники, вказані в її правах.</value></data>
+  <data name="AuditDetail.AdminsUnexpected" xml:space="preserve"><value>Неочікувані учасники: {0}</value></data>
+  <data name="AuditDetail.AdminsOk" xml:space="preserve"><value>Учасники: {0}</value></data>
+  <data name="AuditDetail.AdminsNotChecked" xml:space="preserve"><value>Учасники: {0}. Вкажіть очікуваних нижче, щоб отримувати попередження про інших.</value></data>
+  <data name="AuditDetail.BuiltinEnabled" xml:space="preserve"><value>Вбудований обліковий запис Administrator увімкнено.</value></data>
+  <data name="AuditDetail.BuiltinDisabled" xml:space="preserve"><value>Вбудований обліковий запис Administrator вимкнено.</value></data>
+  <data name="AuditDetail.EmptyPasswords" xml:space="preserve"><value>Можуть мати порожній пароль (виправлення: net user &lt;назва&gt; /passwordreq:yes): {0}</value></data>
+  <data name="AuditDetail.EmptyPasswordsOk" xml:space="preserve"><value>Жоден увімкнений обліковий запис не може мати порожній пароль.</value></data>
+  <data name="AuditDetail.HiddenVisible" xml:space="preserve"><value>Показуються на екрані входу: {0}</value></data>
+  <data name="AuditDetail.HiddenOk" xml:space="preserve"><value>Приховано: {0}</value></data>
+  <data name="AuditDetail.UacOk" xml:space="preserve"><value>Адміністратори підтверджують кожне підвищення прав на захищеному робочому столі (EnableLUA={0}, ConsentPromptBehaviorAdmin={1}, PromptOnSecureDesktop={2}, ConsentPromptBehaviorUser={3}).</value></data>
+  <data name="AuditDetail.UacWeak" xml:space="preserve"><value>Програми адміністраторів можуть отримати повні права без запиту. Рекомендовано: 1, 5, 1, 3; зараз EnableLUA={0}, ConsentPromptBehaviorAdmin={1}, PromptOnSecureDesktop={2}, ConsentPromptBehaviorUser={3}.</value></data>
+  <data name="AuditDetail.AieOn" xml:space="preserve"><value>AlwaysInstallElevated увімкнено: будь-який .msi встановлюється з правами SYSTEM.</value></data>
+  <data name="AuditDetail.AieOff" xml:space="preserve"><value>Вимкнено.</value></data>
+  <data name="AuditDetail.RdpOff" xml:space="preserve"><value>Віддалений робочий стіл вимкнено.</value></data>
+  <data name="AuditDetail.RdpUnknown" xml:space="preserve"><value>Віддалений робочий стіл увімкнено; правила брандмауера прочитати не вдалося.</value></data>
+  <data name="AuditDetail.RdpNoRule" xml:space="preserve"><value>Віддалений робочий стіл увімкнено, але жодне правило брандмауера його не пропускає.</value></data>
+  <data name="AuditDetail.RdpOn" xml:space="preserve"><value>Віддалений робочий стіл увімкнено з перевіркою на рівні мережі; дозволено з: {0}</value></data>
+  <data name="AuditDetail.RdpOnNoNla" xml:space="preserve"><value>Віддалений робочий стіл увімкнено БЕЗ перевірки на рівні мережі; дозволено з: {0}</value></data>
+  <data name="AuditDetail.RemoteUnknown" xml:space="preserve"><value>Служби віддаленого доступу, не позначені як відомі: {0}. Переконайтеся, що ви їх знаєте.</value></data>
+  <data name="AuditDetail.RemoteKnown" xml:space="preserve"><value>Лише відомі служби віддаленого доступу: {0}</value></data>
+  <data name="AuditDetail.RemoteNone" xml:space="preserve"><value>Служб віддаленого доступу не знайдено.</value></data>
+  <data name="AuditDetail.DefenderOn" xml:space="preserve"><value>Захист у реальному часі увімкнено; бази від {0}.</value></data>
+  <data name="AuditDetail.DefenderOff" xml:space="preserve"><value>Захист у реальному часі ВИМКНЕНО; бази від {0}.</value></data>
+  <data name="AuditDetail.DefenderUnknown" xml:space="preserve"><value>Стан невідомий (інший антивірус?).</value></data>
+  <data name="AuditDetail.FirewallOn" xml:space="preserve"><value>Увімкнено для всіх мереж.</value></data>
+  <data name="AuditDetail.FirewallOff" xml:space="preserve"><value>Вимкнено для: {0}</value></data>
+  <data name="AuditDetail.FirewallUnknown" xml:space="preserve"><value>Стан невідомий.</value></data>
+  <data name="AuditDetail.RestrictionsUnreadable" xml:space="preserve"><value>Налаштування цього облікового запису прочитати не вдалося.</value></data>
+  <data name="AuditDetail.RestrictionsMissing" xml:space="preserve"><value>Обмеження НЕ застосовано.</value></data>
+  <data name="AuditDetail.RestrictionsOk" xml:space="preserve"><value>Застосовано: заблоковано папок {0}, дозволено {1}, файлів {2}, назв {3}; обліковий запис не може їх змінити.</value></data>
+  <data name="AuditDetail.RestrictionsUnlocked" xml:space="preserve"><value>Застосовано (заблоковано папок {0}, дозволено {1}, файлів {2}, назв {3}), але обліковий запис МОЖЕ їх змінити.</value></data>
+  <data name="Ui.Nav.Restrictions" xml:space="preserve"><value>Обмеження</value></data>
+  <data name="Ui.Restrictions.ToolsHeader" xml:space="preserve"><value>Засоби Windows, недоступні обмеженим обліковим записам</value></data>
+  <data name="Ui.Restrictions.CommandPrompt" xml:space="preserve"><value>Командний рядок і скрипти .bat/.cmd</value></data>
+  <data name="Ui.Restrictions.RegistryEditor" xml:space="preserve"><value>Редактор реєстру</value></data>
+  <data name="Ui.Restrictions.TaskManager" xml:space="preserve"><value>Диспетчер задач</value></data>
+  <data name="Ui.Restrictions.ControlPanel" xml:space="preserve"><value>Панель керування й Параметри</value></data>
+  <data name="Ui.Restrictions.RunDialog" xml:space="preserve"><value>Вікно «Виконати» (Win+R)</value></data>
+  <data name="Ui.Restrictions.Autorun" xml:space="preserve"><value>Автозапуск із флешок і дисків</value></data>
+  <data name="Ui.Restrictions.PasswordChange" xml:space="preserve"><value>Зміна пароля облікового запису (корисно для спільного облікового запису)</value></data>
+  <data name="Ui.Restrictions.ToolsHelp" xml:space="preserve"><value>Командним рядком, редактором реєстру й PowerShell можна зняти обмеження, тому вони заблоковані за замовчуванням. PowerShell та інші засоби блокуються за назвою на сторінці «Програми» (категорія «системні засоби»).</value></data>
+  <data name="Ui.Restrictions.InstallHeader" xml:space="preserve"><value>Встановлення програм</value></data>
+  <data name="Ui.Restrictions.InstallHelp" xml:space="preserve"><value>Інсталятори, яким потрібні права адміністратора, і так просять пароль. Автоматичне блокування нижче зупиняє решту: програми, які обліковий запис завантажив чи скопіював, не запускаються.</value></data>
+  <data name="Ui.Restrictions.Save" xml:space="preserve"><value>Зберегти й застосувати</value></data>
+  <data name="Ui.Audit.ExpectHeader" xml:space="preserve"><value>Що очікує перевірка (по одному в рядку)</value></data>
+  <data name="Ui.Audit.ExpectSave" xml:space="preserve"><value>Зберегти</value></data>
+  <data name="Ui.Settings.AboutHeader" xml:space="preserve"><value>Про програму</value></data>
+  <data name="Ui.Settings.Version" xml:space="preserve"><value>Версія</value></data>
+  <data name="Ui.Settings.DataFolder" xml:space="preserve"><value>Налаштування зберігаються в</value></data>
+  <data name="Ui.Settings.LanguageHelp" xml:space="preserve"><value>Діє лише для цієї панелі; uc.exe бере мову Windows (або --lang).</value></data>
 </root>

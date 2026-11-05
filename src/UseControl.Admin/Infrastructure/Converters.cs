@@ -65,6 +65,19 @@ public sealed class StateBrushConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
 }
 
+/// <summary>Icon of a security-check result (Segoe MDL2 Assets): check mark, exclamation mark, cross.</summary>
+public sealed class StatusGlyphConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value switch
+    {
+        AuditStatus.Ok => "",
+        AuditStatus.Warning => "",
+        _ => "",
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
+}
+
 /// <summary>Hours as shown in the games list: 0.5 → "0,5" in Ukrainian, "0.5" in English.</summary>
 public sealed class HoursConverter : IValueConverter
 {

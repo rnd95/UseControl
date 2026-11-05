@@ -113,13 +113,29 @@ public sealed class RestrictionWriterTests : IDisposable
     }
 
     [Fact]
-    public void Removes_values_left_by_the_PowerShell_version()
+    public void Switched_off_tools_are_given_back_and_switched_on_ones_taken_away()
     {
+        // Values left by the PowerShell version, or by an earlier configuration.
         using (var k = _root.CreateSubKey(RestrictionWriter.ExplorerPolicies)) k.SetValue("NoControlPanel", 1);
         using (var k = _root.CreateSubKey(RestrictionWriter.SystemPolicies)) k.SetValue("DisableTaskMgr", 1);
         RestrictionWriter.Apply(_root, Rules(), Config(), Sid, lockKeys: false);
         Assert.Null(Value(RestrictionWriter.ExplorerPolicies, "NoControlPanel"));
         Assert.Null(Value(RestrictionWriter.SystemPolicies, "DisableTaskMgr"));
+
+        var c = Config();
+        c.Restrictions.DisableTaskManager = true;
+        c.Restrictions.DisableRunDialog = true;
+        c.Restrictions.DisablePasswordChange = true;
+        c.Restrictions.DisableCommandPrompt = false;
+        RestrictionWriter.Apply(_root, Rules(), c, Sid, lockKeys: false);
+        Assert.Equal(1, Value(RestrictionWriter.SystemPolicies, "DisableTaskMgr"));
+        Assert.Equal(1, Value(RestrictionWriter.ExplorerPolicies, "NoRun"));
+        Assert.Equal(1, Value(RestrictionWriter.SystemPolicies, "DisableChangePassword"));
+        Assert.Null(Value(RestrictionWriter.WindowsSystemPolicies, "DisableCMD"));
+
+        RestrictionWriter.Remove(_root, unlockKeys: false);
+        Assert.Null(Value(RestrictionWriter.SystemPolicies, "DisableTaskMgr"));
+        Assert.Null(Value(RestrictionWriter.ExplorerPolicies, "NoRun"));
     }
 
     [Fact]

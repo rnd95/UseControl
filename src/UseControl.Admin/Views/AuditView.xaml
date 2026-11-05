@@ -9,28 +9,59 @@
         <TextBlock Text="{Binding Summary}" VerticalAlignment="Center" FontWeight="SemiBold" />
       </DockPanel>
     </Border>
+
     <ItemsControl ItemsSource="{Binding Checks}">
       <ItemsControl.ItemTemplate>
         <DataTemplate>
-          <Border Style="{StaticResource Card}" Padding="12" Margin="0,0,0,8">
-            <Grid>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="90" />
-                <ColumnDefinition Width="*" />
-              </Grid.ColumnDefinitions>
-              <Border CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Top"
-                      Background="{Binding Status, Converter={StaticResource StateBrush}}">
-                <TextBlock Text="{Binding StatusText}" FontWeight="SemiBold"
-                           Foreground="{Binding Status, Converter={StaticResource StateBrush}, ConverterParameter=Text}" />
-              </Border>
-              <StackPanel Grid.Column="1">
-                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" Foreground="{StaticResource TextMuted}" Margin="0,2,0,0" />
-              </StackPanel>
-            </Grid>
+          <!-- Coloured stripe on the left edge, round icon, name and details. -->
+          <Border Background="{StaticResource CardBackground}" BorderBrush="{Binding Status, Converter={StaticResource StateBrush}, ConverterParameter=Text}"
+                  BorderThickness="4,0,0,0" CornerRadius="{StaticResource Radius}" Margin="0,0,0,8" ToolTip="{Binding StatusText}">
+            <Border BorderBrush="{StaticResource Border}" BorderThickness="0,1,1,1" CornerRadius="0,8,8,0" Padding="14,12">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="44" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource StatusIcon}" Background="{Binding Status, Converter={StaticResource StateBrush}}">
+                  <TextBlock Text="{Binding Status, Converter={StaticResource StatusGlyph}}" FontFamily="{StaticResource IconFont}" FontSize="13"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Foreground="{Binding Status, Converter={StaticResource StateBrush}, ConverterParameter=Text}" />
+                </Border>
+                <StackPanel Grid.Column="1">
+                  <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" Foreground="{StaticResource TextMuted}" Margin="0,3,0,0" />
+                </StackPanel>
+              </Grid>
+            </Border>
           </Border>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
+
+    <Border Style="{StaticResource Card}" Margin="0,8,0,12">
+      <StackPanel>
+        <TextBlock Text="{l:Tr Ui.Audit.ExpectHeader}" Style="{StaticResource SectionTitle}" />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <StackPanel>
+            <TextBlock Text="{l:Tr Ui.Settings.Admins}" Style="{StaticResource Label}" />
+            <TextBox Text="{Binding Admins, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MultiLineText}" />
+            <TextBlock Text="{l:Tr Ui.Settings.HiddenAccounts}" Style="{StaticResource Label}" />
+            <TextBox Text="{Binding HiddenAccounts, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MultiLineText}" />
+          </StackPanel>
+          <StackPanel Grid.Column="2">
+            <TextBlock Text="{l:Tr Ui.Settings.PrivateFolders}" Style="{StaticResource Label}" />
+            <TextBox Text="{Binding PrivateFolders, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MultiLineText}" />
+            <TextBlock Text="{l:Tr Ui.Settings.KnownRemoteServices}" Style="{StaticResource Label}" />
+            <TextBox Text="{Binding KnownRemoteServices, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MultiLineText}" />
+          </StackPanel>
+        </Grid>
+        <Button Content="{l:Tr Ui.Audit.ExpectSave}" Style="{StaticResource PrimaryButton}" Command="{Binding SaveExpectationsCommand}" HorizontalAlignment="Left" />
+      </StackPanel>
+    </Border>
   </StackPanel>
 </UserControl>

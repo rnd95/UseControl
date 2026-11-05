@@ -58,10 +58,12 @@ public static class RestrictionWriter
         RegistryHelpers.DeleteTree(root, DisallowRun);
         BrowserPolicyWriter.Remove(root);
 
-        RegistryHelpers.SetDword(root, ExplorerPolicies, "NoDriveTypeAutoRun", 255);
         RegistryHelpers.SetDword(root, ExplorerPolicies, "DisallowRun", 1);
-        RegistryHelpers.SetDword(root, SystemPolicies, "DisableRegistryTools", 1);
-        RegistryHelpers.SetDword(root, WindowsSystemPolicies, "DisableCMD", 1);
+        foreach (var s in Switches(config.Restrictions))
+        {
+            if (s.On) RegistryHelpers.SetDword(root, s.Key, s.Name, s.Value);
+            else RegistryHelpers.DeleteValue(root, s.Key, s.Name);
+        }
 
         using (var names = RegistryHelpers.Ensure(root, DisallowRun))
         {
@@ -102,10 +104,21 @@ public static class RestrictionWriter
         RegistryHelpers.DeleteTree(root, Safer);
         RegistryHelpers.DeleteTree(root, DisallowRun);
         BrowserPolicyWriter.Remove(root);
-        RegistryHelpers.DeleteValue(root, ExplorerPolicies, "NoDriveTypeAutoRun");
         RegistryHelpers.DeleteValue(root, ExplorerPolicies, "DisallowRun");
-        RegistryHelpers.DeleteValue(root, SystemPolicies, "DisableRegistryTools");
-        RegistryHelpers.DeleteValue(root, WindowsSystemPolicies, "DisableCMD");
+        foreach (var s in Switches(new AccountRestrictions())) RegistryHelpers.DeleteValue(root, s.Key, s.Name);
+    }
+
+    /// <summary>The Windows policy behind each switch of <see cref="AccountRestrictions"/>.</summary>
+    internal static IEnumerable<(string Key, string Name, int Value, bool On)> Switches(AccountRestrictions r)
+    {
+        ArgumentNullException.ThrowIfNull(r);
+        yield return (WindowsSystemPolicies, "DisableCMD", 1, r.DisableCommandPrompt);
+        yield return (SystemPolicies, "DisableRegistryTools", 1, r.DisableRegistryEditor);
+        yield return (SystemPolicies, "DisableTaskMgr", 1, r.DisableTaskManager);
+        yield return (SystemPolicies, "DisableChangePassword", 1, r.DisablePasswordChange);
+        yield return (ExplorerPolicies, "NoControlPanel", 1, r.DisableControlPanel);
+        yield return (ExplorerPolicies, "NoRun", 1, r.DisableRunDialog);
+        yield return (ExplorerPolicies, "NoDriveTypeAutoRun", 255, r.DisableAutorun);
     }
 
     public static RestrictionState Read(RegistryKey root, string userSid)
@@ -135,8 +148,6 @@ public static class RestrictionWriter
     /// <summary>Values written by the PowerShell version that are no longer wanted.</summary>
     private static void RemoveLegacy(RegistryKey root)
     {
-        RegistryHelpers.DeleteValue(root, ExplorerPolicies, "NoControlPanel");
-        RegistryHelpers.DeleteValue(root, SystemPolicies, "DisableTaskMgr");
         RegistryHelpers.DeleteValue(root, @"Software\Policies\Microsoft\WindowsStore", "RemoveWindowsStore");
     }
 

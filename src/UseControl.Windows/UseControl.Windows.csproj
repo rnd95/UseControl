@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <!-- Everything that reads or changes Windows: registry hives, restriction policies, NTFS, accounts, scans, audit. -->
   <PropertyGroup>
@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UseControl.Core\UseControl.Core.csproj" />
+    <ProjectReference Include="..\UseControl.Localization\UseControl.Localization.csproj" />
   </ItemGroup>
 
   <ItemGroup>
