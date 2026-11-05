@@ -44,6 +44,7 @@ public sealed class PipeServer
 
     public async Task RunAsync(CancellationToken ct)
     {
+        if (_options.RequireAdministrator) WarmUp();
         var first = true;
         using var slots = new SemaphoreSlim(_options.MaxConcurrentClients);
         while (!ct.IsCancellationRequested)
@@ -52,12 +53,7 @@ public sealed class PipeServer
             NamedPipeServerStream pipe;
             try
             {
-                // The first instance must be the first on the system: if another program already owns
-                // the name, fail instead of sharing it.
-                var options = PipeOptions.Asynchronous | (first ? PipeOptions.FirstPipeInstance : PipeOptions.None);
-                pipe = _options.Security is null
-                    ? new NamedPipeServerStream(_pipeName, PipeDirection.InOut, _options.MaxConcurrentClients, PipeTransmissionMode.Byte, options)
-                    : NamedPipeServerStreamAcl.Create(_pipeName, PipeDirection.InOut, _options.MaxConcurrentClients, PipeTransmissionMode.Byte, options, 0, 0, _options.Security);
+                pipe = first ? await CreateFirstAsync(ct).ConfigureAwait(false) : Create(PipeOptions.None);
                 first = false;
             }
             catch
@@ -86,6 +82,36 @@ public sealed class PipeServer
                     slots.Release();
                 }
             }, CancellationToken.None);
+        }
+    }
+
+    private NamedPipeServerStream Create(PipeOptions extra)
+    {
+        var options = PipeOptions.Asynchronous | extra;
+        return _options.Security is null
+            ? new NamedPipeServerStream(_pipeName, PipeDirection.InOut, _options.MaxConcurrentClients, PipeTransmissionMode.Byte, options)
+            : NamedPipeServerStreamAcl.Create(_pipeName, PipeDirection.InOut, _options.MaxConcurrentClients, PipeTransmissionMode.Byte, options, 0, 0, _options.Security);
+    }
+
+    /// <summary>
+    /// The first instance must be the first on the system: if another program owns the name, the server
+    /// does not share it. Right after an update the previous service process may still be closing its
+    /// pipe, so this waits for it a little before giving up.
+    /// </summary>
+    private async Task<NamedPipeServerStream> CreateFirstAsync(CancellationToken ct)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(30);
+        while (true)
+        {
+            try
+            {
+                return Create(PipeOptions.FirstPipeInstance);
+            }
+            catch (Exception e) when ((e is UnauthorizedAccessException or IOException) && DateTime.UtcNow < deadline)
+            {
+                _log("The control pipe is still taken; trying again", e);
+                await Task.Delay(TimeSpan.FromSeconds(2), ct).ConfigureAwait(false);
+            }
         }
     }
 
@@ -134,14 +160,26 @@ public sealed class PipeServer
         return new Response(false, ErrorCode: e.Code, Error: e.Message, ErrorArgs: [.. e.Args.Select(a => Convert.ToString(a, System.Globalization.CultureInfo.InvariantCulture) ?? "")]);
     }
 
+    /// <summary>
+    /// While impersonating, the thread has the client's identification-level token, which cannot open
+    /// files, so nothing may be loaded from disk there. Only the token is taken under impersonation; the
+    /// group check runs afterwards with the service's own rights.
+    /// </summary>
     private static bool ClientIsAdministrator(NamedPipeServerStream pipe)
     {
-        var ok = false;
-        pipe.RunAsClient(() =>
+        WindowsIdentity? client = null;
+        pipe.RunAsClient(() => client = WindowsIdentity.GetCurrent(TokenAccessLevels.Query));
+        using (client)
         {
-            using var id = WindowsIdentity.GetCurrent(TokenAccessLevels.Query);
-            ok = id.IsSystem || new WindowsPrincipal(id).IsInRole(WindowsBuiltInRole.Administrator);
-        });
-        return ok;
+            return client is not null && (client.IsSystem || new WindowsPrincipal(client).IsInRole(WindowsBuiltInRole.Administrator));
+        }
+    }
+
+    /// <summary>Loads the assemblies the client check needs before any impersonation happens.</summary>
+    private static void WarmUp()
+    {
+        using var me = WindowsIdentity.GetCurrent();
+        _ = new WindowsPrincipal(me).IsInRole(WindowsBuiltInRole.Administrator);
+        _ = me.Claims.Count();
     }
 }

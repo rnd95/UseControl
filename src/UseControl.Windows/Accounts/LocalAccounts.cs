@@ -1,4 +1,3 @@
-using System.DirectoryServices.AccountManagement;
 using System.Security.Principal;
 using Microsoft.Win32;
 using UseControl.Core;
@@ -18,15 +17,10 @@ public static class LocalAccounts
     public static IReadOnlyList<AccountInfo> GetAll()
     {
         var admins = GetAdministratorSids();
-        using var ctx = new PrincipalContext(ContextType.Machine);
-        using var query = new PrincipalSearcher(new UserPrincipal(ctx));
         var list = new List<AccountInfo>();
-        foreach (var p in query.FindAll())
+        foreach (var (name, flags) in NetApi.Users())
         {
-            using (p)
-            {
-                if (p is UserPrincipal u && u.Sid is not null) list.Add(ToInfo(u, admins));
-            }
+            if (SidOf(name) is { } sid) list.Add(ToInfo(name, sid, flags, admins));
         }
         return list;
     }
@@ -43,42 +37,17 @@ public static class LocalAccounts
 
     public static AccountInfo? Find(string name)
     {
-        using var ctx = new PrincipalContext(ContextType.Machine);
-        using var u = UserPrincipal.FindByIdentity(ctx, IdentityType.SamAccountName, name);
-        return u?.Sid is null ? null : ToInfo(u, GetAdministratorSids());
+        if (string.IsNullOrWhiteSpace(name) || NetApi.UserFlags(name) is not { } flags) return null;
+        var sid = SidOf(name);
+        return sid is null ? null : ToInfo(name, sid, flags, GetAdministratorSids());
     }
 
     /// <summary>Standard (non-administrator) enabled accounts, for "add account" lists.</summary>
     public static IReadOnlyList<AccountInfo> GetStandardAccounts() =>
         [.. GetAll().Where(a => a.Enabled && !a.IsAdministrator).OrderBy(a => a.Name, StringComparer.OrdinalIgnoreCase)];
 
-    public static IReadOnlySet<string> GetAdministratorSids()
-    {
-        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        using var ctx = new PrincipalContext(ContextType.Machine);
-        using var g = GroupPrincipal.FindByIdentity(ctx, IdentityType.Sid, AdministratorsSid);
-        if (g is null) return set;
-        // GetMembers can fail on members whose account no longer exists; read them one by one.
-        using var members = g.GetMembers().GetEnumerator();
-        while (true)
-        {
-            try
-            {
-                if (!members.MoveNext()) break;
-                if (members.Current.Sid is { } sid) set.Add(sid.Value);
-                members.Current.Dispose();
-            }
-            catch (PrincipalOperationException)
-            {
-                continue;
-            }
-            catch (NoMatchingPrincipalException)
-            {
-                continue;
-            }
-        }
-        return set;
-    }
+    public static IReadOnlySet<string> GetAdministratorSids() =>
+        new HashSet<string>(NetApi.GroupMemberSids(AdministratorsSid), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Names of the members of the Administrators group.</summary>
     public static IReadOnlyList<string> GetAdministratorNames()
@@ -105,16 +74,25 @@ public static class LocalAccounts
         return k?.GetValue(name) is int v && v == 0;
     }
 
-    private static AccountInfo ToInfo(UserPrincipal u, IReadOnlySet<string> admins)
+    /// <summary>The SID of a local account (this PC only, never a domain account of the same name).</summary>
+    private static string? SidOf(string name)
     {
-        var sid = u.Sid.Value;
-        return new AccountInfo(
-            u.SamAccountName,
-            sid,
-            u.Enabled ?? false,
-            u.PasswordNotRequired,
-            admins.Contains(sid),
-            sid.EndsWith("-500", StringComparison.Ordinal),
-            GetProfilePath(sid));
+        try
+        {
+            return new NTAccount(Environment.MachineName, name).Translate(typeof(SecurityIdentifier)).Value;
+        }
+        catch (IdentityNotMappedException)
+        {
+            return null;
+        }
     }
+
+    private static AccountInfo ToInfo(string name, string sid, uint flags, IReadOnlySet<string> admins) => new(
+        name,
+        sid,
+        (flags & NetApi.UfAccountDisable) == 0,
+        (flags & NetApi.UfPasswdNotReqd) != 0,
+        admins.Contains(sid),
+        sid.EndsWith("-500", StringComparison.Ordinal),
+        GetProfilePath(sid));
 }

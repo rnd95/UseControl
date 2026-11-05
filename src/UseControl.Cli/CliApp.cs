@@ -56,7 +56,7 @@ internal sealed class CliApp
         new System.Security.Principal.WindowsPrincipal(System.Security.Principal.WindowsIdentity.GetCurrent()).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
 
     /// <summary>How long "install" waits for the new service to answer.</summary>
-    public TimeSpan ServiceStartWait { get; init; } = TimeSpan.FromSeconds(20);
+    public TimeSpan ServiceStartWait { get; init; } = TimeSpan.FromSeconds(90);
 
     public async Task<int> RunAsync(IReadOnlyList<string> args)
     {
@@ -127,9 +127,10 @@ internal sealed class CliApp
             {
                 await Task.Delay(500).ConfigureAwait(false);
             }
-            catch (UcException)
+            catch (UcException e)
             {
                 await Line("Cli.InstallNoAnswer").ConfigureAwait(false);
+                await _err.WriteLineAsync(Loc.T("Cli.ErrorPrefix", Loc.Error(e))).ConfigureAwait(false);
                 return Failed;
             }
         }

@@ -92,6 +92,32 @@ public sealed class PipeTests : IAsyncLifetime, IDisposable
     }
 
     [Fact]
+    public async Task Administrator_check_answers_instead_of_dropping_the_connection()
+    {
+        // The same check the service runs. Elevated test runs get an answer; others get "administrator
+        // required" — never a broken connection (that was a real bug: the check loaded files while
+        // impersonating the client).
+        var name = "UseControl.Test.Admin." + Guid.NewGuid().ToString("N");
+        using var stop = new CancellationTokenSource();
+        var handler = new CommandHandler(_env.Controller);
+        var server = new PipeServer(name, handler.HandleAsync, new PipeServerOptions { RequireAdministrator = true }, (_, _) => { });
+        var run = server.RunAsync(stop.Token);
+        try
+        {
+            var client = new UcClient(name, requireSessionZero: false);
+            var elevated = new System.Security.Principal.WindowsPrincipal(System.Security.Principal.WindowsIdentity.GetCurrent())
+                .IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+            if (elevated) Assert.NotNull(await client.PingAsync());
+            else Assert.Equal(ErrorCodes.AdministratorRequired, (await Assert.ThrowsAsync<UcException>(() => client.PingAsync())).Code);
+        }
+        finally
+        {
+            await stop.CancelAsync();
+            await run;
+        }
+    }
+
+    [Fact]
     public async Task Garbage_on_the_pipe_does_not_stop_the_server()
     {
         using (var raw = new System.IO.Pipes.NamedPipeClientStream(".", _pipe, System.IO.Pipes.PipeDirection.InOut))

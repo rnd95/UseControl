@@ -9,22 +9,25 @@ public sealed partial class ServiceWorker(UcController controller, ILogger<Servi
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // The pipe opens first: applying the restrictions at start can take a while (drive scan, account
+        // registries), and commands arriving meanwhile simply wait for it.
+        var handler = new CommandHandler(controller);
+        var server = new PipeServer(PipeProtocol.PipeName, handler.HandleAsync,
+            new PipeServerOptions { Security = PipeServer.AdministratorsOnly(), RequireAdministrator = true },
+            (message, e) => LogPipe(log, message, e));
+        var serving = Task.Run(() => server.RunAsync(stoppingToken), stoppingToken);
+
         try
         {
             await controller.InitializeAsync(stoppingToken).ConfigureAwait(false);
         }
-        catch (Exception e) when (e is Core.UcException or IOException or UnauthorizedAccessException)
+        catch (Exception e) when (e is Core.UcException or IOException or UnauthorizedAccessException or InvalidOperationException)
         {
             // Keep running: the administrator must still be able to connect and fix the configuration.
             LogStartFailed(log, e);
         }
 
-        var handler = new CommandHandler(controller);
-        var server = new PipeServer(PipeProtocol.PipeName, handler.HandleAsync,
-            new PipeServerOptions { Security = PipeServer.AdministratorsOnly(), RequireAdministrator = true },
-            (message, e) => LogPipe(log, message, e));
-
-        await Task.WhenAll(server.RunAsync(stoppingToken), TimerAsync(stoppingToken)).ConfigureAwait(false);
+        await Task.WhenAll(serving, TimerAsync(stoppingToken)).ConfigureAwait(false);
     }
 
     private async Task TimerAsync(CancellationToken ct)
