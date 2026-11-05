@@ -10,6 +10,7 @@ using UseControl.Windows;
 using UseControl.Windows.Accounts;
 using UseControl.Windows.Audit;
 using UseControl.Windows.FileSystem;
+using UseControl.Windows.Installation;
 
 namespace UseControl.Cli;
 
@@ -43,6 +44,19 @@ internal sealed class CliApp
 
     /// <summary>Standard accounts on this PC, for "users list" (replaced in tests).</summary>
     public Func<IReadOnlyList<string>> StandardAccounts { get; init; } = () => [.. LocalAccounts.GetStandardAccounts().Select(a => a.Name)];
+
+    /// <summary>Installs from a folder (replaced in tests).</summary>
+    public Func<string, IReadOnlyList<InstallStep>> InstallFrom { get; init; } = Installer.Install;
+
+    /// <summary>Uninstalls; the argument says whether to remove the configuration too (replaced in tests).</summary>
+    public Func<bool, IReadOnlyList<InstallStep>> UninstallAll { get; init; } = Installer.Uninstall;
+
+    /// <summary>True when running with administrator rights (replaced in tests).</summary>
+    public Func<bool> IsAdministrator { get; init; } = () =>
+        new System.Security.Principal.WindowsPrincipal(System.Security.Principal.WindowsIdentity.GetCurrent()).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+
+    /// <summary>How long "install" waits for the new service to answer.</summary>
+    public TimeSpan ServiceStartWait { get; init; } = TimeSpan.FromSeconds(20);
 
     public async Task<int> RunAsync(IReadOnlyList<string> args)
     {
@@ -87,8 +101,74 @@ internal sealed class CliApp
         "ext" or "extension" => Extension(a),
         "policy" => Policy(a),
         "config" => Config(a),
+        "install" => Install(a),
+        "uninstall" => Uninstall(a),
         _ => throw new UsageException(Loc.T("Cli.UnknownCommand", a.Value(0))),
     };
+
+    // ---------------------------------------------------------------- installation
+
+    private async Task<int> Install(CliArgs a)
+    {
+        if (!IsAdministrator()) throw new UcException(ErrorCodes.AdministratorRequired);
+        var from = a.Option("from") ?? AppContext.BaseDirectory;
+        foreach (var step in InstallFrom(from)) await Line("Install." + step.Key, [.. step.Args]).ConfigureAwait(false);
+
+        await Line("Cli.InstallWaiting").ConfigureAwait(false);
+        var deadline = DateTime.UtcNow + ServiceStartWait;
+        while (true)
+        {
+            try
+            {
+                await _client.PingAsync().ConfigureAwait(false);
+                break;
+            }
+            catch (UcException) when (DateTime.UtcNow < deadline)
+            {
+                await Task.Delay(500).ConfigureAwait(false);
+            }
+            catch (UcException)
+            {
+                await Line("Cli.InstallNoAnswer").ConfigureAwait(false);
+                return Failed;
+            }
+        }
+        await Line("Cli.InstallDone").ConfigureAwait(false);
+        return Ok;
+    }
+
+    private async Task<int> Uninstall(CliArgs a)
+    {
+        if (!IsAdministrator()) throw new UcException(ErrorCodes.AdministratorRequired);
+        var keep = a.Flag("keep-restrictions");
+        if (!a.Flag("yes"))
+        {
+            await _out.WriteAsync(Loc.T(keep ? "Cli.ConfirmUninstallKeep" : "Cli.ConfirmUninstall") + ": ").ConfigureAwait(false);
+            if (!string.Equals((await _in.ReadLineAsync().ConfigureAwait(false))?.Trim(), "YES", StringComparison.Ordinal))
+            {
+                await Line("Cli.Cancelled").ConfigureAwait(false);
+                return Failed;
+            }
+        }
+        if (!keep)
+        {
+            // Lift the restrictions while the service is still there; never leave accounts restricted with nothing to manage them.
+            try
+            {
+                var r = await _client.SuspendAsync().ConfigureAwait(false);
+                foreach (var acc in r.Accounts)
+                    await (acc.Success ? Line("Cli.AccountRemoved", acc.User) : Line("Cli.AccountFailed", acc.User, acc.Error)).ConfigureAwait(false);
+            }
+            catch (UcException e)
+            {
+                await _err.WriteLineAsync(Loc.T("Cli.UninstallLiftFailed", Loc.Error(e))).ConfigureAwait(false);
+                return Failed;
+            }
+        }
+        foreach (var step in UninstallAll(a.Flag("purge"))) await Line("Install." + step.Key, [.. step.Args]).ConfigureAwait(false);
+        await Line("Cli.UninstallDone").ConfigureAwait(false);
+        return Ok;
+    }
 
     // ---------------------------------------------------------------- simple commands
 

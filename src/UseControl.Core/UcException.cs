@@ -60,6 +60,9 @@ public static class ErrorCodes
     public const string HoursOutOfRange = nameof(HoursOutOfRange);
     public const string InvalidPolicyName = nameof(InvalidPolicyName);
     public const string InvalidArgument = nameof(InvalidArgument);
+    public const string InstallSourceIncomplete = nameof(InstallSourceIncomplete);
+    public const string InstallFolderNotSafe = nameof(InstallFolderNotSafe);
+    public const string InstallFailed = nameof(InstallFailed);
 }
 
 /// <summary>English texts of the error codes (the fallback when no translation exists).</summary>
@@ -98,6 +101,9 @@ public static class ErrorMessages
         [ErrorCodes.HoursOutOfRange] = "Choose between {0} and {1} hours.",
         [ErrorCodes.InvalidPolicyName] = "'{0}' is not a policy name (letters and digits, for example IncognitoModeAvailability).",
         [ErrorCodes.InvalidArgument] = "'{0}' is not a valid value for {1}.",
+        [ErrorCodes.InstallSourceIncomplete] = "{0} does not contain {1}. Run uc install from the folder with the published programs.",
+        [ErrorCodes.InstallFolderNotSafe] = "{0} can be changed by ordinary users ({1}); fix its permissions first.",
+        [ErrorCodes.InstallFailed] = "Installation step failed: {0}",
     };
 
     public static string Format(string code, params object[] args)

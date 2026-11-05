@@ -108,6 +108,8 @@
   uc policy remove chrome|edge|firefox &lt;name&gt;
 
   uc config export &lt;file&gt; | import &lt;file&gt;
+  uc install [--from &lt;folder&gt;]      install or update (run from the folder with the published programs)
+  uc uninstall [--keep-restrictions] [--purge] [--yes]
   uc ping | help
 
 Options: --json (status, preview, audit, games find), --lang en|uk</value></data>
@@ -325,4 +327,29 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Ui.Settings.Version" xml:space="preserve"><value>Version</value></data>
   <data name="Ui.Settings.DataFolder" xml:space="preserve"><value>Settings are kept in</value></data>
   <data name="Ui.Settings.LanguageHelp" xml:space="preserve"><value>Applies to this panel only; uc.exe follows the Windows language (or --lang).</value></data>
+  <data name="Error.InstallSourceIncomplete" xml:space="preserve"><value>{0} does not contain {1}. Run uc install from the folder with the published programs.</value></data>
+  <data name="Error.InstallFolderNotSafe" xml:space="preserve"><value>{0} can be changed by ordinary users ({1}); fix its permissions first.</value></data>
+  <data name="Error.InstallFailed" xml:space="preserve"><value>Installation step failed: {0}</value></data>
+  <data name="Install.Stopped" xml:space="preserve"><value>Service stopped.</value></data>
+  <data name="Install.Copied" xml:space="preserve"><value>Programs copied to {0}.</value></data>
+  <data name="Install.ServiceCreated" xml:space="preserve"><value>Service registered: starts with Windows, runs as SYSTEM, restarts by itself after a failure.</value></data>
+  <data name="Install.ServiceUpdated" xml:space="preserve"><value>Service updated.</value></data>
+  <data name="Install.PathAdded" xml:space="preserve"><value>{0} added to PATH: &quot;uc&quot; works in every new console.</value></data>
+  <data name="Install.Shortcuts" xml:space="preserve"><value>Shortcuts created in the Start menu and on the desktop.</value></data>
+  <data name="Install.Started" xml:space="preserve"><value>Service started.</value></data>
+  <data name="Install.ServiceRemoved" xml:space="preserve"><value>Service removed.</value></data>
+  <data name="Install.PathRemoved" xml:space="preserve"><value>Removed from PATH.</value></data>
+  <data name="Install.FilesRemoved" xml:space="preserve"><value>{0} is being removed.</value></data>
+  <data name="Install.DataRemoved" xml:space="preserve"><value>Configuration removed: {0}</value></data>
+  <data name="Install.DataKept" xml:space="preserve"><value>Configuration kept in {0} (uc uninstall --purge removes it).</value></data>
+  <data name="Install.LegacyConfigMoved" xml:space="preserve"><value>Configuration of the PowerShell version moved (restricted accounts: {0}).</value></data>
+  <data name="Install.LegacyTaskRemoved" xml:space="preserve"><value>Scheduled task of the PowerShell version removed: {0}.</value></data>
+  <data name="Install.LegacyFilesRemoved" xml:space="preserve"><value>Files of the PowerShell version removed.</value></data>
+  <data name="Cli.InstallWaiting" xml:space="preserve"><value>Waiting for the service to answer…</value></data>
+  <data name="Cli.InstallDone" xml:space="preserve"><value>UseControl is installed and running. Open &quot;UseControl&quot; from the Start menu, or run: uc status</value></data>
+  <data name="Cli.InstallNoAnswer" xml:space="preserve"><value>The service started but does not answer yet. Check &quot;uc status&quot; in a minute, or the Windows event log (source UseControl).</value></data>
+  <data name="Cli.ConfirmUninstall" xml:space="preserve"><value>Remove UseControl and lift all restrictions? Type YES to continue</value></data>
+  <data name="Cli.ConfirmUninstallKeep" xml:space="preserve"><value>Remove UseControl but leave the restrictions in place? Type YES to continue</value></data>
+  <data name="Cli.UninstallLiftFailed" xml:space="preserve"><value>Could not lift the restrictions through the service: {0}. Uninstall stopped; use --keep-restrictions to remove UseControl anyway.</value></data>
+  <data name="Cli.UninstallDone" xml:space="preserve"><value>UseControl is removed.</value></data>
 </root>

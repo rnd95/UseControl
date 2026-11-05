@@ -83,9 +83,6 @@
             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
           </Border>
           <ControlTemplate.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-              <Setter TargetName="Bd" Property="Background" Value="#F9FAFB" />
-            </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Setter Property="Opacity" Value="0.5" />
             </Trigger>
@@ -93,6 +90,12 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <!-- Hover colours live in the styles (not in the template), so every kind of button keeps readable text. -->
+    <Style.Triggers>
+      <Trigger Property="IsMouseOver" Value="True">
+        <Setter Property="Background" Value="#F3F4F6" />
+      </Trigger>
+    </Style.Triggers>
   </Style>
   <Style TargetType="Button" BasedOn="{StaticResource ButtonBase}" />
   <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
@@ -108,6 +111,11 @@
   <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
     <Setter Property="Foreground" Value="{StaticResource Danger}" />
     <Setter Property="BorderBrush" Value="#FCA5A5" />
+    <Style.Triggers>
+      <Trigger Property="IsMouseOver" Value="True">
+        <Setter Property="Background" Value="{StaticResource DangerLight}" />
+      </Trigger>
+    </Style.Triggers>
   </Style>
   <!-- Small icon button inside list rows (remove, edit). -->
   <Style x:Key="RowButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">

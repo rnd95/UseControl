@@ -50,6 +50,26 @@ dotnet build
 dotnet test
 ```
 
+## Installing from source
+
+```
+.\build\publish.ps1                                # all programs in artifacts\UseControl (self-contained, 64-bit)
+.\artifacts\UseControl\uc.exe install              # in an administrator console
+```
+
+`uc install` does the following:
+
+- copies the programs to `C:\Program Files\UseControl`;
+- registers the `UseControl` service (starts with Windows, runs as SYSTEM, restarts after a failure) and starts it;
+- adds `uc` to PATH;
+- creates a Start menu and desktop shortcut to the panel.
+
+Running it again updates an existing installation.
+
+An installation of the PowerShell version is replaced: its configuration becomes the service's configuration, and its scheduled task and scripts are removed.
+
+`uc uninstall` lifts all restrictions and removes UseControl. The configuration in `C:\ProgramData\UseControl` stays unless `--purge` is given. `--keep-restrictions` leaves the restrictions in place.
+
 ## Changing the look of the panel
 
 The panel is split so that its look can change without touching its behaviour:

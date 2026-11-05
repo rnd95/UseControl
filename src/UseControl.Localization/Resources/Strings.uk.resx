@@ -108,6 +108,8 @@
   uc policy remove chrome|edge|firefox &lt;назва&gt;
 
   uc config export &lt;файл&gt; | import &lt;файл&gt;
+  uc install [--from &lt;папка&gt;]       встановити або оновити (запускати з папки з опублікованими програмами)
+  uc uninstall [--keep-restrictions] [--purge] [--yes]
   uc ping | help
 
 Параметри: --json (status, preview, audit, games find), --lang en|uk</value></data>
@@ -325,4 +327,29 @@
   <data name="Ui.Settings.Version" xml:space="preserve"><value>Версія</value></data>
   <data name="Ui.Settings.DataFolder" xml:space="preserve"><value>Налаштування зберігаються в</value></data>
   <data name="Ui.Settings.LanguageHelp" xml:space="preserve"><value>Діє лише для цієї панелі; uc.exe бере мову Windows (або --lang).</value></data>
+  <data name="Error.InstallSourceIncomplete" xml:space="preserve"><value>{0} не містить {1}. Запускайте uc install з папки з опублікованими програмами.</value></data>
+  <data name="Error.InstallFolderNotSafe" xml:space="preserve"><value>{0} можуть змінювати звичайні користувачі ({1}); спершу виправте права на неї.</value></data>
+  <data name="Error.InstallFailed" xml:space="preserve"><value>Крок встановлення не вдався: {0}</value></data>
+  <data name="Install.Stopped" xml:space="preserve"><value>Службу зупинено.</value></data>
+  <data name="Install.Copied" xml:space="preserve"><value>Програми скопійовано в {0}.</value></data>
+  <data name="Install.ServiceCreated" xml:space="preserve"><value>Службу зареєстровано: стартує з Windows, працює від SYSTEM, сама перезапускається після збою.</value></data>
+  <data name="Install.ServiceUpdated" xml:space="preserve"><value>Службу оновлено.</value></data>
+  <data name="Install.PathAdded" xml:space="preserve"><value>{0} додано в PATH: «uc» працює в кожній новій консолі.</value></data>
+  <data name="Install.Shortcuts" xml:space="preserve"><value>Ярлики створено в меню «Пуск» і на робочому столі.</value></data>
+  <data name="Install.Started" xml:space="preserve"><value>Службу запущено.</value></data>
+  <data name="Install.ServiceRemoved" xml:space="preserve"><value>Службу видалено.</value></data>
+  <data name="Install.PathRemoved" xml:space="preserve"><value>Прибрано з PATH.</value></data>
+  <data name="Install.FilesRemoved" xml:space="preserve"><value>{0} видаляється.</value></data>
+  <data name="Install.DataRemoved" xml:space="preserve"><value>Налаштування видалено: {0}</value></data>
+  <data name="Install.DataKept" xml:space="preserve"><value>Налаштування лишились у {0} (uc uninstall --purge видаляє їх).</value></data>
+  <data name="Install.LegacyConfigMoved" xml:space="preserve"><value>Налаштування PowerShell-версії перенесено (обмежені облікові записи: {0}).</value></data>
+  <data name="Install.LegacyTaskRemoved" xml:space="preserve"><value>Заплановане завдання PowerShell-версії видалено: {0}.</value></data>
+  <data name="Install.LegacyFilesRemoved" xml:space="preserve"><value>Файли PowerShell-версії видалено.</value></data>
+  <data name="Cli.InstallWaiting" xml:space="preserve"><value>Чекаю відповіді служби…</value></data>
+  <data name="Cli.InstallDone" xml:space="preserve"><value>UseControl встановлено й запущено. Відкрийте «UseControl» з меню «Пуск» або виконайте: uc status</value></data>
+  <data name="Cli.InstallNoAnswer" xml:space="preserve"><value>Службу запущено, але вона ще не відповідає. Перевірте «uc status» за хвилину або журнал подій Windows (джерело UseControl).</value></data>
+  <data name="Cli.ConfirmUninstall" xml:space="preserve"><value>Видалити UseControl і зняти всі обмеження? Введіть YES, щоб продовжити</value></data>
+  <data name="Cli.ConfirmUninstallKeep" xml:space="preserve"><value>Видалити UseControl, але залишити обмеження як є? Введіть YES, щоб продовжити</value></data>
+  <data name="Cli.UninstallLiftFailed" xml:space="preserve"><value>Не вдалося зняти обмеження через службу: {0}. Видалення зупинено; --keep-restrictions видалить UseControl попри це.</value></data>
+  <data name="Cli.UninstallDone" xml:space="preserve"><value>UseControl видалено.</value></data>
 </root>
