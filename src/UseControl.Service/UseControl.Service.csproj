@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <!-- The Windows service (runs as SYSTEM): owns the configuration, applies it, runs the games timer, answers uc.exe and the panel. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>UseControl.Service</RootNamespace>
+    <AssemblyName>UseControl.Service</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <ApplicationIcon>..\..\assets\uc.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UseControl.Ipc\UseControl.Ipc.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="UseControl.Service.Tests" />
+  </ItemGroup>
+
+</Project>

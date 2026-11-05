@@ -52,6 +52,12 @@ public static class ErrorCodes
     public const string ProfileMissing = nameof(ProfileMissing);
     public const string HiveLoadFailed = nameof(HiveLoadFailed);
     public const string AdministratorRequired = nameof(AdministratorRequired);
+    public const string ServiceNotRunning = nameof(ServiceNotRunning);
+    public const string ServiceNotTrusted = nameof(ServiceNotTrusted);
+    public const string ServiceFailed = nameof(ServiceFailed);
+    public const string UnknownCommand = nameof(UnknownCommand);
+    public const string InvalidRequest = nameof(InvalidRequest);
+    public const string HoursOutOfRange = nameof(HoursOutOfRange);
 }
 
 /// <summary>English texts of the error codes (the fallback when no translation exists).</summary>
@@ -82,6 +88,12 @@ public static class ErrorMessages
         [ErrorCodes.ProfileMissing] = "The profile of {0} does not exist yet: sign in as {0} once, then sign out.",
         [ErrorCodes.HiveLoadFailed] = "Cannot open the settings of {0} (Windows error {1}). If the account is signed in, try again after it signs out.",
         [ErrorCodes.AdministratorRequired] = "This needs administrator rights.",
+        [ErrorCodes.ServiceNotRunning] = "The UseControl service is not running or not installed.",
+        [ErrorCodes.ServiceNotTrusted] = "The program answering as the UseControl service is not the service. Nothing was sent to it.",
+        [ErrorCodes.ServiceFailed] = "The UseControl service reported an error: {0}",
+        [ErrorCodes.UnknownCommand] = "Unknown command '{0}'.",
+        [ErrorCodes.InvalidRequest] = "The request is not valid: {0}",
+        [ErrorCodes.HoursOutOfRange] = "Choose between {0} and {1} hours.",
     };
 
     public static string Format(string code, params object[] args)
