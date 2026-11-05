@@ -47,6 +47,11 @@ public static class ErrorCodes
     public const string InvalidFileHash = nameof(InvalidFileHash);
     public const string NoRights = nameof(NoRights);
     public const string InvalidPolicyValue = nameof(InvalidPolicyValue);
+    public const string AccountNotFound = nameof(AccountNotFound);
+    public const string AccountIsAdministrator = nameof(AccountIsAdministrator);
+    public const string ProfileMissing = nameof(ProfileMissing);
+    public const string HiveLoadFailed = nameof(HiveLoadFailed);
+    public const string AdministratorRequired = nameof(AdministratorRequired);
 }
 
 /// <summary>English texts of the error codes (the fallback when no translation exists).</summary>
@@ -72,6 +77,11 @@ public static class ErrorMessages
         [ErrorCodes.InvalidFileHash] = "The file fingerprint of '{0}' is not valid.",
         [ErrorCodes.NoRights] = "Choose at least one kind of access.",
         [ErrorCodes.InvalidPolicyValue] = "Policy {0}: only numbers, true/false, text or null are supported.",
+        [ErrorCodes.AccountNotFound] = "There is no local account '{0}'.",
+        [ErrorCodes.AccountIsAdministrator] = "{0} is an administrator; only standard accounts can be restricted.",
+        [ErrorCodes.ProfileMissing] = "The profile of {0} does not exist yet: sign in as {0} once, then sign out.",
+        [ErrorCodes.HiveLoadFailed] = "Cannot open the settings of {0} (Windows error {1}). If the account is signed in, try again after it signs out.",
+        [ErrorCodes.AdministratorRequired] = "This needs administrator rights.",
     };
 
     public static string Format(string code, params object[] args)

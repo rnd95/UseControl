@@ -26,7 +26,9 @@ UseControl is local: no cloud and no telemetry. It works with ordinary local acc
 
 ```
 src/UseControl.Core     configuration, validation and rule building (no system access, unit-tested)
-tests/                  xUnit tests
+src/UseControl.Windows  everything that touches Windows: account registries, restriction policies,
+                        browser policies, NTFS access, scans, game detection, the security check
+tests/                  xUnit tests (the Windows tests only use temporary folders and a test key under HKCU)
 legacy/powershell/      the PowerShell version (works today)
 examples/meshcentral/   a VPN-only MeshCentral server for remote access to such PCs
 assets/                 icon
