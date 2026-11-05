@@ -104,6 +104,22 @@ public class ConfigEditorTests
     }
 
     [Fact]
+    public void Browser_policies_are_typed_as_written_and_removed_by_name()
+    {
+        var c = NewConfig();
+        ConfigEditor.SetBrowserPolicy(c, BrowserKind.Chrome, "ForceYouTubeRestrict", "2");
+        ConfigEditor.SetBrowserPolicy(c, BrowserKind.Chrome, "PasswordManagerEnabled", "false");
+        ConfigEditor.SetBrowserPolicy(c, BrowserKind.Chrome, "HomepageLocation", "https://example.org");
+        Assert.Equal(2, c.Browsers.Chrome.Policies["ForceYouTubeRestrict"].GetInt32());
+        Assert.False(c.Browsers.Chrome.Policies["PasswordManagerEnabled"].GetBoolean());
+        Assert.Equal("https://example.org", c.Browsers.Chrome.Policies["HomepageLocation"].GetString());
+        Assert.Equal(ErrorCodes.InvalidPolicyName, Code(() => ConfigEditor.SetBrowserPolicy(c, BrowserKind.Edge, "bad name", "1")));
+        ConfigEditor.RemoveBrowserPolicy(c, BrowserKind.Chrome, "forceyoutuberestrict");
+        Assert.False(c.Browsers.Chrome.Policies.ContainsKey("ForceYouTubeRestrict"));
+        Assert.Equal(ErrorCodes.NotInList, Code(() => ConfigEditor.RemoveBrowserPolicy(c, BrowserKind.Chrome, "Nope")));
+    }
+
+    [Fact]
     public void Extensions_are_validated_per_browser()
     {
         const string ChromeId = "cjpalhdlnbpafiamejdnhcphjbkeiagm";

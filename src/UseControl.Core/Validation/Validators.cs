@@ -28,6 +28,11 @@ public static partial class Validators
     [GeneratedRegex("^[0-9a-fA-F]+$")]
     private static partial Regex Hex();
 
+    [GeneratedRegex("^[A-Za-z][A-Za-z0-9_]{0,99}$")]
+    private static partial Regex PolicyName();
+
+    public static bool IsPolicyName(string name) => PolicyName().IsMatch(name);
+
     public static bool IsProgramName(string name) => ProgramName().IsMatch(name);
 
     public static bool IsUserName(string name) => UserName().IsMatch(name) && name.Trim().Length == name.Length && !name.EndsWith('.');

@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>  <data name="Error.Unknown" xml:space="preserve"><value>Unknown error.</value></data>
+  <data name="Error.ConfigNotFound" xml:space="preserve"><value>Configuration not found: {0}</value></data>
+  <data name="Error.ConfigInvalid" xml:space="preserve"><value>Configuration {0} is not valid: {1}</value></data>
+  <data name="Error.ConfigTooNew" xml:space="preserve"><value>Configuration {0} was written by a newer UseControl (schema {1}); this version understands up to {2}.</value></data>
+  <data name="Error.PathNotAbsolute" xml:space="preserve"><value>Not an absolute local path: &apos;{0}&apos;.</value></data>
+  <data name="Error.PathInvalidCharacters" xml:space="preserve"><value>The path contains characters that are not allowed: &apos;{0}&apos;.</value></data>
+  <data name="Error.PathProtected" xml:space="preserve"><value>{0} is needed by Windows or by every program and cannot be used here.</value></data>
+  <data name="Error.PathContainsProtected" xml:space="preserve"><value>{0} contains {1}, which Windows needs.</value></data>
+  <data name="Error.PathInsideWindows" xml:space="preserve"><value>{0} is inside the Windows folder; changing access there can break Windows.</value></data>
+  <data name="Error.WholeDriveNotAllowed" xml:space="preserve"><value>A whole drive ({0}) cannot be used here.</value></data>
+  <data name="Error.AlreadyInList" xml:space="preserve"><value>{0} is already in the list.</value></data>
+  <data name="Error.NotInList" xml:space="preserve"><value>{0} is not in the list.</value></data>
+  <data name="Error.InvalidProgramName" xml:space="preserve"><value>&apos;{0}&apos; is not a program file name (for example game.exe).</value></data>
+  <data name="Error.InvalidUserName" xml:space="preserve"><value>&apos;{0}&apos; is not a valid local account name.</value></data>
+  <data name="Error.InvalidExtensionId" xml:space="preserve"><value>&apos;{0}&apos; is not a valid {1} extension ID.</value></data>
+  <data name="Error.InvalidFileHash" xml:space="preserve"><value>The file fingerprint of &apos;{0}&apos; is not valid.</value></data>
+  <data name="Error.NoRights" xml:space="preserve"><value>Choose at least one kind of access.</value></data>
+  <data name="Error.InvalidPolicyValue" xml:space="preserve"><value>Policy {0}: only numbers, true/false, text or null are supported.</value></data>
+  <data name="Error.AccountNotFound" xml:space="preserve"><value>There is no local account &apos;{0}&apos;.</value></data>
+  <data name="Error.AccountIsAdministrator" xml:space="preserve"><value>{0} is an administrator; only standard accounts can be restricted.</value></data>
+  <data name="Error.ProfileMissing" xml:space="preserve"><value>The profile of {0} does not exist yet: sign in as {0} once, then sign out.</value></data>
+  <data name="Error.HiveLoadFailed" xml:space="preserve"><value>Cannot open the settings of {0} (Windows error {1}). If the account is signed in, try again after it signs out.</value></data>
+  <data name="Error.AdministratorRequired" xml:space="preserve"><value>This needs administrator rights (run as administrator).</value></data>
+  <data name="Error.ServiceNotRunning" xml:space="preserve"><value>The UseControl service is not running or not installed.</value></data>
+  <data name="Error.ServiceNotTrusted" xml:space="preserve"><value>The program answering as the UseControl service is not the service. Nothing was sent to it.</value></data>
+  <data name="Error.ServiceFailed" xml:space="preserve"><value>The UseControl service reported an error: {0}</value></data>
+  <data name="Error.UnknownCommand" xml:space="preserve"><value>Unknown command &apos;{0}&apos;.</value></data>
+  <data name="Error.InvalidRequest" xml:space="preserve"><value>The request is not valid: {0}</value></data>
+  <data name="Error.HoursOutOfRange" xml:space="preserve"><value>Choose between {0} and {1} hours.</value></data>
+  <data name="Error.InvalidPolicyName" xml:space="preserve"><value>&apos;{0}&apos; is not a policy name (letters and digits, for example IncognitoModeAvailability).</value></data>
+  <data name="Error.InvalidArgument" xml:space="preserve"><value>&apos;{0}&apos; is not a valid value for {1}.</value></data>
+  <data name="Cli.ErrorPrefix" xml:space="preserve"><value>Error: {0}</value></data>
+  <data name="Cli.UnknownCommand" xml:space="preserve"><value>Unknown command &apos;{0}&apos;. Run &apos;uc help&apos;.</value></data>
+  <data name="Cli.MissingArgument" xml:space="preserve"><value>Missing: {0}.</value></data>
+  <data name="Cli.Done" xml:space="preserve"><value>Done.</value></data>
+  <data name="Cli.Ping" xml:space="preserve"><value>UseControl service {0} is running (process {1}).</value></data>
+  <data name="Cli.ConfirmSuspend" xml:space="preserve"><value>All restrictions will be removed until &quot;uc apply&quot;. Type YES to continue</value></data>
+  <data name="Cli.Cancelled" xml:space="preserve"><value>Cancelled.</value></data>
+  <data name="Cli.Suspended" xml:space="preserve"><value>Restrictions removed. They stay off until &quot;uc apply&quot;.</value></data>
+  <data name="Cli.Exported" xml:space="preserve"><value>Configuration saved to {0}</value></data>
+  <data name="Cli.Imported" xml:space="preserve"><value>Configuration imported.</value></data>
+  <data name="Cli.SavedNotApplied" xml:space="preserve"><value>Saved. Restrictions are suspended, so nothing was applied (&quot;uc apply&quot; turns them on).</value></data>
+  <data name="Cli.AccountApplied" xml:space="preserve"><value>{0}: {1} blocked and {2} allowed folders, {3} blocked names, {4} blocked files</value></data>
+  <data name="Cli.AccountSignedInHint" xml:space="preserve"><value>{0} is signed in: some changes take effect after it signs out and back in.</value></data>
+  <data name="Cli.AccountFailed" xml:space="preserve"><value>{0}: {1}</value></data>
+  <data name="Cli.AccountRemoved" xml:space="preserve"><value>{0}: restrictions removed</value></data>
+  <data name="Cli.FileAccessFailed" xml:space="preserve"><value>File access {0} ({1}): {2}</value></data>
+  <data name="Cli.GamesAllowed" xml:space="preserve"><value>Games allowed until {0}.</value></data>
+  <data name="Cli.GamesLocked" xml:space="preserve"><value>Games are blocked again.</value></data>
+  <data name="Cli.UsersRestricted" xml:space="preserve"><value>Restricted accounts: {0}</value></data>
+  <data name="Cli.UsersCandidates" xml:space="preserve"><value>Other standard accounts on this PC: {0}</value></data>
+  <data name="Cli.None" xml:space="preserve"><value>(none)</value></data>
+  <data name="Cli.GamesFoundNone" xml:space="preserve"><value>No new game folders found.</value></data>
+  <data name="Cli.GamesFound" xml:space="preserve"><value>Game folders not blocked yet:</value></data>
+  <data name="Cli.GamesFoundHint" xml:space="preserve"><value>Block them all: uc games find --add</value></data>
+  <data name="Cli.FileBlocked" xml:space="preserve"><value>{0} is blocked by its fingerprint (renaming or moving it does not help).</value></data>
+  <data name="Cli.PreviewAccount" xml:space="preserve"><value>=== {0} ===</value></data>
+  <data name="Cli.PreviewBlocked" xml:space="preserve"><value>Programs may NOT start from:</value></data>
+  <data name="Cli.PreviewAllowed" xml:space="preserve"><value>Allowed again inside those:</value></data>
+  <data name="Cli.PreviewNames" xml:space="preserve"><value>Blocked program names: {0}</value></data>
+  <data name="Cli.PreviewFiles" xml:space="preserve"><value>Blocked files: {0}</value></data>
+  <data name="Cli.PreviewAuto" xml:space="preserve"><value>Found automatically on this PC:</value></data>
+  <data name="Cli.AuditSummary" xml:space="preserve"><value>{0} checks: {1} failed, {2} warnings.</value></data>
+  <data name="Cli.StatusService" xml:space="preserve"><value>Service: UseControl {0}</value></data>
+  <data name="Cli.StatusEnabled" xml:space="preserve"><value>Restrictions: on</value></data>
+  <data name="Cli.StatusSuspended" xml:space="preserve"><value>Restrictions: SUSPENDED (&quot;uc apply&quot; turns them on)</value></data>
+  <data name="Cli.StatusGamesAllowed" xml:space="preserve"><value>Games: allowed until {0}</value></data>
+  <data name="Cli.StatusGamesBlocked" xml:space="preserve"><value>Games: blocked</value></data>
+  <data name="Cli.StatusLastApplied" xml:space="preserve"><value>Last applied: {0}</value></data>
+  <data name="Cli.StatusNever" xml:space="preserve"><value>never</value></data>
+  <data name="Cli.StatusStoreAdmins" xml:space="preserve"><value>Store installs: administrators only</value></data>
+  <data name="Cli.StatusStoreEveryone" xml:space="preserve"><value>Store installs: everyone</value></data>
+  <data name="Cli.StatusNoAccounts" xml:space="preserve"><value>No restricted accounts yet: uc users add &lt;name&gt;</value></data>
+  <data name="Cli.StatusAccountUnreadable" xml:space="preserve"><value>[{0}] cannot be read</value></data>
+  <data name="Cli.StatusAccountNotApplied" xml:space="preserve"><value>[{0}] restrictions NOT applied</value></data>
+  <data name="Cli.StatusAccount" xml:space="preserve"><value>[{0}] {1} blocked and {2} allowed folders, {3} blocked files, {4} names; locked: {5}</value></data>
+  <data name="Cli.Yes" xml:space="preserve"><value>yes</value></data>
+  <data name="Cli.No" xml:space="preserve"><value>no</value></data>
+  <data name="Cli.Help" xml:space="preserve"><value>UseControl: restrictions for standard Windows accounts. Run as administrator.
+
+  uc status                         state of the service and of every restricted account
+  uc apply                          apply the configuration now (and turn restrictions back on)
+  uc suspend [--yes]                remove all restrictions until &quot;uc apply&quot;
+  uc preview                        every rule that would be written, and why
+  uc audit                          security check of this PC
+
+  uc users list | add &lt;name&gt; | remove &lt;name&gt;
+  uc games allow &lt;hours&gt; | lock     games for a limited time (0.25 to 24 hours)
+  uc games find [--add]             look for game folders that are not blocked yet
+
+  uc block folder &lt;path&gt; [--category games|vpn|tools|other]
+  uc block name &lt;file.exe&gt; [--category ...]
+  uc block file &lt;path to .exe&gt; [--category ...]      by fingerprint: renaming does not help
+  uc unblock folder &lt;path&gt; | name &lt;file.exe&gt; | file &lt;path or SHA-256&gt;
+  uc allow folder &lt;path&gt;            a program folder that runs inside a blocked place
+  uc allow remove &lt;path&gt;
+
+  uc access deny|allow &lt;path&gt; [--rights read,write,execute,delete|full] [--users a,b]
+  uc access remove &lt;path&gt;
+
+  uc ext allow|remove chrome|edge|firefox &lt;extension id&gt;
+  uc policy set chrome|edge|firefox &lt;name&gt; &lt;value&gt;
+  uc policy remove chrome|edge|firefox &lt;name&gt;
+
+  uc config export &lt;file&gt; | import &lt;file&gt;
+  uc ping | help
+
+Options: --json (status, preview, audit, games find), --lang en|uk</value></data>
+  <data name="Audit.account" xml:space="preserve"><value>Restricted account</value></data>
+  <data name="Audit.services" xml:space="preserve"><value>Services</value></data>
+  <data name="Audit.writableFolders" xml:space="preserve"><value>Writable program folders</value></data>
+  <data name="Audit.allowedFolders" xml:space="preserve"><value>Allowed folders</value></data>
+  <data name="Audit.privateFolder" xml:space="preserve"><value>Private folder</value></data>
+  <data name="Audit.administrators" xml:space="preserve"><value>Administrators group</value></data>
+  <data name="Audit.builtinAdministrator" xml:space="preserve"><value>Built-in Administrator</value></data>
+  <data name="Audit.emptyPasswords" xml:space="preserve"><value>Empty passwords</value></data>
+  <data name="Audit.hiddenAccounts" xml:space="preserve"><value>Hidden accounts</value></data>
+  <data name="Audit.uac" xml:space="preserve"><value>UAC</value></data>
+  <data name="Audit.alwaysInstallElevated" xml:space="preserve"><value>AlwaysInstallElevated</value></data>
+  <data name="Audit.rdp" xml:space="preserve"><value>Remote Desktop</value></data>
+  <data name="Audit.remoteTools" xml:space="preserve"><value>Remote access services</value></data>
+  <data name="Audit.defender" xml:space="preserve"><value>Microsoft Defender</value></data>
+  <data name="Audit.firewall" xml:space="preserve"><value>Firewall</value></data>
+  <data name="Audit.restrictions" xml:space="preserve"><value>Restrictions</value></data>
+  <data name="Audit.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Audit.Warning" xml:space="preserve"><value>WARN</value></data>
+  <data name="Audit.Fail" xml:space="preserve"><value>FAIL</value></data>
+</root>

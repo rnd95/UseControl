@@ -1,11 +1,14 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/UseControl.Cli/UseControl.Cli.csproj" />
     <Project Path="src/UseControl.Core/UseControl.Core.csproj" />
     <Project Path="src/UseControl.Ipc/UseControl.Ipc.csproj" />
+    <Project Path="src/UseControl.Localization/UseControl.Localization.csproj" />
     <Project Path="src/UseControl.Service/UseControl.Service.csproj" />
     <Project Path="src/UseControl.Windows/UseControl.Windows.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/UseControl.Cli.Tests/UseControl.Cli.Tests.csproj" />
     <Project Path="tests/UseControl.Core.Tests/UseControl.Core.Tests.csproj" />
     <Project Path="tests/UseControl.Service.Tests/UseControl.Service.Tests.csproj" />
     <Project Path="tests/UseControl.Windows.Tests/UseControl.Windows.Tests.csproj" />

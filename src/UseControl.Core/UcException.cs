@@ -58,6 +58,8 @@ public static class ErrorCodes
     public const string UnknownCommand = nameof(UnknownCommand);
     public const string InvalidRequest = nameof(InvalidRequest);
     public const string HoursOutOfRange = nameof(HoursOutOfRange);
+    public const string InvalidPolicyName = nameof(InvalidPolicyName);
+    public const string InvalidArgument = nameof(InvalidArgument);
 }
 
 /// <summary>English texts of the error codes (the fallback when no translation exists).</summary>
@@ -94,6 +96,8 @@ public static class ErrorMessages
         [ErrorCodes.UnknownCommand] = "Unknown command '{0}'.",
         [ErrorCodes.InvalidRequest] = "The request is not valid: {0}",
         [ErrorCodes.HoursOutOfRange] = "Choose between {0} and {1} hours.",
+        [ErrorCodes.InvalidPolicyName] = "'{0}' is not a policy name (letters and digits, for example IncognitoModeAvailability).",
+        [ErrorCodes.InvalidArgument] = "'{0}' is not a valid value for {1}.",
     };
 
     public static string Format(string code, params object[] args)

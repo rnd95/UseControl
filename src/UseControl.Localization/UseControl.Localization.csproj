@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Every text shown to people, in resource files: Resources\Strings.resx (English, the fallback) and
+    Resources\Strings.<language>.resx. A new language is a new file with the same names; no code changes.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>UseControl.Localization</RootNamespace>
+    <SatelliteResourceLanguages>uk</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UseControl.Core\UseControl.Core.csproj" />
+  </ItemGroup>
+
+</Project>

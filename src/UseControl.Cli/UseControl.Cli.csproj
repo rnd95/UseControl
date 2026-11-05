@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- uc.exe: every UseControl action from the command line, through the service. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>UseControl.Cli</RootNamespace>
+    <AssemblyName>uc</AssemblyName>
+    <ApplicationIcon>..\..\assets\uc.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>uk</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UseControl.Ipc\UseControl.Ipc.csproj" />
+    <ProjectReference Include="..\UseControl.Localization\UseControl.Localization.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="UseControl.Cli.Tests" />
+  </ItemGroup>
+
+</Project>

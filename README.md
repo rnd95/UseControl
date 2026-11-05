@@ -31,6 +31,8 @@ src/UseControl.Windows  everything that touches Windows: account registries, res
 src/UseControl.Ipc      the control channel (named pipe) between the service and its clients
 src/UseControl.Service  the Windows service (SYSTEM): owns the configuration, applies it, games timer,
                         puts the restrictions back if something removed them
+src/UseControl.Cli      uc.exe, the command line (run "uc help")
+src/UseControl.Localization  every text shown to people, per language
 tests/                  xUnit tests (the Windows tests only use temporary folders and a test key under HKCU)
 legacy/powershell/      the PowerShell version (works today)
 examples/meshcentral/   a VPN-only MeshCentral server for remote access to such PCs
@@ -48,7 +50,14 @@ dotnet test
 
 ## Languages
 
-English and Ukrainian. Every text lives in resource files, so a new language is a new file. No code changes are needed.
+English and Ukrainian. Windows' display language is used when available, otherwise English; `uc --lang uk` or the `UC_LANG` environment variable overrides it.
+
+To add a language:
+
+1. Copy `src/UseControl.Localization/Resources/Strings.resx` to `Strings.<code>.resx` (for example `Strings.pl.resx`) and translate the values. Keep the `{0}`-style placeholders.
+2. Add the code to `Loc.Available` and to `SatelliteResourceLanguages` in the projects.
+
+The tests check that every language has every text, with the same placeholders.
 
 ## License
 

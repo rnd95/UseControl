@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>  <data name="Error.Unknown" xml:space="preserve"><value>Невідома помилка.</value></data>
+  <data name="Error.ConfigNotFound" xml:space="preserve"><value>Налаштування не знайдено: {0}</value></data>
+  <data name="Error.ConfigInvalid" xml:space="preserve"><value>Налаштування {0} містять помилку: {1}</value></data>
+  <data name="Error.ConfigTooNew" xml:space="preserve"><value>Налаштування {0} записані новішою версією UseControl (схема {1}); ця версія розуміє до {2}.</value></data>
+  <data name="Error.PathNotAbsolute" xml:space="preserve"><value>Це не повний локальний шлях: «{0}».</value></data>
+  <data name="Error.PathInvalidCharacters" xml:space="preserve"><value>Шлях містить недопустимі символи: «{0}».</value></data>
+  <data name="Error.PathProtected" xml:space="preserve"><value>{0} потрібна Windows або всім програмам, її тут використати не можна.</value></data>
+  <data name="Error.PathContainsProtected" xml:space="preserve"><value>{0} містить {1}, яка потрібна Windows.</value></data>
+  <data name="Error.PathInsideWindows" xml:space="preserve"><value>{0} знаходиться в папці Windows; зміна доступу там може зламати Windows.</value></data>
+  <data name="Error.WholeDriveNotAllowed" xml:space="preserve"><value>Цілий диск ({0}) тут використати не можна.</value></data>
+  <data name="Error.AlreadyInList" xml:space="preserve"><value>{0} уже є в списку.</value></data>
+  <data name="Error.NotInList" xml:space="preserve"><value>{0} немає в списку.</value></data>
+  <data name="Error.InvalidProgramName" xml:space="preserve"><value>«{0}» — не назва програми (наприклад, game.exe).</value></data>
+  <data name="Error.InvalidUserName" xml:space="preserve"><value>«{0}» — недопустима назва локального облікового запису.</value></data>
+  <data name="Error.InvalidExtensionId" xml:space="preserve"><value>«{0}» — недопустимий ID розширення для {1}.</value></data>
+  <data name="Error.InvalidFileHash" xml:space="preserve"><value>Відбиток файлу «{0}» недійсний.</value></data>
+  <data name="Error.NoRights" xml:space="preserve"><value>Виберіть хоча б один вид доступу.</value></data>
+  <data name="Error.InvalidPolicyValue" xml:space="preserve"><value>Політика {0}: підтримуються лише числа, true/false, текст або null.</value></data>
+  <data name="Error.AccountNotFound" xml:space="preserve"><value>Локального облікового запису «{0}» немає.</value></data>
+  <data name="Error.AccountIsAdministrator" xml:space="preserve"><value>{0} — адміністратор; обмежувати можна лише звичайні облікові записи.</value></data>
+  <data name="Error.ProfileMissing" xml:space="preserve"><value>Профілю {0} ще немає: увійдіть як {0} один раз, потім вийдіть.</value></data>
+  <data name="Error.HiveLoadFailed" xml:space="preserve"><value>Не вдалося відкрити налаштування {0} (помилка Windows {1}). Якщо обліковий запис зараз у системі, спробуйте після виходу з нього.</value></data>
+  <data name="Error.AdministratorRequired" xml:space="preserve"><value>Потрібні права адміністратора (запустіть від імені адміністратора).</value></data>
+  <data name="Error.ServiceNotRunning" xml:space="preserve"><value>Служба UseControl не запущена або не встановлена.</value></data>
+  <data name="Error.ServiceNotTrusted" xml:space="preserve"><value>Програма, що відповідає замість служби UseControl, не є службою. Їй нічого не надіслано.</value></data>
+  <data name="Error.ServiceFailed" xml:space="preserve"><value>Служба UseControl повідомила про помилку: {0}</value></data>
+  <data name="Error.UnknownCommand" xml:space="preserve"><value>Невідома команда «{0}».</value></data>
+  <data name="Error.InvalidRequest" xml:space="preserve"><value>Неправильний запит: {0}</value></data>
+  <data name="Error.HoursOutOfRange" xml:space="preserve"><value>Виберіть від {0} до {1} годин.</value></data>
+  <data name="Error.InvalidPolicyName" xml:space="preserve"><value>«{0}» — не назва політики (літери й цифри, наприклад IncognitoModeAvailability).</value></data>
+  <data name="Error.InvalidArgument" xml:space="preserve"><value>«{0}» — недопустиме значення для {1}.</value></data>
+  <data name="Cli.ErrorPrefix" xml:space="preserve"><value>Помилка: {0}</value></data>
+  <data name="Cli.UnknownCommand" xml:space="preserve"><value>Невідома команда «{0}». Довідка: uc help</value></data>
+  <data name="Cli.MissingArgument" xml:space="preserve"><value>Не вказано: {0}.</value></data>
+  <data name="Cli.Done" xml:space="preserve"><value>Готово.</value></data>
+  <data name="Cli.Ping" xml:space="preserve"><value>Служба UseControl {0} працює (процес {1}).</value></data>
+  <data name="Cli.ConfirmSuspend" xml:space="preserve"><value>Усі обмеження буде знято до команди «uc apply». Введіть YES, щоб продовжити</value></data>
+  <data name="Cli.Cancelled" xml:space="preserve"><value>Скасовано.</value></data>
+  <data name="Cli.Suspended" xml:space="preserve"><value>Обмеження знято. Вони не повернуться до команди «uc apply».</value></data>
+  <data name="Cli.Exported" xml:space="preserve"><value>Налаштування збережено у {0}</value></data>
+  <data name="Cli.Imported" xml:space="preserve"><value>Налаштування імпортовано.</value></data>
+  <data name="Cli.SavedNotApplied" xml:space="preserve"><value>Збережено. Обмеження призупинено, тому нічого не застосовано («uc apply» вмикає їх).</value></data>
+  <data name="Cli.AccountApplied" xml:space="preserve"><value>{0}: заблоковано папок {1}, дозволено {2}, назв програм {3}, файлів {4}</value></data>
+  <data name="Cli.AccountSignedInHint" xml:space="preserve"><value>{0} зараз у системі: частина змін подіє після виходу й повторного входу.</value></data>
+  <data name="Cli.AccountFailed" xml:space="preserve"><value>{0}: {1}</value></data>
+  <data name="Cli.AccountRemoved" xml:space="preserve"><value>{0}: обмеження знято</value></data>
+  <data name="Cli.FileAccessFailed" xml:space="preserve"><value>Доступ до {0} ({1}): {2}</value></data>
+  <data name="Cli.GamesAllowed" xml:space="preserve"><value>Ігри дозволено до {0}.</value></data>
+  <data name="Cli.GamesLocked" xml:space="preserve"><value>Ігри знову заблоковано.</value></data>
+  <data name="Cli.UsersRestricted" xml:space="preserve"><value>Обмежені облікові записи: {0}</value></data>
+  <data name="Cli.UsersCandidates" xml:space="preserve"><value>Інші звичайні облікові записи на цьому ПК: {0}</value></data>
+  <data name="Cli.None" xml:space="preserve"><value>(немає)</value></data>
+  <data name="Cli.GamesFoundNone" xml:space="preserve"><value>Нових папок з іграми не знайдено.</value></data>
+  <data name="Cli.GamesFound" xml:space="preserve"><value>Папки з іграми, які ще не заблоковано:</value></data>
+  <data name="Cli.GamesFoundHint" xml:space="preserve"><value>Заблокувати всі: uc games find --add</value></data>
+  <data name="Cli.FileBlocked" xml:space="preserve"><value>{0} заблоковано за відбитком (перейменування чи перенесення не допоможе).</value></data>
+  <data name="Cli.PreviewAccount" xml:space="preserve"><value>=== {0} ===</value></data>
+  <data name="Cli.PreviewBlocked" xml:space="preserve"><value>Програми НЕ запускаються з:</value></data>
+  <data name="Cli.PreviewAllowed" xml:space="preserve"><value>Дозволено всередині них:</value></data>
+  <data name="Cli.PreviewNames" xml:space="preserve"><value>Заблоковані назви програм: {0}</value></data>
+  <data name="Cli.PreviewFiles" xml:space="preserve"><value>Заблоковані файли: {0}</value></data>
+  <data name="Cli.PreviewAuto" xml:space="preserve"><value>Знайдено автоматично на цьому ПК:</value></data>
+  <data name="Cli.AuditSummary" xml:space="preserve"><value>Перевірок: {0}, проблем: {1}, попереджень: {2}.</value></data>
+  <data name="Cli.StatusService" xml:space="preserve"><value>Служба: UseControl {0}</value></data>
+  <data name="Cli.StatusEnabled" xml:space="preserve"><value>Обмеження: увімкнено</value></data>
+  <data name="Cli.StatusSuspended" xml:space="preserve"><value>Обмеження: ПРИЗУПИНЕНО («uc apply» вмикає їх)</value></data>
+  <data name="Cli.StatusGamesAllowed" xml:space="preserve"><value>Ігри: дозволено до {0}</value></data>
+  <data name="Cli.StatusGamesBlocked" xml:space="preserve"><value>Ігри: заблоковано</value></data>
+  <data name="Cli.StatusLastApplied" xml:space="preserve"><value>Останнє застосування: {0}</value></data>
+  <data name="Cli.StatusNever" xml:space="preserve"><value>ще не було</value></data>
+  <data name="Cli.StatusStoreAdmins" xml:space="preserve"><value>Встановлення з Store: лише адміністратори</value></data>
+  <data name="Cli.StatusStoreEveryone" xml:space="preserve"><value>Встановлення з Store: усі</value></data>
+  <data name="Cli.StatusNoAccounts" xml:space="preserve"><value>Обмежених облікових записів ще немає: uc users add &lt;назва&gt;</value></data>
+  <data name="Cli.StatusAccountUnreadable" xml:space="preserve"><value>[{0}] не вдалося прочитати</value></data>
+  <data name="Cli.StatusAccountNotApplied" xml:space="preserve"><value>[{0}] обмеження НЕ застосовано</value></data>
+  <data name="Cli.StatusAccount" xml:space="preserve"><value>[{0}] заблоковано папок {1}, дозволено {2}, файлів {3}, назв {4}; ключі закрито: {5}</value></data>
+  <data name="Cli.Yes" xml:space="preserve"><value>так</value></data>
+  <data name="Cli.No" xml:space="preserve"><value>ні</value></data>
+  <data name="Cli.Help" xml:space="preserve"><value>UseControl: обмеження для звичайних облікових записів Windows. Запускайте від імені адміністратора.
+
+  uc status                         стан служби та кожного обмеженого облікового запису
+  uc apply                          застосувати налаштування зараз (і знову ввімкнути обмеження)
+  uc suspend [--yes]                зняти всі обмеження до команди «uc apply»
+  uc preview                        усі правила, які буде записано, і чому
+  uc audit                          перевірка безпеки цього ПК
+
+  uc users list | add &lt;назва&gt; | remove &lt;назва&gt;
+  uc games allow &lt;години&gt; | lock    ігри на обмежений час (від 0,25 до 24 годин)
+  uc games find [--add]             знайти папки з іграми, які ще не заблоковано
+
+  uc block folder &lt;шлях&gt; [--category games|vpn|tools|other]
+  uc block name &lt;файл.exe&gt; [--category ...]
+  uc block file &lt;шлях до .exe&gt; [--category ...]      за відбитком: перейменування не допоможе
+  uc unblock folder &lt;шлях&gt; | name &lt;файл.exe&gt; | file &lt;шлях або SHA-256&gt;
+  uc allow folder &lt;шлях&gt;            папка з програмою, що працює всередині заблокованого місця
+  uc allow remove &lt;шлях&gt;
+
+  uc access deny|allow &lt;шлях&gt; [--rights read,write,execute,delete|full] [--users a,b]
+  uc access remove &lt;шлях&gt;
+
+  uc ext allow|remove chrome|edge|firefox &lt;ID розширення&gt;
+  uc policy set chrome|edge|firefox &lt;назва&gt; &lt;значення&gt;
+  uc policy remove chrome|edge|firefox &lt;назва&gt;
+
+  uc config export &lt;файл&gt; | import &lt;файл&gt;
+  uc ping | help
+
+Параметри: --json (status, preview, audit, games find), --lang en|uk</value></data>
+  <data name="Audit.account" xml:space="preserve"><value>Обмежений обліковий запис</value></data>
+  <data name="Audit.services" xml:space="preserve"><value>Служби</value></data>
+  <data name="Audit.writableFolders" xml:space="preserve"><value>Папки програм із записом</value></data>
+  <data name="Audit.allowedFolders" xml:space="preserve"><value>Дозволені папки</value></data>
+  <data name="Audit.privateFolder" xml:space="preserve"><value>Приватна папка</value></data>
+  <data name="Audit.administrators" xml:space="preserve"><value>Група адміністраторів</value></data>
+  <data name="Audit.builtinAdministrator" xml:space="preserve"><value>Вбудований Administrator</value></data>
+  <data name="Audit.emptyPasswords" xml:space="preserve"><value>Порожні паролі</value></data>
+  <data name="Audit.hiddenAccounts" xml:space="preserve"><value>Приховані облікові записи</value></data>
+  <data name="Audit.uac" xml:space="preserve"><value>UAC</value></data>
+  <data name="Audit.alwaysInstallElevated" xml:space="preserve"><value>AlwaysInstallElevated</value></data>
+  <data name="Audit.rdp" xml:space="preserve"><value>Віддалений робочий стіл</value></data>
+  <data name="Audit.remoteTools" xml:space="preserve"><value>Служби віддаленого доступу</value></data>
+  <data name="Audit.defender" xml:space="preserve"><value>Microsoft Defender</value></data>
+  <data name="Audit.firewall" xml:space="preserve"><value>Брандмауер</value></data>
+  <data name="Audit.restrictions" xml:space="preserve"><value>Обмеження</value></data>
+  <data name="Audit.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Audit.Warning" xml:space="preserve"><value>УВАГА</value></data>
+  <data name="Audit.Fail" xml:space="preserve"><value>ПОМИЛКА</value></data>
+</root>

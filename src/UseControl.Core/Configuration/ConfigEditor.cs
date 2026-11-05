@@ -132,6 +132,43 @@ public static class ConfigEditor
         if (ExtensionList(c, browser).RemoveAll(x => x == id?.Trim()) == 0) throw new UcException(ErrorCodes.NotInList, id ?? "");
     }
 
+    /// <summary>
+    /// Sets any browser policy by its registry name. The value is typed as people write it:
+    /// a whole number or true/false becomes a DWORD, anything else text.
+    /// </summary>
+    public static void SetBrowserPolicy(UcConfig c, BrowserKind browser, string name, string value)
+    {
+        ArgumentNullException.ThrowIfNull(c);
+        var n = (name ?? "").Trim();
+        if (!Validators.IsPolicyName(n)) throw new UcException(ErrorCodes.InvalidPolicyName, name ?? "");
+        Policies(c, browser)[n] = ParsePolicyValue(value ?? "");
+    }
+
+    public static void RemoveBrowserPolicy(UcConfig c, BrowserKind browser, string name)
+    {
+        ArgumentNullException.ThrowIfNull(c);
+        var p = Policies(c, browser);
+        var key = p.Keys.FirstOrDefault(k => k.Equals(name?.Trim(), StringComparison.OrdinalIgnoreCase));
+        if (key is null) throw new UcException(ErrorCodes.NotInList, name ?? "");
+        p.Remove(key);
+    }
+
+    internal static System.Text.Json.JsonElement ParsePolicyValue(string value)
+    {
+        var v = value.Trim();
+        if (int.TryParse(v, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var i))
+            return System.Text.Json.JsonSerializer.SerializeToElement(i);
+        if (bool.TryParse(v, out var b)) return System.Text.Json.JsonSerializer.SerializeToElement(b);
+        return System.Text.Json.JsonSerializer.SerializeToElement(value);
+    }
+
+    private static Dictionary<string, System.Text.Json.JsonElement> Policies(UcConfig c, BrowserKind browser) => browser switch
+    {
+        BrowserKind.Chrome => c.Browsers.Chrome.Policies,
+        BrowserKind.Edge => c.Browsers.Edge.Policies,
+        _ => c.Browsers.Firefox.Policies,
+    };
+
     private static List<string> ExtensionList(UcConfig c, BrowserKind browser)
     {
         ArgumentNullException.ThrowIfNull(c);

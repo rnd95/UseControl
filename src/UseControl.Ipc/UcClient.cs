@@ -11,7 +11,7 @@ namespace UseControl.Ipc;
 /// Talks to the UseControl service. Used by uc.exe and the admin panel; needs administrator rights
 /// (the pipe only accepts elevated administrators and SYSTEM).
 /// </summary>
-public sealed class UcClient
+public sealed class UcClient : IServiceClient
 {
     private readonly string _pipeName;
     private readonly bool _requireSessionZero;
