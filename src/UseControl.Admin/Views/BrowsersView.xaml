@@ -1,0 +1,83 @@
+<UserControl x:Class="UseControl.Admin.Views.BrowsersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:UseControl.Admin.Infrastructure"
+             xmlns:pages="clr-namespace:UseControl.Admin.ViewModels.Pages;assembly=UseControl.Admin.ViewModels">
+  <StackPanel>
+    <Border Style="{StaticResource Card}">
+      <StackPanel Orientation="Horizontal">
+        <TextBlock Text="{l:Tr Ui.Browsers.Browser}" Style="{StaticResource Label}" />
+        <ComboBox ItemsSource="{x:Static pages:BrowsersPageViewModel.Browsers}" SelectedItem="{Binding Browser}" Width="160" />
+      </StackPanel>
+    </Border>
+
+    <Border Style="{StaticResource Card}">
+      <StackPanel>
+        <TextBlock Text="{l:Tr Ui.Browsers.Extensions}" Style="{StaticResource SectionTitle}" />
+        <CheckBox Content="{l:Tr Ui.Browsers.BlockExtensions}" IsChecked="{Binding BlockExtensions}" Margin="0,0,0,10" />
+        <DockPanel Margin="0,0,0,10">
+          <Button DockPanel.Dock="Right" Content="{l:Tr Ui.Add}" Style="{StaticResource PrimaryButton}" Command="{Binding AddExtensionCommand}" Margin="8,0,0,0" />
+          <TextBlock DockPanel.Dock="Left" Text="{l:Tr Ui.Browsers.ExtensionId}" Style="{StaticResource Label}" />
+          <TextBox Text="{Binding NewExtension, UpdateSourceTrigger=PropertyChanged}" />
+        </DockPanel>
+        <ItemsControl ItemsSource="{Binding Extensions}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <DockPanel Margin="0,2">
+                <Button DockPanel.Dock="Right" Content="&#xE74D;" Style="{StaticResource RowButton}" ToolTip="{l:Tr Ui.Remove}"
+                        Command="{Binding DataContext.RemoveExtensionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                <TextBlock Text="{Binding}" FontFamily="Consolas" VerticalAlignment="Center" />
+              </DockPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+
+    <Border Style="{StaticResource Card}" Visibility="{Binding IsFirefox, Converter={StaticResource BoolToVisibility}}">
+      <StackPanel>
+        <CheckBox Content="{l:Tr Ui.Browsers.DisableDoh}" IsChecked="{Binding DisableDnsOverHttps}" />
+        <CheckBox Content="{l:Tr Ui.Browsers.DisablePrivate}" IsChecked="{Binding DisablePrivateBrowsing}" />
+      </StackPanel>
+    </Border>
+
+    <Border Style="{StaticResource Card}">
+      <StackPanel>
+        <TextBlock Text="{l:Tr Ui.Browsers.Policies}" Style="{StaticResource SectionTitle}" />
+        <Grid Margin="0,0,0,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="{l:Tr Ui.Column.Name}" Style="{StaticResource Label}" />
+          <TextBox Grid.Column="1" Text="{Binding PolicyName, UpdateSourceTrigger=PropertyChanged}" />
+          <TextBlock Grid.Column="2" Text="{l:Tr Ui.Column.Value}" Style="{StaticResource Label}" Margin="12,0,8,0" />
+          <TextBox Grid.Column="3" Text="{Binding PolicyValue, UpdateSourceTrigger=PropertyChanged}" />
+          <Button Grid.Column="4" Content="{l:Tr Ui.Browsers.Set}" Style="{StaticResource PrimaryButton}" Command="{Binding SetPolicyCommand}" Margin="8,0,0,0" />
+        </Grid>
+        <DataGrid ItemsSource="{Binding Policies}">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="{l:Tr Ui.Column.Name}" Binding="{Binding Name}" Width="*" />
+            <DataGridTextColumn Header="{l:Tr Ui.Column.Value}" Binding="{Binding Value}" Width="*" />
+            <DataGridTemplateColumn Width="80">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal">
+                    <Button Content="&#xE70F;" Style="{StaticResource RowButton}" ToolTip="{l:Tr Ui.Edit}"
+                            Command="{Binding DataContext.EditPolicyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                    <Button Content="&#xE74D;" Style="{StaticResource RowButton}" ToolTip="{l:Tr Ui.Remove}"
+                            Command="{Binding DataContext.RemovePolicyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+          </DataGrid.Columns>
+        </DataGrid>
+        <TextBlock Text="{l:Tr Ui.Browsers.Help}" Style="{StaticResource Help}" />
+      </StackPanel>
+    </Border>
+  </StackPanel>
+</UserControl>

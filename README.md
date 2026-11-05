@@ -32,6 +32,8 @@ src/UseControl.Ipc      the control channel (named pipe) between the service and
 src/UseControl.Service  the Windows service (SYSTEM): owns the configuration, applies it, games timer,
                         puts the restrictions back if something removed them
 src/UseControl.Cli      uc.exe, the command line (run "uc help")
+src/UseControl.Admin.ViewModels  what the admin panel does (no WPF: pages, commands, texts)
+src/UseControl.Admin    the admin panel UseControl.exe (WPF): views and theme only
 src/UseControl.Localization  every text shown to people, per language
 tests/                  xUnit tests (the Windows tests only use temporary folders and a test key under HKCU)
 legacy/powershell/      the PowerShell version (works today)
@@ -47,6 +49,22 @@ Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) on
 dotnet build
 dotnet test
 ```
+
+## Changing the look of the panel
+
+The panel is split so that its look can change without touching its behaviour:
+
+- `src/UseControl.Admin/Themes/Theme.xaml` holds every colour, size and control style.
+- `src/UseControl.Admin/Views/*.xaml` lay out one page each. They only bind to the page's view model.
+- `src/UseControl.Admin/App.xaml` maps each page to its view. Point a page to a new view to redesign it.
+
+To see every page filled in without installing the service, run the panel with sample data:
+
+```
+UseControl.exe --demo [--page 0-7] [--lang en|uk]
+```
+
+Pages are numbered from 0: 0 Status, 1 Accounts, 2 Games, 3 Programs, 4 Files and folders, 5 Browsers, 6 Security check, 7 Settings.
 
 ## Languages
 

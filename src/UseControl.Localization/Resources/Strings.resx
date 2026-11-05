@@ -130,4 +130,136 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Audit.Ok" xml:space="preserve"><value>OK</value></data>
   <data name="Audit.Warning" xml:space="preserve"><value>WARN</value></data>
   <data name="Audit.Fail" xml:space="preserve"><value>FAIL</value></data>
+  <data name="Ui.App.Title" xml:space="preserve"><value>UseControl</value></data>
+  <data name="Ui.Busy" xml:space="preserve"><value>Working…</value></data>
+  <data name="Ui.NotConnected" xml:space="preserve"><value>Not connected to the UseControl service.</value></data>
+  <data name="Ui.Retry" xml:space="preserve"><value>Connect again</value></data>
+  <data name="Ui.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Ui.Saved" xml:space="preserve"><value>Saved and applied.</value></data>
+  <data name="Ui.SavedSignedIn" xml:space="preserve"><value>Saved and applied. {0}: some changes take effect after signing out and back in.</value></data>
+  <data name="Ui.Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Ui.Add" xml:space="preserve"><value>Add</value></data>
+  <data name="Ui.Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Ui.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Ui.Column.Path" xml:space="preserve"><value>Folder or file</value></data>
+  <data name="Ui.Column.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Ui.Column.Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Ui.Column.Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Ui.Column.Mode" xml:space="preserve"><value>Access</value></data>
+  <data name="Ui.Column.Rights" xml:space="preserve"><value>What</value></data>
+  <data name="Ui.Column.Users" xml:space="preserve"><value>Accounts</value></data>
+  <data name="Ui.Column.Value" xml:space="preserve"><value>Value</value></data>
+  <data name="Ui.Column.Result" xml:space="preserve"><value>Result</value></data>
+  <data name="Ui.Column.Check" xml:space="preserve"><value>Check</value></data>
+  <data name="Ui.Column.Detail" xml:space="preserve"><value>Details</value></data>
+  <data name="Ui.Nav.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Ui.Nav.Accounts" xml:space="preserve"><value>Accounts</value></data>
+  <data name="Ui.Nav.Games" xml:space="preserve"><value>Games</value></data>
+  <data name="Ui.Nav.Programs" xml:space="preserve"><value>Programs</value></data>
+  <data name="Ui.Nav.FileAccess" xml:space="preserve"><value>Files and folders</value></data>
+  <data name="Ui.Nav.Browsers" xml:space="preserve"><value>Browsers</value></data>
+  <data name="Ui.Nav.Audit" xml:space="preserve"><value>Security check</value></data>
+  <data name="Ui.Nav.Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Ui.Status.Service" xml:space="preserve"><value>Service</value></data>
+  <data name="Ui.Status.Restrictions" xml:space="preserve"><value>Restrictions</value></data>
+  <data name="Ui.Status.On" xml:space="preserve"><value>on</value></data>
+  <data name="Ui.Status.Suspended" xml:space="preserve"><value>SUSPENDED</value></data>
+  <data name="Ui.Status.Games" xml:space="preserve"><value>Games</value></data>
+  <data name="Ui.Status.GamesUntil" xml:space="preserve"><value>allowed until {0}</value></data>
+  <data name="Ui.Status.GamesBlocked" xml:space="preserve"><value>blocked</value></data>
+  <data name="Ui.Status.LastApplied" xml:space="preserve"><value>Last applied</value></data>
+  <data name="Ui.Status.Store" xml:space="preserve"><value>Store installs</value></data>
+  <data name="Ui.Status.StoreAdmins" xml:space="preserve"><value>administrators only</value></data>
+  <data name="Ui.Status.StoreEveryone" xml:space="preserve"><value>everyone</value></data>
+  <data name="Ui.Status.Unreadable" xml:space="preserve"><value>cannot be read</value></data>
+  <data name="Ui.Status.NotApplied" xml:space="preserve"><value>restrictions NOT applied</value></data>
+  <data name="Ui.Status.AccountRules" xml:space="preserve"><value>{0} blocked and {1} allowed folders, {2} blocked files, {3} blocked names</value></data>
+  <data name="Ui.Status.Unlocked" xml:space="preserve"><value>policy keys NOT locked</value></data>
+  <data name="Ui.Status.AccountsHeader" xml:space="preserve"><value>Restricted accounts</value></data>
+  <data name="Ui.Status.ApplyNow" xml:space="preserve"><value>Apply now</value></data>
+  <data name="Ui.Status.SuspendAll" xml:space="preserve"><value>Suspend all restrictions</value></data>
+  <data name="Ui.Status.Resume" xml:space="preserve"><value>Turn restrictions on</value></data>
+  <data name="Ui.Status.ConfirmSuspend" xml:space="preserve"><value>Remove ALL restrictions until you turn them on again?</value></data>
+  <data name="Ui.Accounts.Restricted" xml:space="preserve"><value>Restricted accounts</value></data>
+  <data name="Ui.Accounts.Available" xml:space="preserve"><value>Other standard accounts on this PC</value></data>
+  <data name="Ui.Accounts.Add" xml:space="preserve"><value>Restrict</value></data>
+  <data name="Ui.Accounts.Remove" xml:space="preserve"><value>Stop restricting</value></data>
+  <data name="Ui.Accounts.ConfirmRemove" xml:space="preserve"><value>Stop restricting {0} and remove its restrictions?</value></data>
+  <data name="Ui.Accounts.Help" xml:space="preserve"><value>Restrictions apply only to the accounts listed here; administrators are never restricted. An account must have signed in once before it can be added.</value></data>
+  <data name="Ui.Games.AllowFor" xml:space="preserve"><value>Allow games for</value></data>
+  <data name="Ui.Games.Hours" xml:space="preserve"><value>hours</value></data>
+  <data name="Ui.Games.Allow" xml:space="preserve"><value>Allow games</value></data>
+  <data name="Ui.Games.Lock" xml:space="preserve"><value>Block games now</value></data>
+  <data name="Ui.Games.Now" xml:space="preserve"><value>Now</value></data>
+  <data name="Ui.Games.FindHeader" xml:space="preserve"><value>Installed games that are not blocked yet</value></data>
+  <data name="Ui.Games.Find" xml:space="preserve"><value>Search</value></data>
+  <data name="Ui.Games.BlockSelected" xml:space="preserve"><value>Block selected</value></data>
+  <data name="Ui.Games.FoundCount" xml:space="preserve"><value>{0} game folders found.</value></data>
+  <data name="Ui.Games.Help" xml:space="preserve"><value>During games time the folders of category &quot;games&quot; are allowed and game names are not blocked. The service blocks them again at the end time, also after a restart. Online games blocked by a DNS filter are not affected.</value></data>
+  <data name="Ui.Programs.BlockedFolders" xml:space="preserve"><value>Blocked folders</value></data>
+  <data name="Ui.Programs.AllowedFolders" xml:space="preserve"><value>Allowed folders (run even inside a blocked place)</value></data>
+  <data name="Ui.Programs.BlockedNames" xml:space="preserve"><value>Blocked program names</value></data>
+  <data name="Ui.Programs.BlockedFiles" xml:space="preserve"><value>Blocked programs by fingerprint (renaming does not help)</value></data>
+  <data name="Ui.Programs.Category" xml:space="preserve"><value>Category for new entries</value></data>
+  <data name="Ui.Programs.AddFolder" xml:space="preserve"><value>Block a folder…</value></data>
+  <data name="Ui.Programs.AddAllowed" xml:space="preserve"><value>Allow a folder…</value></data>
+  <data name="Ui.Programs.AddName" xml:space="preserve"><value>Block name</value></data>
+  <data name="Ui.Programs.AddFile" xml:space="preserve"><value>Block a program…</value></data>
+  <data name="Ui.Programs.PickBlockFolder" xml:space="preserve"><value>Programs in this folder will not start for restricted accounts</value></data>
+  <data name="Ui.Programs.PickAllowFolder" xml:space="preserve"><value>A program folder that should run although it is inside a blocked place</value></data>
+  <data name="Ui.Programs.PickBlockFile" xml:space="preserve"><value>Program to block by its fingerprint</value></data>
+  <data name="Ui.Programs.ProgramsFilter" xml:space="preserve"><value>Programs</value></data>
+  <data name="Ui.Programs.Help" xml:space="preserve"><value>Also blocked automatically: the account&apos;s profile and Downloads, places that ordinary users can write to, USB and network drives. Windows and Program Files stay allowed.</value></data>
+  <data name="Ui.Category.Writable" xml:space="preserve"><value>writable place</value></data>
+  <data name="Ui.Category.Games" xml:space="preserve"><value>games</value></data>
+  <data name="Ui.Category.Vpn" xml:space="preserve"><value>VPN and proxies</value></data>
+  <data name="Ui.Category.Tools" xml:space="preserve"><value>system tools</value></data>
+  <data name="Ui.Category.Other" xml:space="preserve"><value>other</value></data>
+  <data name="Ui.Access.Header" xml:space="preserve"><value>Access rules</value></data>
+  <data name="Ui.Access.Path" xml:space="preserve"><value>File or folder</value></data>
+  <data name="Ui.Access.Folder" xml:space="preserve"><value>Folder…</value></data>
+  <data name="Ui.Access.File" xml:space="preserve"><value>File…</value></data>
+  <data name="Ui.Access.PickFolder" xml:space="preserve"><value>Folder to protect</value></data>
+  <data name="Ui.Access.PickFile" xml:space="preserve"><value>File to protect</value></data>
+  <data name="Ui.Access.Deny" xml:space="preserve"><value>Deny</value></data>
+  <data name="Ui.Access.Allow" xml:space="preserve"><value>Allow</value></data>
+  <data name="Ui.Access.Read" xml:space="preserve"><value>open and read</value></data>
+  <data name="Ui.Access.Write" xml:space="preserve"><value>change</value></data>
+  <data name="Ui.Access.Execute" xml:space="preserve"><value>run programs</value></data>
+  <data name="Ui.Access.Delete" xml:space="preserve"><value>delete</value></data>
+  <data name="Ui.Access.Full" xml:space="preserve"><value>everything</value></data>
+  <data name="Ui.Access.Users" xml:space="preserve"><value>Accounts (comma-separated; empty = every restricted account)</value></data>
+  <data name="Ui.Access.AllAccounts" xml:space="preserve"><value>every restricted account</value></data>
+  <data name="Ui.Access.AddRule" xml:space="preserve"><value>Add rule</value></data>
+  <data name="Ui.Access.Help" xml:space="preserve"><value>UseControl remembers every permission it adds and removes exactly those; other permissions are never touched. Windows folders, drive roots, Program Files and the profiles folder cannot be used.</value></data>
+  <data name="Ui.Browsers.Browser" xml:space="preserve"><value>Browser</value></data>
+  <data name="Ui.Browsers.Extensions" xml:space="preserve"><value>Allowed extensions</value></data>
+  <data name="Ui.Browsers.BlockExtensions" xml:space="preserve"><value>Block every other extension</value></data>
+  <data name="Ui.Browsers.ExtensionId" xml:space="preserve"><value>Extension ID</value></data>
+  <data name="Ui.Browsers.Policies" xml:space="preserve"><value>Policies</value></data>
+  <data name="Ui.Browsers.Set" xml:space="preserve"><value>Set</value></data>
+  <data name="Ui.Browsers.DisableDoh" xml:space="preserve"><value>Turn off DNS over HTTPS (so the DNS filter sees every site)</value></data>
+  <data name="Ui.Browsers.DisablePrivate" xml:space="preserve"><value>Turn off private browsing</value></data>
+  <data name="Ui.Browsers.Help" xml:space="preserve"><value>Any policy can be set by its name: Chrome (chromeenterprise.google/policies), Edge (learn.microsoft.com/deployedge), Firefox (mozilla.github.io/policy-templates). Whole numbers and true/false become numbers, anything else text.</value></data>
+  <data name="Ui.Audit.Run" xml:space="preserve"><value>Run the check</value></data>
+  <data name="Ui.Audit.NotRun" xml:space="preserve"><value>The check has not been run yet.</value></data>
+  <data name="Ui.Settings.Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Ui.Settings.AutoHeader" xml:space="preserve"><value>Blocked automatically</value></data>
+  <data name="Ui.Settings.Auto.SystemDriveRoot" xml:space="preserve"><value>Folders created in the root of the system drive (C:\anything)</value></data>
+  <data name="Ui.Settings.Auto.WritableDriveRoots" xml:space="preserve"><value>Other drives that ordinary users can write to</value></data>
+  <data name="Ui.Settings.Auto.OtherDriveLetters" xml:space="preserve"><value>USB, network and future drives</value></data>
+  <data name="Ui.Settings.Auto.RecycleBins" xml:space="preserve"><value>Recycle Bins</value></data>
+  <data name="Ui.Settings.Auto.SystemWritableFolders" xml:space="preserve"><value>Writable folders inside Windows, ProgramData, Users\Public</value></data>
+  <data name="Ui.Settings.Auto.WritableProgramFolders" xml:space="preserve"><value>Program folders that ordinary users can change</value></data>
+  <data name="Ui.Settings.Store" xml:space="preserve"><value>Only administrators may install Store apps (whole PC)</value></data>
+  <data name="Ui.Settings.AuditHeader" xml:space="preserve"><value>What the security check expects (one per line)</value></data>
+  <data name="Ui.Settings.Admins" xml:space="preserve"><value>Administrators</value></data>
+  <data name="Ui.Settings.PrivateFolders" xml:space="preserve"><value>Private folders</value></data>
+  <data name="Ui.Settings.HiddenAccounts" xml:space="preserve"><value>Accounts hidden from the sign-in screen</value></data>
+  <data name="Ui.Settings.KnownRemoteServices" xml:space="preserve"><value>Known remote-access services</value></data>
+  <data name="Ui.Settings.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Ui.Settings.BackupHeader" xml:space="preserve"><value>Backup</value></data>
+  <data name="Ui.Settings.Export" xml:space="preserve"><value>Export configuration…</value></data>
+  <data name="Ui.Settings.Import" xml:space="preserve"><value>Import configuration…</value></data>
+  <data name="Ui.Settings.ConfirmImport" xml:space="preserve"><value>Replace the whole configuration with the file and apply it?</value></data>
 </root>

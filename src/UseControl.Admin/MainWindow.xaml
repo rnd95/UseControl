@@ -1,0 +1,71 @@
+<Window x:Class="UseControl.Admin.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="clr-namespace:UseControl.Admin.Infrastructure"
+        Title="{l:Tr Ui.App.Title}" Icon="Assets/uc.ico"
+        Width="1100" Height="760" MinWidth="820" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource WindowBackground}"
+        FontFamily="Segoe UI" FontSize="13" Foreground="{StaticResource Text}"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="230" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <!-- Navigation -->
+    <Border Background="{StaticResource NavBackground}" BorderBrush="{StaticResource Border}" BorderThickness="0,0,1,0">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="20,20,20,24">
+          <Image Source="Assets/uc.ico" Width="28" Height="28" />
+          <TextBlock Text="UseControl" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0" />
+        </StackPanel>
+        <ListBox ItemsSource="{Binding Pages}" SelectedItem="{Binding SelectedPage}" BorderThickness="0" Background="Transparent"
+                 ItemContainerStyle="{StaticResource NavItem}" MaxHeight="10000">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource IconFont}" FontSize="16" VerticalAlignment="Center" Width="26" />
+                <TextBlock Text="{Binding Title}" VerticalAlignment="Center" FontSize="14" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+
+    <DockPanel Grid.Column="1">
+      <!-- Message bar -->
+      <Border DockPanel.Dock="Top" Margin="24,16,24,0" Padding="14,10" CornerRadius="{StaticResource Radius}"
+              Background="{Binding Session.MessageKind, Converter={StaticResource StateBrush}}"
+              Visibility="{Binding Session.Message, Converter={StaticResource TextToVisibility}}">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Content="&#xE711;" Style="{StaticResource RowButton}" Background="Transparent" BorderThickness="0"
+                  Command="{Binding DismissMessageCommand}" ToolTip="{l:Tr Ui.Close}" />
+          <TextBlock Text="{Binding Session.Message}" TextWrapping="Wrap" VerticalAlignment="Center"
+                     Foreground="{Binding Session.MessageKind, Converter={StaticResource StateBrush}, ConverterParameter=Text}" />
+        </DockPanel>
+      </Border>
+
+      <!-- Busy / not connected -->
+      <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="24,0,24,12">
+        <ProgressBar IsIndeterminate="True" Width="120" Height="4" Margin="0,0,10,0"
+                     Visibility="{Binding Session.IsBusy, Converter={StaticResource BoolToVisibility}}" />
+        <TextBlock Text="{l:Tr Ui.Busy}" Foreground="{StaticResource TextMuted}"
+                   Visibility="{Binding Session.IsBusy, Converter={StaticResource BoolToVisibility}}" />
+        <TextBlock Text="{l:Tr Ui.NotConnected}" Foreground="{StaticResource Danger}" VerticalAlignment="Center" Margin="0,0,10,0"
+                   Visibility="{Binding Session.IsConnected, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+        <Button Content="{l:Tr Ui.Retry}" Command="{Binding RetryCommand}"
+                Visibility="{Binding Session.IsConnected, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+      </StackPanel>
+
+      <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,16,24,8">
+        <StackPanel>
+          <TextBlock Text="{Binding SelectedPage.Title}" Style="{StaticResource PageTitle}" />
+          <ContentControl Content="{Binding SelectedPage}" IsEnabled="{Binding Session.CanEdit}" />
+        </StackPanel>
+      </ScrollViewer>
+    </DockPanel>
+  </Grid>
+</Window>

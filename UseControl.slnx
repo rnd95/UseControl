@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/UseControl.Admin.ViewModels/UseControl.Admin.ViewModels.csproj" />
+    <Project Path="src/UseControl.Admin/UseControl.Admin.csproj" />
     <Project Path="src/UseControl.Cli/UseControl.Cli.csproj" />
     <Project Path="src/UseControl.Core/UseControl.Core.csproj" />
     <Project Path="src/UseControl.Ipc/UseControl.Ipc.csproj" />
@@ -8,6 +10,7 @@
     <Project Path="src/UseControl.Windows/UseControl.Windows.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/UseControl.Admin.Tests/UseControl.Admin.Tests.csproj" />
     <Project Path="tests/UseControl.Cli.Tests/UseControl.Cli.Tests.csproj" />
     <Project Path="tests/UseControl.Core.Tests/UseControl.Core.Tests.csproj" />
     <Project Path="tests/UseControl.Service.Tests/UseControl.Service.Tests.csproj" />

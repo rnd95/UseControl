@@ -1,0 +1,29 @@
+<UserControl x:Class="UseControl.Admin.Views.AccountsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:UseControl.Admin.Infrastructure">
+  <StackPanel>
+    <Border Style="{StaticResource Card}">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+          <TextBlock Text="{l:Tr Ui.Accounts.Restricted}" Style="{StaticResource SectionTitle}" />
+          <ListBox ItemsSource="{Binding Restricted}" SelectedItem="{Binding SelectedRestricted}" Height="220" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,30,16,0">
+          <Button Content="{l:Tr Ui.Accounts.Add}" Style="{StaticResource PrimaryButton}" Command="{Binding AddCommand}" Margin="0,0,0,8" />
+          <Button Content="{l:Tr Ui.Accounts.Remove}" Command="{Binding RemoveCommand}" Margin="0" />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock Text="{l:Tr Ui.Accounts.Available}" Style="{StaticResource SectionTitle}" />
+          <ListBox ItemsSource="{Binding Candidates}" SelectedItem="{Binding SelectedCandidate}" Height="220" />
+        </StackPanel>
+      </Grid>
+    </Border>
+    <TextBlock Text="{l:Tr Ui.Accounts.Help}" Style="{StaticResource Help}" />
+  </StackPanel>
+</UserControl>

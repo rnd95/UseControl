@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The admin panel: WPF views and theme only; behaviour lives in UseControl.Admin.ViewModels. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>UseControl.Admin</RootNamespace>
+    <AssemblyName>UseControl</AssemblyName>
+    <ApplicationIcon>..\..\assets\uc.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <SatelliteResourceLanguages>uk</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="..\..\assets\uc.ico" Link="Assets\uc.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UseControl.Admin.ViewModels\UseControl.Admin.ViewModels.csproj" />
+  </ItemGroup>
+
+</Project>

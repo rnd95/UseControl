@@ -1,0 +1,32 @@
+<Application x:Class="UseControl.Admin.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:UseControl.Admin.Infrastructure"
+             xmlns:pages="clr-namespace:UseControl.Admin.ViewModels.Pages;assembly=UseControl.Admin.ViewModels"
+             xmlns:views="clr-namespace:UseControl.Admin.Views"
+             ShutdownMode="OnMainWindowClose">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Themes/Theme.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+
+      <l:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+      <l:TextToVisibilityConverter x:Key="TextToVisibility" />
+      <l:InverseBoolConverter x:Key="InverseBool" />
+      <l:ZeroToVisibilityConverter x:Key="ZeroToVisibility" />
+      <l:StateBrushConverter x:Key="StateBrush" />
+      <l:HoursConverter x:Key="Hours" />
+
+      <!-- Which view draws which page: replace a view here to redesign a page. -->
+      <DataTemplate DataType="{x:Type pages:StatusPageViewModel}"><views:StatusView /></DataTemplate>
+      <DataTemplate DataType="{x:Type pages:AccountsPageViewModel}"><views:AccountsView /></DataTemplate>
+      <DataTemplate DataType="{x:Type pages:GamesPageViewModel}"><views:GamesView /></DataTemplate>
+      <DataTemplate DataType="{x:Type pages:ProgramsPageViewModel}"><views:ProgramsView /></DataTemplate>
+      <DataTemplate DataType="{x:Type pages:FileAccessPageViewModel}"><views:FileAccessView /></DataTemplate>
+      <DataTemplate DataType="{x:Type pages:BrowsersPageViewModel}"><views:BrowsersView /></DataTemplate>
+      <DataTemplate DataType="{x:Type pages:AuditPageViewModel}"><views:AuditView /></DataTemplate>
+      <DataTemplate DataType="{x:Type pages:SettingsPageViewModel}"><views:SettingsView /></DataTemplate>
+    </ResourceDictionary>
+  </Application.Resources>
+</Application>
