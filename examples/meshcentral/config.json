@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Ylianst/MeshCentral/master/meshcentral-config-schema.json",
+  "settings": {
+    "cert": "10.165.106.1",
+    "port": 4430,
+    "mpsPort": 0,
+    "WANonly": true,
+    "selfUpdate": false,
+    "allowLoginToken": false,
+    "allowFraming": false,
+    "webRTC": false,
+    "userAllowedIP": "10.165.106.0/24,192.168.90.0/24",
+    "agentAllowedIP": "10.165.106.0/24,192.168.90.0/24,192.168.91.0/24"
+  },
+  "domains": {
+    "": {
+      "title": "Home",
+      "newAccounts": false,
+      "passwordRequirements": {
+        "min": 12,
+        "force2factor": true
+      }
+    }
+  }
+}

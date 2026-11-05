@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Models, configuration and rule building. No access to the system here, so it is fully unit-tested. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>UseControl.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Defaults\config.default.json" LogicalName="UseControl.Core.config.default.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="UseControl.Core.Tests" />
+  </ItemGroup>
+
+</Project>

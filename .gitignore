@@ -1,0 +1,23 @@
+# Build output
+bin/
+obj/
+publish/
+artifacts/
+TestResults/
+*.binlog
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.DotSettings.user
+
+# Configuration of a particular PC (account names, private folders): never commit
+config.json
+!examples/**/config.json
+config.*.bak.json
+
+# OS
+Thumbs.db
+desktop.ini
