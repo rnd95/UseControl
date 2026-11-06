@@ -17,6 +17,9 @@ public sealed partial class StatusPageViewModel : PageViewModel
 
     public ObservableCollection<StatusLine> Accounts { get; } = [];
 
+    /// <summary>Games time of every restricted account.</summary>
+    public ObservableCollection<StatusLine> Games { get; } = [];
+
     [ObservableProperty]
     private bool _isEnabled = true;
 
@@ -52,6 +55,7 @@ public sealed partial class StatusPageViewModel : PageViewModel
         {
             Summary.Clear();
             Accounts.Clear();
+            Games.Clear();
             return;
         }
         IsEnabled = s.Enabled;
@@ -59,7 +63,6 @@ public sealed partial class StatusPageViewModel : PageViewModel
         [
             new(Loc.T("Ui.Status.Service"), s.Version),
             new(Loc.T("Ui.Status.Restrictions"), Loc.T(s.Enabled ? "Ui.Status.On" : "Ui.Status.Suspended"), !s.Enabled),
-            new(Loc.T("Ui.Status.Games"), s.GamesAllowedUntil is { } u ? Loc.T("Ui.Status.GamesUntil", Local(u)) : Loc.T("Ui.Status.GamesBlocked"), s.GamesAllowedUntil is not null),
             new(Loc.T("Ui.Status.LastApplied"), s.LastApplied is { } la ? Local(la) : Loc.T("Cli.StatusNever")),
             new(Loc.T("Ui.Status.Store"), Loc.T(s.StoreInstallsAdminOnly ? "Ui.Status.StoreAdmins" : "Ui.Status.StoreEveryone")),
         ]);
@@ -71,6 +74,9 @@ public sealed partial class StatusPageViewModel : PageViewModel
                 + (st.KeysLocked ? "" : " · " + Loc.T("Ui.Status.Unlocked")), !st.KeysLocked);
         }));
         foreach (var f in s.LastResults.Where(r => !r.Success)) Accounts.Add(new StatusLine(f.User, f.Error ?? "?", true));
+        Replace(Games, s.Games.Select(g => new StatusLine(g.User,
+            GamesPageViewModel.StateText(g) + " · " + Loc.T("Ui.Games.PlayedToday", GamesText.Duration(g.PlayedToday)) + (g.Playing ? " · " + Loc.T("Ui.Games.PlayingNow") : ""),
+            g.Allowed)));
     }
 
     internal static string Local(DateTimeOffset t) => t.ToLocalTime().ToString("g", Loc.Culture ?? CultureInfo.CurrentCulture);

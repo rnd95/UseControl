@@ -39,12 +39,12 @@ public sealed record RuleSet(IReadOnlyList<PathRule> Blocked, IReadOnlyList<Path
 
 public static class RuleSetBuilder
 {
-    /// <param name="config">The configuration.</param>
+    /// <param name="config">The account's preset.</param>
     /// <param name="profilePath">The account's profile folder, blocked as a whole.</param>
     /// <param name="autoPaths">Places found on this PC (writable folders, other drive letters...).</param>
     /// <param name="systemAllowed">Windows and Program Files, allowed under a blocked drive root.</param>
     /// <param name="gamesAllowed">Games time: game folders become allowed and game names and files are not blocked.</param>
-    public static RuleSet Build(UcConfig config, string? profilePath, IEnumerable<AutoPath> autoPaths, IEnumerable<string> systemAllowed, bool gamesAllowed)
+    public static RuleSet Build(Preset config, string? profilePath, IEnumerable<AutoPath> autoPaths, IEnumerable<string> systemAllowed, bool gamesAllowed)
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(autoPaths);

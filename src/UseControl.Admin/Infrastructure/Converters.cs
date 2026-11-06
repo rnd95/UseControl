@@ -29,11 +29,11 @@ public sealed class TextToVisibilityConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
 }
 
-/// <summary>A count of 0 → Visible (for "nothing here yet" texts).</summary>
+/// <summary>A count of 0 → Visible (for "nothing here yet" texts); with ConverterParameter=Invert, visible when not 0.</summary>
 public sealed class ZeroToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
-        value is 0 ? Visibility.Visible : Visibility.Collapsed;
+        (value is 0) != (parameter is "Invert") ? Visibility.Visible : Visibility.Collapsed;
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
 }

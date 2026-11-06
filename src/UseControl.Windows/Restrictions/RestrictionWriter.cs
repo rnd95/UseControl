@@ -43,10 +43,10 @@ public static class RestrictionWriter
 
     /// <param name="root">The account's HKCU.</param>
     /// <param name="rules">The rule set built for this account.</param>
-    /// <param name="config">For the browser policies.</param>
+    /// <param name="config">The account's preset: Windows tools and browser policies.</param>
     /// <param name="userSid">The account, for the read-only lock.</param>
     /// <param name="lockKeys">False only in tests (locking needs administrator rights).</param>
-    public static void Apply(RegistryKey root, RuleSet rules, UcConfig config, string userSid, bool lockKeys = true)
+    public static void Apply(RegistryKey root, RuleSet rules, Preset config, string userSid, bool lockKeys = true)
     {
         ArgumentNullException.ThrowIfNull(root);
         ArgumentNullException.ThrowIfNull(rules);

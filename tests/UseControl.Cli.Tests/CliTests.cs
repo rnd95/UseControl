@@ -1,5 +1,6 @@
 using System.Text.Json;
 using UseControl.Core.Configuration;
+using UseControl.Core.Games;
 using UseControl.Core.Paths;
 using UseControl.Localization;
 
@@ -62,7 +63,7 @@ public sealed class CliTests : IDisposable
         Assert.Contains("signed in", Out, StringComparison.Ordinal);
 
         await Run("users list");
-        Assert.Contains("Restricted accounts: kid", Out, StringComparison.Ordinal);
+        Assert.Contains("Restricted accounts: kid (kid)", Out, StringComparison.Ordinal);
         Assert.Contains("guest2", Out, StringComparison.Ordinal);
 
         Assert.Equal(CliApp.Ok, await Run("users remove kid"));
@@ -73,15 +74,17 @@ public sealed class CliTests : IDisposable
     [Fact]
     public async Task Folders_with_spaces_are_blocked_with_a_category()
     {
+        _svc.Restrict("kid");
         Assert.Equal(CliApp.Ok, await Run("block folder \"F:\\My Games\" --category games"));
-        Assert.Equal(RuleCategory.Games, _svc.Config.BlockedPaths.Single(p => p.Path == @"F:\My Games").Category);
+        Assert.Equal(RuleCategory.Games, _svc.Preset.BlockedPaths.Single(p => p.Path == @"F:\My Games").Category);
         Assert.Equal(CliApp.Ok, await Run("unblock folder F:\\My Games"));   // unquoted rest of the line works too
-        Assert.DoesNotContain(_svc.Config.BlockedPaths, p => p.Path == @"F:\My Games");
+        Assert.DoesNotContain(_svc.Preset.BlockedPaths, p => p.Path == @"F:\My Games");
     }
 
     [Fact]
     public async Task Service_errors_are_shown_in_the_chosen_language()
     {
+        _svc.Restrict("kid");
         Assert.Equal(CliApp.Failed, await Run("block folder C:\\Windows --lang uk"));
         Assert.Contains("Помилка", _err.ToString(), StringComparison.Ordinal);
         Assert.Contains("потрібна Windows", _err.ToString(), StringComparison.Ordinal);
@@ -103,12 +106,13 @@ public sealed class CliTests : IDisposable
     [Fact]
     public async Task Program_files_are_blocked_by_fingerprint()
     {
+        _svc.Restrict("kid");
         Assert.Equal(CliApp.Ok, await Run("block file D:\\games\\x\\game.exe --category games"));
-        var f = _svc.Config.BlockedFiles.Single();
+        var f = _svc.Preset.BlockedFiles.Single();
         Assert.Equal("game.exe", f.FileName);
         Assert.Contains("fingerprint", Out, StringComparison.Ordinal);
         Assert.Equal(CliApp.Ok, await Run("unblock file " + new string('A', 64)));
-        Assert.Empty(_svc.Config.BlockedFiles);
+        Assert.Empty(_svc.Preset.BlockedFiles);
     }
 
     [Fact]
@@ -127,35 +131,109 @@ public sealed class CliTests : IDisposable
     [Fact]
     public async Task Extensions_and_policies_are_managed_per_browser()
     {
+        _svc.Restrict("kid");
         Assert.Equal(CliApp.Ok, await Run("ext allow chrome cjpalhdlnbpafiamejdnhcphjbkeiagm"));
-        Assert.Contains("cjpalhdlnbpafiamejdnhcphjbkeiagm", _svc.Config.Browsers.Chrome.ExtensionsAllowed);
+        Assert.Contains("cjpalhdlnbpafiamejdnhcphjbkeiagm", _svc.Preset.Browsers.Chrome.ExtensionsAllowed);
         Assert.Equal(CliApp.Ok, await Run("policy set edge HomepageLocation https://example.org"));
-        Assert.Equal("https://example.org", _svc.Config.Browsers.Edge.Policies["HomepageLocation"].GetString());
+        Assert.Equal("https://example.org", _svc.Preset.Browsers.Edge.Policies["HomepageLocation"].GetString());
         Assert.Equal(CliApp.Ok, await Run("policy set firefox DisableTelemetry true"));
-        Assert.True(_svc.Config.Browsers.Firefox.Policies["DisableTelemetry"].GetBoolean());
+        Assert.True(_svc.Preset.Browsers.Firefox.Policies["DisableTelemetry"].GetBoolean());
         Assert.Equal(CliApp.Ok, await Run("policy remove edge HomepageLocation"));
-        Assert.False(_svc.Config.Browsers.Edge.Policies.ContainsKey("HomepageLocation"));
+        Assert.False(_svc.Preset.Browsers.Edge.Policies.ContainsKey("HomepageLocation"));
     }
 
     [Fact]
-    public async Task Games_are_allowed_with_comma_or_point_and_locked()
+    public async Task Games_are_allowed_as_play_time_or_from_now_and_locked()
     {
+        _svc.Restrict("kid").Restrict("teen");
         Assert.Equal(CliApp.Ok, await Run("games allow 1,5"));
-        Assert.NotNull(_svc.GamesUntil);
+        Assert.Equal(90, _svc.GameStates["kid"].PlayMinutesLeft);
+        Assert.Equal(90, _svc.GameStates["teen"].PlayMinutesLeft);
+        Assert.Contains("1 h 30 min of play left", Out, StringComparison.Ordinal);
+
+        Assert.Equal(CliApp.Ok, await Run("games allow 0.5 --now --user teen"));
+        Assert.NotNull(_svc.GameStates["teen"].AllowedUntil);
+        Assert.DoesNotContain("[kid]", Out, StringComparison.Ordinal);
+
         Assert.Equal(CliApp.Failed, await Run("games allow 99"));
         Assert.Equal(CliApp.Failed, await Run("games allow lots"));
-        Assert.Equal(CliApp.Ok, await Run("games lock"));
-        Assert.Null(_svc.GamesUntil);
+        Assert.Equal(CliApp.Failed, await Run("games allow 1 --user nobody"));
+        Assert.Equal(CliApp.Ok, await Run("games lock --user kid"));
+        Assert.Equal(0, _svc.GameStates["kid"].PlayMinutesLeft);
+        Assert.Equal(CliApp.Ok, await Run("games"));
+        Assert.Contains("[kid] games blocked", Out, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Schedule_windows_are_added_listed_and_removed()
+    {
+        _svc.Restrict("kid");
+        Assert.Equal(CliApp.Ok, await Run("games schedule add mon-fri 16:00-20:00 --limit 60"));
+        Assert.Equal(CliApp.Ok, await Run("games schedule add weekend 10:00-21:00"));
+        Assert.Equal(GamesMode.Schedule, _svc.Preset.Games.Mode);
+        var w = _svc.Preset.Games.Schedule[0];
+        Assert.Equal([DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday], w.Days);
+        Assert.Equal(60, w.LimitMinutes);
+
+        Assert.Equal(CliApp.Ok, await Run("games schedule"));
+        Assert.Contains("1. Mon–Fri  16:00–20:00, up to 1 h", Out, StringComparison.Ordinal);
+        Assert.Contains("2. Sat, Sun  10:00–21:00", Out, StringComparison.Ordinal);
+
+        Assert.Equal(CliApp.Failed, await Run("games schedule add fri-mon 10:00-11:00"));
+        Assert.Equal(CliApp.Failed, await Run("games schedule add mon 18:00-17:00"));
+        Assert.Equal(CliApp.Ok, await Run("games schedule remove 1"));
+        Assert.Single(_svc.Preset.Games.Schedule);
+        Assert.Equal(CliApp.Ok, await Run("games mode manual"));
+        Assert.Equal(GamesMode.Manual, _svc.Preset.Games.Mode);
+        Assert.Equal(CliApp.Ok, await Run("games close off"));
+        Assert.False(_svc.Preset.Games.CloseGamesWhenOver);
+    }
+
+    [Theory]
+    [InlineData("mon-fri", 5)]
+    [InlineData("sat,sun", 2)]
+    [InlineData("mo,we,fr", 3)]
+    [InlineData("all", 7)]
+    [InlineData("weekdays,sat", 6)]
+    public void Days_are_read_in_several_ways(string text, int count) => Assert.Equal(count, CliApp.ParseDays(text).Count);
+
+    [Fact]
+    public async Task Presets_are_created_shared_and_required_when_there_are_several()
+    {
+        Assert.Equal(CliApp.Failed, await Run("block name x.exe"));   // no preset yet
+        Assert.Contains("no presets yet", _err.ToString(), StringComparison.OrdinalIgnoreCase);
+
+        await Run("users add kid");
+        Assert.Equal(CliApp.Ok, await Run("preset add Teens --from kid"));
+        Assert.Equal(CliApp.Ok, await Run("users add teen --preset teens"));
+        Assert.Equal(["teen"], _svc.Config.GetPreset("Teens").Accounts);
+
+        Assert.Equal(CliApp.Failed, await Run("block name x.exe"));
+        Assert.Contains("--preset", _err.ToString(), StringComparison.Ordinal);
+        Assert.Equal(CliApp.Ok, await Run("block name x.exe --preset teens"));
+        Assert.Contains(_svc.Config.GetPreset("Teens").BlockedNames, n => n.Name == "x.exe");
+        Assert.DoesNotContain(_svc.Config.GetPreset("kid").BlockedNames, n => n.Name == "x.exe");
+
+        Assert.Equal(CliApp.Ok, await Run("users move teen kid"));
+        Assert.Equal(["kid", "teen"], _svc.Config.GetPreset("kid").Accounts);
+        Assert.Equal(CliApp.Ok, await Run("preset rename Teens Older"));
+        Assert.Equal(CliApp.Ok, await Run("preset list"));
+        Assert.Contains("Older: accounts (none)", Out, StringComparison.Ordinal);
+        Assert.Equal(CliApp.Ok, await Run("preset remove older"));
+        Assert.Single(_svc.Config.Presets);
     }
 
     [Fact]
     public async Task Found_games_are_added_only_with_add()
     {
+        _svc.Restrict("kid");
         await Run("games find");
         Assert.Contains(@"D:\NewGames", Out, StringComparison.Ordinal);
-        Assert.DoesNotContain(_svc.Config.BlockedPaths, p => p.Path == @"D:\NewGames");
+        Assert.DoesNotContain(_svc.Preset.BlockedPaths, p => p.Path == @"D:\NewGames");
         await Run("games find --add");
-        Assert.Equal(RuleCategory.Games, _svc.Config.BlockedPaths.Single(p => p.Path == @"D:\NewGames").Category);
+        Assert.Equal(RuleCategory.Games, _svc.Preset.BlockedPaths.Single(p => p.Path == @"D:\NewGames").Category);
+        await Run("games find");
+        Assert.Contains("No new game folders", Out, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -204,7 +282,7 @@ public sealed class CliTests : IDisposable
             await Run("users add kid");
             Assert.Equal(CliApp.Ok, await Run($"config export \"{file}\""));
             var c = ConfigSerializer.Load(file);
-            c.Users = ["kid", "teen"];
+            ConfigEditor.AddUser(c, "teen", "kid");
             ConfigSerializer.Save(c, file);
             Assert.Equal(CliApp.Ok, await Run($"config import \"{file}\""));
             Assert.Equal(["kid", "teen"], _svc.Config.Users);

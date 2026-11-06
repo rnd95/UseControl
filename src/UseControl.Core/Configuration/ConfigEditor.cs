@@ -1,3 +1,4 @@
+using UseControl.Core.Games;
 using UseControl.Core.Paths;
 using UseControl.Core.Validation;
 
@@ -10,23 +11,120 @@ namespace UseControl.Core.Configuration;
 /// </summary>
 public static class ConfigEditor
 {
-    public static void AddUser(UcConfig c, string user)
+    /// <summary>
+    /// Restricts an account with a preset. Without a preset name the account gets its own preset, named
+    /// after it (an existing one of that name, or a new one with the recommended settings).
+    /// </summary>
+    public static Preset AddUser(UcConfig c, string user, string? presetName = null)
     {
         ArgumentNullException.ThrowIfNull(c);
         var u = (user ?? "").Trim();
         if (!Validators.IsUserName(u)) throw new UcException(ErrorCodes.InvalidUserName, user ?? "");
-        if (c.Users.Contains(u, StringComparer.OrdinalIgnoreCase)) throw new UcException(ErrorCodes.AlreadyInList, u);
-        c.Users.Add(u);
+        if (c.PresetOf(u) is not null) throw new UcException(ErrorCodes.AlreadyInList, u);
+        Preset preset;
+        if (!string.IsNullOrWhiteSpace(presetName)) preset = c.GetPreset(presetName);
+        else preset = c.FindPreset(u) ?? AddPreset(c, u);
+        preset.Accounts.Add(u);
+        return preset;
     }
 
+    /// <summary>Stops restricting an account. Its preset stays (with its settings) for later.</summary>
     public static void RemoveUser(UcConfig c, string user)
     {
         ArgumentNullException.ThrowIfNull(c);
-        if (c.Users.RemoveAll(x => x.Equals(user?.Trim(), StringComparison.OrdinalIgnoreCase)) == 0) throw new UcException(ErrorCodes.NotInList, user ?? "");
-        foreach (var r in c.FileAccess) r.Users.RemoveAll(x => x.Equals(user?.Trim(), StringComparison.OrdinalIgnoreCase));
+        var u = user?.Trim() ?? "";
+        var p = c.PresetOf(u) ?? throw new UcException(ErrorCodes.NotInList, user ?? "");
+        p.Accounts.RemoveAll(x => x.Equals(u, StringComparison.OrdinalIgnoreCase));
+        foreach (var r in c.FileAccess) r.Users.RemoveAll(x => x.Equals(u, StringComparison.OrdinalIgnoreCase));
     }
 
-    public static string AddBlockedPath(UcConfig c, string path, RuleCategory category, ISystemPaths sp, string? note = null)
+    /// <summary>Gives a restricted account the settings of another preset.</summary>
+    public static void MoveUser(UcConfig c, string user, string presetName)
+    {
+        ArgumentNullException.ThrowIfNull(c);
+        var u = user?.Trim() ?? "";
+        var from = c.PresetOf(u) ?? throw new UcException(ErrorCodes.NotRestricted, user ?? "");
+        var to = c.GetPreset(presetName);
+        if (ReferenceEquals(from, to)) return;
+        var name = from.Accounts.First(x => x.Equals(u, StringComparison.OrdinalIgnoreCase));
+        from.Accounts.Remove(name);
+        to.Accounts.Add(name);
+    }
+
+    /// <summary>A new preset: a copy of another one, or the recommended settings.</summary>
+    public static Preset AddPreset(UcConfig c, string name, Preset? copyOf = null)
+    {
+        ArgumentNullException.ThrowIfNull(c);
+        var n = CheckPresetName(c, name);
+        var p = copyOf is null ? ConfigSerializer.DefaultPreset(n) : ConfigSerializer.CopyPreset(copyOf, n);
+        c.Presets.Add(p);
+        return p;
+    }
+
+    public static void RenamePreset(UcConfig c, string name, string newName)
+    {
+        ArgumentNullException.ThrowIfNull(c);
+        var p = c.GetPreset(name);
+        if ((newName ?? "").Trim().Equals(p.Name, StringComparison.Ordinal)) return;
+        var others = new UcConfig { Presets = [.. c.Presets.Where(x => !ReferenceEquals(x, p))] };
+        p.Name = CheckPresetName(others, newName ?? "");
+    }
+
+    /// <summary>Deletes a preset; its accounts are no longer restricted.</summary>
+    public static IReadOnlyList<string> RemovePreset(UcConfig c, string name)
+    {
+        ArgumentNullException.ThrowIfNull(c);
+        var p = c.GetPreset(name);
+        var accounts = p.Accounts.ToList();
+        foreach (var a in accounts) RemoveUser(c, a);
+        c.Presets.Remove(p);
+        return accounts;
+    }
+
+    private static string CheckPresetName(UcConfig c, string name)
+    {
+        var n = (name ?? "").Trim();
+        if (!Validators.IsPresetName(n)) throw new UcException(ErrorCodes.InvalidPresetName, name ?? "");
+        if (c.FindPreset(n) is not null) throw new UcException(ErrorCodes.PresetExists, n);
+        return n;
+    }
+
+    // ---------------------------------------------------------------- games time
+
+    public static void SetGamesMode(Preset p, GamesMode mode)
+    {
+        ArgumentNullException.ThrowIfNull(p);
+        if (!Enum.IsDefined(mode)) throw new UcException(ErrorCodes.InvalidArgument, mode, "mode");
+        p.Games.Mode = mode;
+    }
+
+    /// <summary>Adds a time window to the schedule (and switches the preset to the schedule).</summary>
+    public static GamesWindow AddGamesWindow(Preset p, IEnumerable<DayOfWeek> days, string from, string to, int limitMinutes)
+    {
+        ArgumentNullException.ThrowIfNull(p);
+        var w = new GamesWindow
+        {
+            Days = [.. (days ?? []).Distinct().Order()],
+            From = GamesWindow.ParseTime(from) is { } f ? GamesWindow.FormatTime(f) : from ?? "",
+            To = GamesWindow.ParseTime(to) is { } t ? GamesWindow.FormatTime(t) : to ?? "",
+            LimitMinutes = limitMinutes,
+        };
+        w.EnsureValid();
+        p.Games.Schedule.Add(w);
+        p.Games.Mode = GamesMode.Schedule;
+        return w;
+    }
+
+    public static void RemoveGamesWindow(Preset p, int index)
+    {
+        ArgumentNullException.ThrowIfNull(p);
+        if (index < 0 || index >= p.Games.Schedule.Count) throw new UcException(ErrorCodes.NotInList, index + 1);
+        p.Games.Schedule.RemoveAt(index);
+    }
+
+    // ---------------------------------------------------------------- programs
+
+    public static string AddBlockedPath(Preset c, string path, RuleCategory category, ISystemPaths sp, string? note = null)
     {
         ArgumentNullException.ThrowIfNull(c);
         var p = PathRules.EnsureCanBlock(path, sp);
@@ -35,7 +133,7 @@ public static class ConfigEditor
         return p;
     }
 
-    public static void RemoveBlockedPath(UcConfig c, string path)
+    public static void RemoveBlockedPath(Preset c, string path)
     {
         ArgumentNullException.ThrowIfNull(c);
         var p = PathRules.Normalize(path);
@@ -43,7 +141,7 @@ public static class ConfigEditor
     }
 
     /// <summary>A program folder that should run although it is inside a blocked place (for example C:\Tools).</summary>
-    public static string AddAllowedPath(UcConfig c, string path, string? note = null)
+    public static string AddAllowedPath(Preset c, string path, string? note = null)
     {
         ArgumentNullException.ThrowIfNull(c);
         var p = PathRules.Normalize(path);
@@ -53,14 +151,14 @@ public static class ConfigEditor
         return p;
     }
 
-    public static void RemoveAllowedPath(UcConfig c, string path)
+    public static void RemoveAllowedPath(Preset c, string path)
     {
         ArgumentNullException.ThrowIfNull(c);
         var p = PathRules.Normalize(path);
         if (c.AllowedPaths.RemoveAll(e => SamePath(e.Path, p)) == 0) throw new UcException(ErrorCodes.NotInList, p);
     }
 
-    public static string AddBlockedName(UcConfig c, string name, RuleCategory category, string? note = null)
+    public static string AddBlockedName(Preset c, string name, RuleCategory category, string? note = null)
     {
         ArgumentNullException.ThrowIfNull(c);
         var n = (name ?? "").Trim().Trim('"');
@@ -70,7 +168,7 @@ public static class ConfigEditor
         return n;
     }
 
-    public static void RemoveBlockedName(UcConfig c, string name)
+    public static void RemoveBlockedName(Preset c, string name)
     {
         ArgumentNullException.ThrowIfNull(c);
         var n = (name ?? "").Trim().Trim('"');
@@ -78,7 +176,7 @@ public static class ConfigEditor
     }
 
     /// <summary>Blocks a program by its content. The hashes are computed by the caller from the file.</summary>
-    public static void AddBlockedFile(UcConfig c, FileHashEntry entry)
+    public static void AddBlockedFile(Preset c, FileHashEntry entry)
     {
         ArgumentNullException.ThrowIfNull(c);
         ArgumentNullException.ThrowIfNull(entry);
@@ -91,7 +189,7 @@ public static class ConfigEditor
         c.BlockedFiles.Add(entry);
     }
 
-    public static void RemoveBlockedFile(UcConfig c, string sha256)
+    public static void RemoveBlockedFile(Preset c, string sha256)
     {
         ArgumentNullException.ThrowIfNull(c);
         if (c.BlockedFiles.RemoveAll(e => e.Sha256.Equals(sha256?.Trim(), StringComparison.OrdinalIgnoreCase)) == 0)
@@ -118,7 +216,7 @@ public static class ConfigEditor
         if (c.FileAccess.RemoveAll(r => SamePath(r.Path, p) && (mode is null || r.Mode == mode)) == 0) throw new UcException(ErrorCodes.NotInList, p);
     }
 
-    public static void AddExtension(UcConfig c, BrowserKind browser, string id)
+    public static void AddExtension(Preset c, BrowserKind browser, string id)
     {
         var list = ExtensionList(c, browser);
         var x = (id ?? "").Trim();
@@ -127,7 +225,7 @@ public static class ConfigEditor
         list.Add(x);
     }
 
-    public static void RemoveExtension(UcConfig c, BrowserKind browser, string id)
+    public static void RemoveExtension(Preset c, BrowserKind browser, string id)
     {
         if (ExtensionList(c, browser).RemoveAll(x => x == id?.Trim()) == 0) throw new UcException(ErrorCodes.NotInList, id ?? "");
     }
@@ -136,7 +234,7 @@ public static class ConfigEditor
     /// Sets any browser policy by its registry name. The value is typed as people write it:
     /// a whole number or true/false becomes a DWORD, anything else text.
     /// </summary>
-    public static void SetBrowserPolicy(UcConfig c, BrowserKind browser, string name, string value)
+    public static void SetBrowserPolicy(Preset c, BrowserKind browser, string name, string value)
     {
         ArgumentNullException.ThrowIfNull(c);
         var n = (name ?? "").Trim();
@@ -144,7 +242,7 @@ public static class ConfigEditor
         Policies(c, browser)[n] = ParsePolicyValue(value ?? "");
     }
 
-    public static void RemoveBrowserPolicy(UcConfig c, BrowserKind browser, string name)
+    public static void RemoveBrowserPolicy(Preset c, BrowserKind browser, string name)
     {
         ArgumentNullException.ThrowIfNull(c);
         var p = Policies(c, browser);
@@ -162,14 +260,14 @@ public static class ConfigEditor
         return System.Text.Json.JsonSerializer.SerializeToElement(value);
     }
 
-    private static Dictionary<string, System.Text.Json.JsonElement> Policies(UcConfig c, BrowserKind browser) => browser switch
+    private static Dictionary<string, System.Text.Json.JsonElement> Policies(Preset c, BrowserKind browser) => browser switch
     {
         BrowserKind.Chrome => c.Browsers.Chrome.Policies,
         BrowserKind.Edge => c.Browsers.Edge.Policies,
         _ => c.Browsers.Firefox.Policies,
     };
 
-    private static List<string> ExtensionList(UcConfig c, BrowserKind browser)
+    private static List<string> ExtensionList(Preset c, BrowserKind browser)
     {
         ArgumentNullException.ThrowIfNull(c);
         return browser switch

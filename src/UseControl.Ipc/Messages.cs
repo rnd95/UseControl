@@ -1,5 +1,6 @@
 using System.Text.Json;
 using UseControl.Core.Configuration;
+using UseControl.Core.Games;
 using UseControl.Core.Rules;
 using UseControl.Windows;
 using UseControl.Windows.Restrictions;
@@ -31,18 +32,36 @@ public sealed record PingResult(string Version, int ProcessId);
 
 public sealed record AccountStatus(string User, RestrictionState? State, string? Error);
 
+/// <summary>Games of one restricted account now.</summary>
+/// <param name="User">The account.</param>
+/// <param name="Preset">Its preset.</param>
+/// <param name="Allowed">Whether games may run now.</param>
+/// <param name="Reason">Why.</param>
+/// <param name="Until">When allowed: when it ends at the latest.</param>
+/// <param name="MinutesLeft">When counted by play: minutes of play left.</param>
+/// <param name="NextStart">When blocked by the schedule: when the next time window starts.</param>
+/// <param name="PlayedToday">Minutes a game ran today.</param>
+/// <param name="Playing">A game is running now.</param>
+public sealed record AccountGames(string User, string Preset, bool Allowed, GamesReason Reason, DateTimeOffset? Until, double? MinutesLeft, DateTimeOffset? NextStart, double PlayedToday, bool Playing);
+
 /// <summary>Everything the panel shows on its first page.</summary>
 public sealed record ServiceStatus(
     string Version,
     bool Enabled,
-    DateTimeOffset? GamesAllowedUntil,
+    IReadOnlyList<AccountGames> Games,
     DateTimeOffset? LastApplied,
     IReadOnlyList<AccountResult> LastResults,
     IReadOnlyList<AccountStatus> Accounts,
     bool StoreInstallsAdminOnly,
     string DataDirectory);
 
-public sealed record AllowGamesRequest(double Hours);
+/// <param name="User">One account, or null for every restricted account.</param>
+/// <param name="Hours">How long.</param>
+/// <param name="CountPlayOnly">True: the time counts only while a game runs (the timer starts when a game starts). False: from now on.</param>
+public sealed record AllowGamesRequest(string? User, double Hours, bool CountPlayOnly);
+
+/// <param name="User">One account, or null for every restricted account.</param>
+public sealed record LockGamesRequest(string? User);
 
 public sealed record SetConfigResult(ApplyResult? Applied, IReadOnlyList<AccountResult> Removed);
 

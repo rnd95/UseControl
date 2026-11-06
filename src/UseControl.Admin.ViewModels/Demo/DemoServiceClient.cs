@@ -1,5 +1,7 @@
 using UseControl.Core;
 using UseControl.Core.Configuration;
+using UseControl.Core.Games;
+using UseControl.Localization;
 using UseControl.Core.Paths;
 using UseControl.Core.Rules;
 using UseControl.Ipc;
@@ -18,18 +20,22 @@ public sealed class DemoServiceClient : IServiceClient
 {
     private UcConfig _config;
     private bool _enabled = true;
-    private DateTimeOffset? _gamesUntil;
+    private readonly Dictionary<string, GamesState> _games = new(StringComparer.OrdinalIgnoreCase);
 
     public DemoServiceClient()
     {
         _config = ConfigSerializer.LoadDefault();
-        _config.Users = ["kids", "guest"];
-        _config.BlockedPaths.Add(new PathEntry { Path = @"D:\Games", Category = RuleCategory.Games });
-        _config.AllowedPaths.Add(new AllowedPathEntry { Path = @"C:\Tools", Note = "school software" });
-        _config.BlockedFiles.Add(new FileHashEntry { FileName = "minecraft-portable.exe", Sha256 = new string('A', 64), Md5 = new string('B', 32), Size = 1024, Category = RuleCategory.Games });
+        var kids = ConfigEditor.AddUser(_config, "kids");
+        kids.BlockedPaths.Add(new PathEntry { Path = @"D:\Games", Category = RuleCategory.Games });
+        kids.AllowedPaths.Add(new AllowedPathEntry { Path = @"C:\Tools", Note = "school software" });
+        kids.BlockedFiles.Add(new FileHashEntry { FileName = "minecraft-portable.exe", Sha256 = new string('A', 64), Md5 = new string('B', 32), Size = 1024, Category = RuleCategory.Games });
+        ConfigEditor.AddGamesWindow(kids, GamesText.Week.Take(5), "16:00", "20:00", 60);
+        ConfigEditor.AddGamesWindow(kids, GamesText.Week.Skip(5), "10:00", "21:00", 180);
+        kids.Browsers.Chrome.ExtensionsAllowed.Add("cjpalhdlnbpafiamejdnhcphjbkeiagm");
+        ConfigEditor.AddUser(_config, "guest");
+        _games["kids"] = new GamesState { Day = DateTimeOffset.Now.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture), PlayedToday = 25 };
         _config.FileAccess.Add(new FileAccessRule { Path = @"D:\Private", Mode = FileAccessMode.Deny, Rights = FileAccessRights.Full });
         _config.FileAccess.Add(new FileAccessRule { Path = @"D:\Homework", Mode = FileAccessMode.Allow, Rights = FileAccessRights.Read | FileAccessRights.Write, Users = ["kids"] });
-        _config.Browsers.Chrome.ExtensionsAllowed.Add("cjpalhdlnbpafiamejdnhcphjbkeiagm");
         _config.Audit.PrivateFolders.Add(@"D:\Private");
     }
 
@@ -60,17 +66,23 @@ public sealed class DemoServiceClient : IServiceClient
         return Task.FromResult(new ApplyResult([.. _config.Users.Select(u => new AccountResult(u, true, null, 0, 0, 0, 0, false))], []));
     }
 
-    public Task<ServiceStatus> AllowGamesAsync(double hours, CancellationToken ct = default)
+    public Task<ServiceStatus> AllowGamesAsync(string? user, double hours, bool countPlayOnly, CancellationToken ct = default)
     {
         if (hours < 0.25 || hours > 24) throw new UcException(ErrorCodes.HoursOutOfRange, 0.25, 24);
-        _gamesUntil = DateTimeOffset.Now.AddHours(hours);
+        foreach (var u in user is null ? _config.Users : [user]) GamesClock.Allow(GamesOf(u), DateTimeOffset.Now, hours, countPlayOnly);
         return Task.FromResult(Status());
     }
 
-    public Task<ServiceStatus> LockGamesAsync(CancellationToken ct = default)
+    public Task<ServiceStatus> LockGamesAsync(string? user, CancellationToken ct = default)
     {
-        _gamesUntil = null;
+        foreach (var u in user is null ? _config.Users : [user]) GamesClock.Lock(GamesOf(u), DateTimeOffset.Now, TimeZoneInfo.Local);
         return Task.FromResult(Status());
+    }
+
+    private GamesState GamesOf(string user)
+    {
+        if (!_games.TryGetValue(user, out var s)) _games[user] = s = new GamesState();
+        return s;
     }
 
     public Task<PreviewResult> PreviewAsync(CancellationToken ct = default) =>
@@ -91,16 +103,23 @@ public sealed class DemoServiceClient : IServiceClient
     public Task<IReadOnlyList<string>> FindGamesAsync(CancellationToken ct = default) =>
         Task.FromResult<IReadOnlyList<string>>([@"C:\Program Files (x86)\Steam", @"E:\SteamLibrary"]);
 
-    private ApplyResult Applied() => new([.. _config.Users.Select(u => new AccountResult(u, true, null, 47, 4, _config.BlockedNames.Count, _config.BlockedFiles.Count, false))], []);
+    private ApplyResult Applied() => new([.. _config.Users.Select(u => new AccountResult(u, true, null, 47, 4, _config.PresetOf(u)!.BlockedNames.Count, _config.PresetOf(u)!.BlockedFiles.Count, false))], []);
+
+    private List<AccountGames> Games() => [.. _config.Presets.SelectMany(p => p.Accounts.Select(u =>
+    {
+        var st = GamesOf(u);
+        var d = GamesClock.Evaluate(p.Games, st, DateTimeOffset.Now, TimeZoneInfo.Local);
+        return new AccountGames(u, p.Name, d.Allowed, d.Reason, d.Until, d.MinutesLeft, d.NextStart, st.PlayedToday, d.Allowed && u == "kids");
+    }))];
 
     private ServiceStatus Status() => new(
         "0.1.0",
         _enabled,
-        _gamesUntil > DateTimeOffset.Now ? _gamesUntil : null,
+        Games(),
         DateTimeOffset.Now.AddMinutes(-3),
         [],
         [.. _config.Users.Select(u => new AccountStatus(u,
-            _enabled ? new RestrictionState(true, 47, 4, _config.BlockedFiles.Count * 2, _config.BlockedNames.Count, new Dictionary<string, int>(), true) : new RestrictionState(false, 0, 0, 0, 0, new Dictionary<string, int>(), false),
+            _enabled ? new RestrictionState(true, 47, 4, _config.PresetOf(u)!.BlockedFiles.Count * 2, _config.PresetOf(u)!.BlockedNames.Count, new Dictionary<string, int>(), true) : new RestrictionState(false, 0, 0, 0, 0, new Dictionary<string, int>(), false),
             null))],
         true,
         @"C:\ProgramData\UseControl");

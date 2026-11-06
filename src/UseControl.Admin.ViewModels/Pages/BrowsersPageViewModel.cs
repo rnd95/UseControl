@@ -17,6 +17,8 @@ public sealed partial class BrowsersPageViewModel : PageViewModel
 
     public BrowsersPageViewModel(PanelSession session) : base(session, "Ui.Nav.Browsers", "") { }
 
+    public override bool UsesPreset => true;
+
     public static IReadOnlyList<BrowserKind> Browsers { get; } = [BrowserKind.Chrome, BrowserKind.Edge, BrowserKind.Firefox];
 
     [ObservableProperty]
@@ -62,10 +64,10 @@ public sealed partial class BrowsersPageViewModel : PageViewModel
 
     partial void OnDisablePrivateBrowsingChanged(bool value) => SaveSwitch(c => c.Browsers.Firefox.DisablePrivateBrowsing = value);
 
-    private void SaveSwitch(Action<UcConfig> change)
+    private void SaveSwitch(Action<Preset> change)
     {
         if (_loading) return;
-        _ = Session.EditAsync(change);
+        _ = Session.EditPresetAsync(change);
     }
 
     [RelayCommand(CanExecute = nameof(HasExtension))]
@@ -73,14 +75,14 @@ public sealed partial class BrowsersPageViewModel : PageViewModel
     {
         var b = Browser;
         var id = NewExtension;
-        if (await Session.EditAsync(c => ConfigEditor.AddExtension(c, b, id)).ConfigureAwait(true)) NewExtension = "";
+        if (await Session.EditPresetAsync(c => ConfigEditor.AddExtension(c, b, id)).ConfigureAwait(true)) NewExtension = "";
     }
 
     [RelayCommand]
     private Task RemoveExtension(string? id)
     {
         var b = Browser;
-        return id is null ? Task.CompletedTask : Session.EditAsync(c => ConfigEditor.RemoveExtension(c, b, id));
+        return id is null ? Task.CompletedTask : Session.EditPresetAsync(c => ConfigEditor.RemoveExtension(c, b, id));
     }
 
     [RelayCommand(CanExecute = nameof(HasPolicyName))]
@@ -89,7 +91,7 @@ public sealed partial class BrowsersPageViewModel : PageViewModel
         var b = Browser;
         var name = PolicyName;
         var value = PolicyValue;
-        if (await Session.EditAsync(c => ConfigEditor.SetBrowserPolicy(c, b, name, value)).ConfigureAwait(true))
+        if (await Session.EditPresetAsync(c => ConfigEditor.SetBrowserPolicy(c, b, name, value)).ConfigureAwait(true))
         {
             PolicyName = "";
             PolicyValue = "";
@@ -108,10 +110,10 @@ public sealed partial class BrowsersPageViewModel : PageViewModel
     private Task RemovePolicy(PolicyRow? row)
     {
         var b = Browser;
-        return row is null ? Task.CompletedTask : Session.EditAsync(c => ConfigEditor.RemoveBrowserPolicy(c, b, row.Name));
+        return row is null ? Task.CompletedTask : Session.EditPresetAsync(c => ConfigEditor.RemoveBrowserPolicy(c, b, row.Name));
     }
 
-    private (List<string> extensions, Dictionary<string, JsonElement> policies, bool blocked, Action<bool> block) Settings(UcConfig c) => Browser switch
+    private (List<string> extensions, Dictionary<string, JsonElement> policies, bool blocked, Action<bool> block) Settings(Preset c) => Browser switch
     {
         BrowserKind.Chrome => (c.Browsers.Chrome.ExtensionsAllowed, c.Browsers.Chrome.Policies, c.Browsers.Chrome.BlockExtensions, v => c.Browsers.Chrome.BlockExtensions = v),
         BrowserKind.Edge => (c.Browsers.Edge.ExtensionsAllowed, c.Browsers.Edge.Policies, c.Browsers.Edge.BlockExtensions, v => c.Browsers.Edge.BlockExtensions = v),
@@ -127,8 +129,13 @@ public sealed partial class BrowsersPageViewModel : PageViewModel
 
     protected override void Rebuild()
     {
-        var c = Session.Config;
-        if (c is null) return;
+        var c = Session.Preset;
+        if (c is null)
+        {
+            Extensions.Clear();
+            Policies.Clear();
+            return;
+        }
         _loading = true;
         try
         {

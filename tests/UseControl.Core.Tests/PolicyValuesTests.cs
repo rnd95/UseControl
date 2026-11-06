@@ -39,7 +39,7 @@ public class PolicyValuesTests
     [Fact]
     public void Default_browser_policies_are_all_convertible()
     {
-        var c = ConfigSerializer.LoadDefault();
+        var c = ConfigSerializer.DefaultPreset("x");
         Assert.NotEmpty(PolicyValues.FromConfig(c.Browsers.Chrome.Policies));
         Assert.NotEmpty(PolicyValues.FromConfig(c.Browsers.Edge.Policies));
     }

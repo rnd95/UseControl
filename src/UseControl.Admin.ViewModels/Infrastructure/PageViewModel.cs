@@ -29,6 +29,9 @@ public abstract class PageViewModel : ObservableObject
     /// <summary>Glyph in the Segoe MDL2 Assets font.</summary>
     public string Icon { get; }
 
+    /// <summary>True for pages that show the settings of one preset (the preset bar is shown above them).</summary>
+    public virtual bool UsesPreset => false;
+
     /// <summary>Called when the page is shown: connects first if the panel is not connected yet.</summary>
     public virtual Task ActivateAsync() => Session.IsConnected ? Task.CompletedTask : Session.RefreshAsync();
 

@@ -1,28 +1,39 @@
 <UserControl x:Class="UseControl.Admin.Views.FileAccessView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:l="clr-namespace:UseControl.Admin.Infrastructure">
+             xmlns:l="clr-namespace:UseControl.Admin.Infrastructure"
+             xmlns:pages="clr-namespace:UseControl.Admin.ViewModels.Pages;assembly=UseControl.Admin.ViewModels">
   <StackPanel>
+    <TextBlock Text="{l:Tr Ui.Access.Intro}" Style="{StaticResource Help}" Margin="0,0,0,12" />
+
     <Border Style="{StaticResource Card}">
       <StackPanel>
+        <!-- 1. What -->
         <TextBlock Text="{l:Tr Ui.Access.Path}" Style="{StaticResource SectionTitle}" />
-        <DockPanel Margin="0,0,0,12">
+        <DockPanel Margin="0,0,0,14">
           <Button DockPanel.Dock="Right" Content="{l:Tr Ui.Access.File}" Command="{Binding PickFileCommand}" Margin="8,0,0,0" />
           <Button DockPanel.Dock="Right" Content="{l:Tr Ui.Access.Folder}" Command="{Binding PickFolderCommand}" Margin="8,0,0,0" />
           <TextBox Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}" />
         </DockPanel>
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-          <RadioButton Content="{l:Tr Ui.Access.Deny}" IsChecked="{Binding Deny}" GroupName="mode" />
-          <RadioButton Content="{l:Tr Ui.Access.Allow}" IsChecked="{Binding Deny, Converter={StaticResource InverseBool}}" GroupName="mode" />
-        </StackPanel>
-        <WrapPanel Margin="0,0,0,8">
-          <CheckBox Content="{l:Tr Ui.Access.Read}" IsChecked="{Binding Read}" Margin="0,4,18,4" />
-          <CheckBox Content="{l:Tr Ui.Access.Write}" IsChecked="{Binding Write}" Margin="0,4,18,4" />
-          <CheckBox Content="{l:Tr Ui.Access.Execute}" IsChecked="{Binding Execute}" Margin="0,4,18,4" />
-          <CheckBox Content="{l:Tr Ui.Access.Delete}" IsChecked="{Binding Delete}" Margin="0,4,18,4" />
-        </WrapPanel>
-        <TextBlock Text="{l:Tr Ui.Access.Users}" Style="{StaticResource Label}" Margin="0,4,0,4" />
-        <TextBox Text="{Binding Users, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+        <!-- 2. Which access -->
+        <TextBlock Text="{l:Tr Ui.Access.Preset}" Style="{StaticResource SectionTitle}" />
+        <ComboBox ItemsSource="{x:Static pages:FileAccessPageViewModel.Presets}" SelectedItem="{Binding Preset}" DisplayMemberPath="Text"
+                  Width="420" HorizontalAlignment="Left" Margin="0,0,0,14" />
+
+        <!-- 3. For whom -->
+        <TextBlock Text="{l:Tr Ui.Access.ForAccounts}" Style="{StaticResource SectionTitle}" />
+        <ItemsControl ItemsSource="{Binding Accounts}" Margin="0,0,0,14">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,4,18,4" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
         <Button Content="{l:Tr Ui.Access.AddRule}" Style="{StaticResource PrimaryButton}" Command="{Binding AddCommand}" HorizontalAlignment="Left" />
       </StackPanel>
     </Border>
@@ -30,10 +41,11 @@
     <Border Style="{StaticResource Card}">
       <StackPanel>
         <TextBlock Text="{l:Tr Ui.Access.Header}" Style="{StaticResource SectionTitle}" />
+        <TextBlock Text="{l:Tr Ui.Block.Empty}" Style="{StaticResource Help}" Margin="0,0,0,4"
+                   Visibility="{Binding Rules.Count, Converter={StaticResource ZeroToVisibility}}" />
         <DataGrid ItemsSource="{Binding Rules}">
           <DataGrid.Columns>
             <DataGridTextColumn Header="{l:Tr Ui.Column.Path}" Binding="{Binding Path}" Width="3*" />
-            <DataGridTextColumn Header="{l:Tr Ui.Column.Mode}" Binding="{Binding Mode}" Width="Auto" MinWidth="90" />
             <DataGridTextColumn Header="{l:Tr Ui.Column.Rights}" Binding="{Binding Rights}" Width="3*" />
             <DataGridTextColumn Header="{l:Tr Ui.Column.Users}" Binding="{Binding Users}" Width="2*" />
             <DataGridTemplateColumn Width="44">

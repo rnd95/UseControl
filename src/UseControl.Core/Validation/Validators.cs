@@ -41,5 +41,9 @@ public static partial class Validators
     public static bool IsExtensionId(BrowserKind browser, string id) =>
         browser == BrowserKind.Firefox ? FirefoxExtensionId().IsMatch(id) : ChromiumExtensionId().IsMatch(id);
 
+    /// <summary>1 to 40 characters, no control characters, no spaces around it.</summary>
+    public static bool IsPresetName(string name) =>
+        name.Length is > 0 and <= 40 && name.Trim().Length == name.Length && !name.Any(char.IsControl);
+
     public static bool IsHex(string value, int length) => value.Length == length && Hex().IsMatch(value);
 }

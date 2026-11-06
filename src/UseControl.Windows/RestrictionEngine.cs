@@ -40,39 +40,69 @@ public sealed class RestrictionEngine
     /// <summary>C:\ProgramData\UseControl: configuration, state and the file-access ledger.</summary>
     public static string DefaultDataDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "UseControl");
 
-    public ApplyResult Apply(UcConfig config, bool gamesAllowed)
+    /// <param name="config">The configuration.</param>
+    /// <param name="gamesAllowed">Whether an account may play now (its game rules are left out).</param>
+    public ApplyResult Apply(UcConfig config, Func<string, bool> gamesAllowed)
     {
         ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(gamesAllowed);
         SecureDataDirectory(_dataDirectory);
-        var auto = _scanner.Scan(config.Auto);
         var system = _scanner.SystemAllowedPaths();
+        var scans = new Dictionary<string, IReadOnlyList<AutoPath>>();
         var results = new List<AccountResult>();
         var sids = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var user in config.Users)
+        foreach (var preset in config.Presets)
         {
-            try
+            var auto = Scan(preset.Auto, scans);
+            foreach (var user in preset.Accounts)
             {
-                var a = LocalAccounts.GetRestrictable(user);
-                sids[a.Name] = a.Sid;
-                var rules = RuleSetBuilder.Build(config, a.ProfilePath, auto, system, gamesAllowed);
-                bool signedIn;
-                using (var hive = UserHive.Open(a.Name, a.Sid, a.ProfilePath!))
+                try
                 {
-                    RestrictionWriter.Apply(hive.Root, rules, config, a.Sid);
-                    signedIn = hive.AccountSignedIn;
+                    var a = LocalAccounts.GetRestrictable(user);
+                    sids[a.Name] = a.Sid;
+                    var rules = RuleSetBuilder.Build(preset, a.ProfilePath, auto, system, gamesAllowed(a.Name));
+                    bool signedIn;
+                    using (var hive = UserHive.Open(a.Name, a.Sid, a.ProfilePath!))
+                    {
+                        RestrictionWriter.Apply(hive.Root, rules, preset, a.Sid);
+                        signedIn = hive.AccountSignedIn;
+                    }
+                    results.Add(new AccountResult(a.Name, true, null, rules.Blocked.Count, rules.Allowed.Count, rules.BlockedNames.Count, rules.BlockedFiles.Count, signedIn));
                 }
-                results.Add(new AccountResult(a.Name, true, null, rules.Blocked.Count, rules.Allowed.Count, rules.BlockedNames.Count, rules.BlockedFiles.Count, signedIn));
-            }
-            catch (Exception e) when (e is Core.UcException or UnauthorizedAccessException or IOException or System.Security.SecurityException)
-            {
-                results.Add(new AccountResult(user, false, e.Message, 0, 0, 0, 0, false));
+                catch (Exception e) when (e is Core.UcException or UnauthorizedAccessException or IOException or System.Security.SecurityException)
+                {
+                    results.Add(new AccountResult(user, false, e.Message, 0, 0, 0, 0, false));
+                }
             }
         }
 
         MachinePolicies.SetStoreInstallsAdminOnly(config.BlockStoreInstalls && config.Users.Count > 0);
         var files = new FileAccessManager(_dataDirectory).Apply(config, sids);
         return new ApplyResult(results, files);
+    }
+
+    /// <summary>The restricted accounts that exist on this PC, with their SID and preset.</summary>
+    public static IReadOnlyDictionary<string, (string Sid, Preset Preset)> RestrictedAccounts(UcConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var d = new Dictionary<string, (string, Preset)>(StringComparer.OrdinalIgnoreCase);
+        foreach (var preset in config.Presets)
+        {
+            foreach (var user in preset.Accounts)
+            {
+                if (LocalAccounts.Find(user) is { } a) d[a.Name] = (a.Sid, preset);
+            }
+        }
+        return d;
+    }
+
+    // Presets with the same automatic options share one scan of the drives.
+    private IReadOnlyList<AutoPath> Scan(AutoBlockOptions o, Dictionary<string, IReadOnlyList<AutoPath>> cache)
+    {
+        var key = string.Join(",", o.SystemDriveRoot, o.WritableDriveRoots, o.OtherDriveLetters, o.RecycleBins, o.SystemWritableFolders, o.WritableProgramFolders);
+        if (!cache.TryGetValue(key, out var r)) cache[key] = r = _scanner.Scan(o);
+        return r;
     }
 
     /// <summary>Removes the restrictions of one account (for example when it is no longer restricted).</summary>
@@ -103,25 +133,30 @@ public sealed class RestrictionEngine
     }
 
     /// <summary>What <see cref="Apply"/> would write, without writing anything.</summary>
-    public IReadOnlyList<AccountPreview> Preview(UcConfig config, bool gamesAllowed, out IReadOnlyList<AutoPath> autoPaths)
+    public IReadOnlyList<AccountPreview> Preview(UcConfig config, Func<string, bool> gamesAllowed, out IReadOnlyList<AutoPath> autoPaths)
     {
         ArgumentNullException.ThrowIfNull(config);
-        var auto = _scanner.Scan(config.Auto);
-        autoPaths = auto;
+        ArgumentNullException.ThrowIfNull(gamesAllowed);
+        var scans = new Dictionary<string, IReadOnlyList<AutoPath>>();
         var system = _scanner.SystemAllowedPaths();
         var list = new List<AccountPreview>();
-        foreach (var user in config.Users)
+        foreach (var preset in config.Presets)
         {
-            try
+            var auto = Scan(preset.Auto, scans);
+            foreach (var user in preset.Accounts)
             {
-                var a = LocalAccounts.GetRestrictable(user);
-                list.Add(new AccountPreview(a.Name, RuleSetBuilder.Build(config, a.ProfilePath, auto, system, gamesAllowed), null));
-            }
-            catch (Core.UcException e)
-            {
-                list.Add(new AccountPreview(user, RuleSetBuilder.Build(config, null, auto, system, gamesAllowed), e.Message));
+                try
+                {
+                    var a = LocalAccounts.GetRestrictable(user);
+                    list.Add(new AccountPreview(a.Name, RuleSetBuilder.Build(preset, a.ProfilePath, auto, system, gamesAllowed(a.Name)), null));
+                }
+                catch (Core.UcException e)
+                {
+                    list.Add(new AccountPreview(user, RuleSetBuilder.Build(preset, null, auto, system, gamesAllowed(user)), e.Message));
+                }
             }
         }
+        autoPaths = [.. scans.Values.SelectMany(x => x).DistinctBy(x => x.Path, StringComparer.OrdinalIgnoreCase)];
         return list;
     }
 
@@ -149,10 +184,11 @@ public sealed class RestrictionEngine
     public IReadOnlyList<AuditCheck> Audit(UcConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return SecurityAudit.Run(config, _scanner.Scan(config.Auto), ReadStates(config));
+        // The PC is checked with every automatic block on, whatever the presets choose.
+        return SecurityAudit.Run(config, _scanner.Scan(new AutoBlockOptions()), ReadStates(config));
     }
 
-    public IReadOnlyList<string> FindNewGames(UcConfig config) => GameFinder.FindNew(config, _sp);
+    public IReadOnlyList<string> FindGames() => GameFinder.Find(_sp);
 
     /// <summary>The data folder: only Administrators and SYSTEM, nothing inherited (it holds the configuration and the ledger).</summary>
     public static void SecureDataDirectory(string path)

@@ -14,4 +14,7 @@ public interface IDialogService
 
     /// <summary>A file name to save to, or null.</summary>
     string? PickSaveFile(string title, string filter, string defaultName);
+
+    /// <summary>A line of text typed by the user, or null when cancelled.</summary>
+    string? Prompt(string message, string initial);
 }

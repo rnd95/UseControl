@@ -19,9 +19,6 @@
 
     <Border Style="{StaticResource Card}">
       <StackPanel>
-        <TextBlock Text="{l:Tr Ui.Restrictions.InstallHeader}" Style="{StaticResource SectionTitle}" />
-        <CheckBox Content="{l:Tr Ui.Settings.Store}" IsChecked="{Binding BlockStoreInstalls}" />
-        <TextBlock Text="{l:Tr Ui.Restrictions.InstallHelp}" Style="{StaticResource Help}" Margin="0,8,0,12" />
         <TextBlock Text="{l:Tr Ui.Settings.AutoHeader}" Style="{StaticResource SectionTitle}" />
         <CheckBox Content="{l:Tr Ui.Settings.Auto.SystemDriveRoot}" IsChecked="{Binding SystemDriveRoot}" />
         <CheckBox Content="{l:Tr Ui.Settings.Auto.WritableDriveRoots}" IsChecked="{Binding WritableDriveRoots}" />
@@ -29,9 +26,34 @@
         <CheckBox Content="{l:Tr Ui.Settings.Auto.OtherDriveLetters}" IsChecked="{Binding OtherDriveLetters}" />
         <CheckBox Content="{l:Tr Ui.Settings.Auto.SystemWritableFolders}" IsChecked="{Binding SystemWritableFolders}" />
         <CheckBox Content="{l:Tr Ui.Settings.Auto.RecycleBins}" IsChecked="{Binding RecycleBins}" />
+        <TextBlock Text="{l:Tr Ui.Restrictions.AutoHelp}" Style="{StaticResource Help}" />
       </StackPanel>
     </Border>
 
-    <Button Content="{l:Tr Ui.Restrictions.Save}" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" HorizontalAlignment="Left" Margin="0,0,0,12" />
+    <Button Content="{l:Tr Ui.Restrictions.Save}" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" HorizontalAlignment="Left" Margin="0,0,0,16" />
+
+    <!-- Exceptions to the automatic blocking: saved at once, independent of the button above. -->
+    <Border Style="{StaticResource Card}">
+      <StackPanel>
+        <DockPanel Margin="0,0,0,10">
+          <Button DockPanel.Dock="Right" Content="{l:Tr Ui.Restrictions.AddAllowed}" Command="{Binding AllowFolderCommand}" Margin="0" />
+          <TextBlock Text="{l:Tr Ui.Restrictions.AllowedHeader}" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center" TextWrapping="Wrap" />
+        </DockPanel>
+        <TextBlock Text="{l:Tr Ui.Block.Empty}" Style="{StaticResource Help}" Margin="0,0,0,4"
+                   Visibility="{Binding AllowedFolders.Count, Converter={StaticResource ZeroToVisibility}}" />
+        <ItemsControl ItemsSource="{Binding AllowedFolders}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <DockPanel Margin="0,3">
+                <Button DockPanel.Dock="Right" Content="&#xE74D;" Style="{StaticResource RowButton}" ToolTip="{l:Tr Ui.Remove}"
+                        Command="{Binding DataContext.RemoveAllowedFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                <TextBlock Text="{Binding Text}" VerticalAlignment="Center" />
+              </DockPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Text="{l:Tr Ui.Restrictions.AllowedHelp}" Style="{StaticResource Help}" />
+      </StackPanel>
+    </Border>
   </StackPanel>
 </UserControl>

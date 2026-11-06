@@ -60,8 +60,41 @@ public sealed partial class PanelSession : ObservableObject
     [NotifyPropertyChangedFor(nameof(CanEdit))]
     private bool _isConnected;
 
-    /// <summary>Raised after <see cref="Config"/> or <see cref="Status"/> were reloaded.</summary>
+    /// <summary>Raised after <see cref="Config"/> or <see cref="Status"/> were reloaded, or another preset was chosen.</summary>
     public event EventHandler? Reloaded;
+
+    /// <summary>
+    /// The preset the Restrictions, Games, Programs and Browsers pages show and change. Kept when the
+    /// configuration is reloaded; the first preset when it no longer exists.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Preset))]
+    private string? _presetName;
+
+    /// <summary>The preset being edited, from the current configuration, or null when there is none.</summary>
+    public Preset? Preset => PresetName is null ? null : Config?.FindPreset(PresetName);
+
+    public IReadOnlyList<string> PresetNames => [.. Config?.Presets.Select(p => p.Name) ?? []];
+
+    private bool _reloading;
+
+    partial void OnPresetNameChanged(string? value)
+    {
+        if (!_reloading) Reloaded?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Like <see cref="EditAsync"/>, for the preset being edited.</summary>
+    public Task<bool> EditPresetAsync(Action<Preset> change)
+    {
+        ArgumentNullException.ThrowIfNull(change);
+        var name = PresetName;
+        if (name is null)
+        {
+            ShowMessage(MessageKind.Info, Loc.T("Ui.Preset.NoneYet"));
+            return Task.FromResult(false);
+        }
+        return EditAsync(c => change(c.GetPreset(name)));
+    }
 
     public void ShowMessage(MessageKind kind, string? text)
     {
@@ -141,6 +174,18 @@ public sealed partial class PanelSession : ObservableObject
         Config = await Client.GetConfigAsync().ConfigureAwait(true);
         Status = await Client.GetStatusAsync().ConfigureAwait(true);
         IsConnected = true;
+        _reloading = true;
+        try
+        {
+            if (PresetName is null || Config.FindPreset(PresetName) is null) PresetName = Config.Presets.FirstOrDefault()?.Name;
+            else PresetName = Config.FindPreset(PresetName)!.Name;   // the spelling may have changed
+        }
+        finally
+        {
+            _reloading = false;
+        }
+        OnPropertyChanged(nameof(PresetNames));
+        OnPropertyChanged(nameof(Preset));
         Reloaded?.Invoke(this, EventArgs.Empty);
     }
 }

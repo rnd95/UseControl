@@ -11,16 +11,19 @@ public class ConfigEditorTests
     private static UcConfig NewConfig()
     {
         var c = ConfigSerializer.LoadDefault();
-        c.Users.Add("kid");
+        ConfigEditor.AddUser(c, "kid");
         return c;
     }
+
+    /// <summary>The preset of "kid" (the lists live in presets).</summary>
+    private static Preset NewPreset() => NewConfig().Presets[0];
 
     private static string Code(Action a) => Assert.Throws<UcException>(a).Code;
 
     [Fact]
     public void Blocked_folder_is_added_normalised_and_removed()
     {
-        var c = NewConfig();
+        var c = NewPreset();
         Assert.Equal(@"F:\Test Games", ConfigEditor.AddBlockedPath(c, @"f:\Test Games\", RuleCategory.Games, Sp));
         Assert.Equal(RuleCategory.Games, c.BlockedPaths.Single(e => e.Path == @"F:\Test Games").Category);
         ConfigEditor.RemoveBlockedPath(c, @"F:\TEST GAMES");
@@ -30,7 +33,7 @@ public class ConfigEditorTests
     [Fact]
     public void Blocked_folder_refuses_duplicates_protected_places_and_unknown_entries()
     {
-        var c = NewConfig();
+        var c = NewPreset();
         ConfigEditor.AddBlockedPath(c, @"F:\X", RuleCategory.Games, Sp);
         Assert.Equal(ErrorCodes.AlreadyInList, Code(() => ConfigEditor.AddBlockedPath(c, @"F:\X\", RuleCategory.Games, Sp)));
         Assert.Equal(ErrorCodes.PathProtected, Code(() => ConfigEditor.AddBlockedPath(c, @"C:\Windows", RuleCategory.Games, Sp)));
@@ -40,7 +43,7 @@ public class ConfigEditorTests
     [Fact]
     public void Allowed_folder_is_added_but_never_a_whole_drive()
     {
-        var c = NewConfig();
+        var c = NewPreset();
         ConfigEditor.AddAllowedPath(c, @"C:\Tools");
         Assert.Equal(ErrorCodes.AlreadyInList, Code(() => ConfigEditor.AddAllowedPath(c, @"c:\tools\")));
         Assert.Equal(ErrorCodes.WholeDriveNotAllowed, Code(() => ConfigEditor.AddAllowedPath(c, @"D:\")));
@@ -51,7 +54,7 @@ public class ConfigEditorTests
     [Fact]
     public void Program_names_are_validated()
     {
-        var c = NewConfig();
+        var c = NewPreset();
         ConfigEditor.AddBlockedName(c, "mygame.exe", RuleCategory.Games);
         Assert.Equal(ErrorCodes.AlreadyInList, Code(() => ConfigEditor.AddBlockedName(c, "MyGame.EXE", RuleCategory.Games)));
         Assert.Equal(ErrorCodes.InvalidProgramName, Code(() => ConfigEditor.AddBlockedName(c, @"C:\x\game.exe", RuleCategory.Games)));
@@ -92,7 +95,7 @@ public class ConfigEditorTests
     [Fact]
     public void Blocked_files_need_valid_fingerprints()
     {
-        var c = NewConfig();
+        var c = NewPreset();
         var ok = new FileHashEntry { FileName = "game.exe", Sha256 = new string('a', 64), Md5 = new string('b', 32), Size = 100 };
         ConfigEditor.AddBlockedFile(c, ok);
         Assert.Equal(new string('A', 64), c.BlockedFiles[0].Sha256);
@@ -106,7 +109,7 @@ public class ConfigEditorTests
     [Fact]
     public void Browser_policies_are_typed_as_written_and_removed_by_name()
     {
-        var c = NewConfig();
+        var c = NewPreset();
         ConfigEditor.SetBrowserPolicy(c, BrowserKind.Chrome, "ForceYouTubeRestrict", "2");
         ConfigEditor.SetBrowserPolicy(c, BrowserKind.Chrome, "PasswordManagerEnabled", "false");
         ConfigEditor.SetBrowserPolicy(c, BrowserKind.Chrome, "HomepageLocation", "https://example.org");
@@ -123,7 +126,7 @@ public class ConfigEditorTests
     public void Extensions_are_validated_per_browser()
     {
         const string ChromeId = "cjpalhdlnbpafiamejdnhcphjbkeiagm";
-        var c = NewConfig();
+        var c = NewPreset();
         ConfigEditor.AddExtension(c, BrowserKind.Chrome, ChromeId);
         Assert.Contains(ChromeId, c.Browsers.Chrome.ExtensionsAllowed);
         Assert.Equal(ErrorCodes.AlreadyInList, Code(() => ConfigEditor.AddExtension(c, BrowserKind.Chrome, ChromeId)));
@@ -132,5 +135,93 @@ public class ConfigEditorTests
         ConfigEditor.AddExtension(c, BrowserKind.Firefox, "{12345678-1234-1234-1234-123456789abc}");
         ConfigEditor.RemoveExtension(c, BrowserKind.Chrome, ChromeId);
         Assert.Empty(c.Browsers.Chrome.ExtensionsAllowed);
+    }
+
+    [Fact]
+    public void A_new_account_gets_its_own_preset_with_the_recommended_settings()
+    {
+        var c = ConfigSerializer.LoadDefault();
+        Assert.Empty(c.Presets);
+        var p = ConfigEditor.AddUser(c, "alpine");
+        Assert.Equal("alpine", p.Name);
+        Assert.Equal(["alpine"], p.Accounts);
+        Assert.Contains(p.BlockedNames, n => n.Name == "steam.exe");
+        Assert.Same(p, c.PresetOf("ALPINE"));
+    }
+
+    [Fact]
+    public void Accounts_can_share_a_preset_and_move_between_presets()
+    {
+        var c = NewConfig();
+        ConfigEditor.AddUser(c, "kid2", "kid");
+        Assert.Equal(["kid", "kid2"], c.GetPreset("kid").Accounts);
+        var teen = ConfigEditor.AddPreset(c, "Teen", c.GetPreset("kid"));
+        Assert.Empty(teen.Accounts);
+        ConfigEditor.MoveUser(c, "kid2", "teen");
+        Assert.Equal(["kid2"], teen.Accounts);
+        Assert.Equal(["kid"], c.GetPreset("kid").Accounts);
+        Assert.Equal(ErrorCodes.PresetNotFound, Code(() => ConfigEditor.AddUser(c, "kid3", "nope")));
+        Assert.Equal(ErrorCodes.NotRestricted, Code(() => ConfigEditor.MoveUser(c, "nobody", "teen")));
+    }
+
+    [Fact]
+    public void A_copied_preset_is_independent_of_the_original()
+    {
+        var c = NewConfig();
+        var copy = ConfigEditor.AddPreset(c, "Copy", c.GetPreset("kid"));
+        ConfigEditor.AddBlockedName(copy, "only-here.exe", RuleCategory.Games);
+        Assert.DoesNotContain(c.GetPreset("kid").BlockedNames, n => n.Name == "only-here.exe");
+    }
+
+    [Fact]
+    public void Preset_names_are_unique_and_checked()
+    {
+        var c = NewConfig();
+        Assert.Equal(ErrorCodes.PresetExists, Code(() => ConfigEditor.AddPreset(c, "KID")));
+        Assert.Equal(ErrorCodes.InvalidPresetName, Code(() => ConfigEditor.AddPreset(c, "  ")));
+        Assert.Equal(ErrorCodes.InvalidPresetName, Code(() => ConfigEditor.AddPreset(c, new string('x', 41))));
+        ConfigEditor.AddPreset(c, "Other");
+        ConfigEditor.RenamePreset(c, "kid", "Kid");   // only the letter case
+        Assert.Equal("Kid", c.Presets[0].Name);
+        Assert.Equal(ErrorCodes.PresetExists, Code(() => ConfigEditor.RenamePreset(c, "kid", "other")));
+    }
+
+    [Fact]
+    public void Deleting_a_preset_stops_restricting_its_accounts()
+    {
+        var c = NewConfig();
+        ConfigEditor.SetFileAccess(c, @"D:\Private", FileAccessMode.Deny, FileAccessRights.Full, ["kid"], Sp);
+        Assert.Equal(["kid"], ConfigEditor.RemovePreset(c, "kid"));
+        Assert.Empty(c.Presets);
+        Assert.Empty(c.Users);
+        Assert.Empty(c.FileAccess.Single().Users);
+    }
+
+    [Fact]
+    public void Removing_an_account_keeps_its_preset_for_later()
+    {
+        var c = NewConfig();
+        ConfigEditor.RemoveUser(c, "kid");
+        Assert.Empty(c.Users);
+        Assert.Single(c.Presets);
+        Assert.Same(c.Presets[0], ConfigEditor.AddUser(c, "kid"));   // back with the same settings
+    }
+
+    [Fact]
+    public void Schedule_windows_are_checked_and_switch_to_the_schedule()
+    {
+        var p = NewPreset();
+        Assert.Equal(Games.GamesMode.Manual, p.Games.Mode);
+        var w = ConfigEditor.AddGamesWindow(p, [DayOfWeek.Friday, DayOfWeek.Monday], "9:30", "24:00", 90);
+        Assert.Equal([DayOfWeek.Monday, DayOfWeek.Friday], w.Days);
+        Assert.Equal("09:30", w.From);
+        Assert.Equal(Games.GamesMode.Schedule, p.Games.Mode);
+        Assert.Equal(ErrorCodes.WindowEndsBeforeStart, Code(() => ConfigEditor.AddGamesWindow(p, [DayOfWeek.Monday], "20:00", "16:00", 0)));
+        Assert.Equal(ErrorCodes.InvalidTime, Code(() => ConfigEditor.AddGamesWindow(p, [DayOfWeek.Monday], "25:00", "26:00", 0)));
+        Assert.Equal(ErrorCodes.InvalidTime, Code(() => ConfigEditor.AddGamesWindow(p, [DayOfWeek.Monday], "16:7", "18:00", 0)));
+        Assert.Equal(ErrorCodes.NoDays, Code(() => ConfigEditor.AddGamesWindow(p, [], "16:00", "18:00", 0)));
+        ConfigEditor.RemoveGamesWindow(p, 0);
+        Assert.Empty(p.Games.Schedule);
+        Assert.Equal(ErrorCodes.NotInList, Code(() => ConfigEditor.RemoveGamesWindow(p, 0)));
     }
 }

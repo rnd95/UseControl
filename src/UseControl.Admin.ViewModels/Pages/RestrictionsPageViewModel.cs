@@ -10,6 +10,8 @@ public sealed partial class RestrictionsPageViewModel : PageViewModel
 {
     public RestrictionsPageViewModel(PanelSession session) : base(session, "Ui.Nav.Restrictions", "") { }
 
+    public override bool UsesPreset => true;
+
     [ObservableProperty] private bool _disableCommandPrompt;
     [ObservableProperty] private bool _disableRegistryEditor;
     [ObservableProperty] private bool _disableTaskManager;
@@ -18,13 +20,25 @@ public sealed partial class RestrictionsPageViewModel : PageViewModel
     [ObservableProperty] private bool _disableAutorun;
     [ObservableProperty] private bool _disablePasswordChange;
 
-    [ObservableProperty] private bool _blockStoreInstalls;
     [ObservableProperty] private bool _systemDriveRoot;
     [ObservableProperty] private bool _writableDriveRoots;
     [ObservableProperty] private bool _otherDriveLetters;
     [ObservableProperty] private bool _recycleBins;
     [ObservableProperty] private bool _systemWritableFolders;
     [ObservableProperty] private bool _writableProgramFolders;
+
+    /// <summary>Exceptions: program folders that run although they are inside a blocked place.</summary>
+    public System.Collections.ObjectModel.ObservableCollection<ProgramRow> AllowedFolders { get; } = [];
+
+    [RelayCommand]
+    private Task AllowFolder()
+    {
+        var path = Session.Dialogs.PickFolder(Localization.Loc.T("Ui.Programs.PickAllowFolder"));
+        return path is null ? Task.CompletedTask : Session.EditPresetAsync(c => ConfigEditor.AddAllowedPath(c, path));
+    }
+
+    [RelayCommand]
+    private Task RemoveAllowedFolder(ProgramRow? row) => row is null ? Task.CompletedTask : Session.EditPresetAsync(c => ConfigEditor.RemoveAllowedPath(c, row.Key));
 
     [RelayCommand]
     private Task Save()
@@ -48,19 +62,22 @@ public sealed partial class RestrictionsPageViewModel : PageViewModel
             SystemWritableFolders = SystemWritableFolders,
             WritableProgramFolders = WritableProgramFolders,
         };
-        var store = BlockStoreInstalls;
-        return Session.EditAsync(c =>
+        return Session.EditPresetAsync(c =>
         {
             c.Restrictions = restrictions;
             c.Auto = auto;
-            c.BlockStoreInstalls = store;
         });
     }
 
     protected override void Rebuild()
     {
-        var c = Session.Config;
-        if (c is null) return;
+        var c = Session.Preset;
+        if (c is null)
+        {
+            AllowedFolders.Clear();
+            return;
+        }
+        Replace(AllowedFolders, c.AllowedPaths.Select(e => new ProgramRow(e.Path, e.Path, "", e.Note)));
         DisableCommandPrompt = c.Restrictions.DisableCommandPrompt;
         DisableRegistryEditor = c.Restrictions.DisableRegistryEditor;
         DisableTaskManager = c.Restrictions.DisableTaskManager;
@@ -68,7 +85,6 @@ public sealed partial class RestrictionsPageViewModel : PageViewModel
         DisableRunDialog = c.Restrictions.DisableRunDialog;
         DisableAutorun = c.Restrictions.DisableAutorun;
         DisablePasswordChange = c.Restrictions.DisablePasswordChange;
-        BlockStoreInstalls = c.BlockStoreInstalls;
         SystemDriveRoot = c.Auto.SystemDriveRoot;
         WritableDriveRoots = c.Auto.WritableDriveRoots;
         OtherDriveLetters = c.Auto.OtherDriveLetters;

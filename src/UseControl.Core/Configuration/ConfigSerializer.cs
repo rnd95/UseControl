@@ -2,6 +2,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using UseControl.Core.Games;
 
 namespace UseControl.Core.Configuration;
 
@@ -10,9 +11,13 @@ public static class ConfigSerializer
 {
     /// <summary>
     /// Version of the config format. Increase it when the format changes and add a step to
-    /// <see cref="Migrate"/>. 0 = the PowerShell version (no schemaVersion field).
+    /// <see cref="Migrate"/>. 0 = the PowerShell version (no schemaVersion field); 1 = one set of rules for
+    /// every account; 2 = presets.
     /// </summary>
-    public const int CurrentSchemaVersion = 1;
+    public const int CurrentSchemaVersion = 2;
+
+    /// <summary>Settings that belonged to the whole configuration in schema 1 and belong to a preset since schema 2.</summary>
+    private static readonly string[] PresetProperties = ["auto", "restrictions", "blockedPaths", "allowedPaths", "blockedNames", "blockedFiles", "browsers"];
 
     public static JsonSerializerOptions Options { get; } = CreateOptions();
 
@@ -77,8 +82,37 @@ public static class ConfigSerializer
         File.Move(tmp, path, overwrite: true);
     }
 
-    /// <summary>The configuration a new installation starts with (games, VPNs and tools of common programs).</summary>
+    /// <summary>The configuration a new installation starts with: no restricted accounts, no presets yet.</summary>
     public static UcConfig LoadDefault()
+    {
+        var c = LoadDefaultFile();
+        c.Presets.Clear();
+        return c;
+    }
+
+    /// <summary>
+    /// A new preset with the recommended settings: common games, VPNs and system tools blocked, safe
+    /// browser settings, games only when an administrator allows them.
+    /// </summary>
+    public static Preset DefaultPreset(string name)
+    {
+        var p = LoadDefaultFile().Presets[0];
+        p.Name = name;
+        p.Accounts = [];
+        return p;
+    }
+
+    /// <summary>A deep copy of a preset under another name, without its accounts.</summary>
+    public static Preset CopyPreset(Preset source, string name)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        var copy = Parse(Serialize(new UcConfig { Presets = [source] })).Presets[0];
+        copy.Name = name;
+        copy.Accounts = [];
+        return copy;
+    }
+
+    private static UcConfig LoadDefaultFile()
     {
         using var s = typeof(ConfigSerializer).Assembly.GetManifestResourceStream("UseControl.Core.config.default.json")
             ?? throw new InvalidOperationException("The default configuration is missing from the assembly.");
@@ -103,28 +137,41 @@ public static class ConfigSerializer
             version = 1;
         }
 
+        if (version < 2)
+        {
+            // Schema 1 had one set of rules for every account: it becomes one preset with all of them,
+            // named after the account when there is only one.
+            var users = obj["users"] as JsonArray ?? [];
+            var names = users.Select(u => u is JsonValue v && v.TryGetValue<string>(out var n) ? n.Trim() : null)
+                .Where(n => !string.IsNullOrEmpty(n)).Cast<string>().ToList();
+            var preset = new JsonObject
+            {
+                ["name"] = names.Count == 1 ? names[0] : "Default",
+                ["accounts"] = new JsonArray([.. names.Select(n => (JsonNode)JsonValue.Create(n))]),
+            };
+            foreach (var key in PresetProperties)
+            {
+                var found = obj.FirstOrDefault(kv => kv.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
+                if (found.Key is null) continue;
+                var value = found.Value;
+                obj.Remove(found.Key);
+                preset[key] = value;
+            }
+            obj.Remove("users");
+            // A file without accounts and without settings gets no preset.
+            obj["presets"] = names.Count == 0 && preset.Count == 2 ? new JsonArray() : new JsonArray(preset);
+            version = 2;
+        }
+
         obj["schemaVersion"] = version;
     }
 
     /// <summary>Replaces nulls (from "key": null in the file) with empty values, so code never meets them.</summary>
     internal static UcConfig Normalize(UcConfig c)
     {
-        c.Users = [.. (c.Users ?? []).Where(u => !string.IsNullOrWhiteSpace(u)).Select(u => u.Trim())];
-        c.Auto ??= new AutoBlockOptions();
-        c.Restrictions ??= new AccountRestrictions();
-        c.BlockedPaths = [.. (c.BlockedPaths ?? []).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Path))];
-        c.AllowedPaths = [.. (c.AllowedPaths ?? []).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Path))];
-        c.BlockedNames = [.. (c.BlockedNames ?? []).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Name))];
-        c.BlockedFiles = [.. (c.BlockedFiles ?? []).Where(e => e is not null)];
+        c.Presets = [.. (c.Presets ?? []).Where(p => p is not null).Select(NormalizePreset)];
         c.FileAccess = [.. (c.FileAccess ?? []).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Path))];
         foreach (var r in c.FileAccess) r.Users ??= [];
-
-        c.Browsers ??= new BrowserSettings();
-        c.Browsers.Chrome = NormalizeChromium(c.Browsers.Chrome);
-        c.Browsers.Edge = NormalizeChromium(c.Browsers.Edge);
-        c.Browsers.Firefox ??= new FirefoxSettings();
-        c.Browsers.Firefox.ExtensionsAllowed = Clean(c.Browsers.Firefox.ExtensionsAllowed);
-        c.Browsers.Firefox.Policies ??= [];
 
         c.Audit ??= new AuditSettings();
         c.Audit.Admins = Clean(c.Audit.Admins);
@@ -132,6 +179,29 @@ public static class ConfigSerializer
         c.Audit.HiddenAccounts = Clean(c.Audit.HiddenAccounts);
         c.Audit.KnownRemoteServices = Clean(c.Audit.KnownRemoteServices);
         return c;
+
+        static Preset NormalizePreset(Preset p)
+        {
+            p.Name = (p.Name ?? "").Trim();
+            p.Accounts = Clean(p.Accounts);
+            p.Auto ??= new AutoBlockOptions();
+            p.Restrictions ??= new AccountRestrictions();
+            p.BlockedPaths = [.. (p.BlockedPaths ?? []).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Path))];
+            p.AllowedPaths = [.. (p.AllowedPaths ?? []).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Path))];
+            p.BlockedNames = [.. (p.BlockedNames ?? []).Where(e => e is not null && !string.IsNullOrWhiteSpace(e.Name))];
+            p.BlockedFiles = [.. (p.BlockedFiles ?? []).Where(e => e is not null)];
+            p.Games ??= new GamesSettings();
+            p.Games.Schedule = [.. (p.Games.Schedule ?? []).Where(w => w is not null)];
+            foreach (var w in p.Games.Schedule) w.Days = [.. (w.Days ?? []).Distinct().Order()];
+
+            p.Browsers ??= new BrowserSettings();
+            p.Browsers.Chrome = NormalizeChromium(p.Browsers.Chrome);
+            p.Browsers.Edge = NormalizeChromium(p.Browsers.Edge);
+            p.Browsers.Firefox ??= new FirefoxSettings();
+            p.Browsers.Firefox.ExtensionsAllowed = Clean(p.Browsers.Firefox.ExtensionsAllowed);
+            p.Browsers.Firefox.Policies ??= [];
+            return p;
+        }
 
         static ChromiumSettings NormalizeChromium(ChromiumSettings? b)
         {

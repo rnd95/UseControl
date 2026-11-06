@@ -18,10 +18,9 @@ public static partial class GameFinder
     [GeneratedRegex("\"path\"\\s+\"([^\"]+)\"")]
     private static partial Regex SteamLibraryPath();
 
-    /// <summary>Game folders found on this PC that are not yet listed as games in the config.</summary>
-    public static IReadOnlyList<string> FindNew(UcConfig config, ISystemPaths sp)
+    /// <summary>Game folders found on this PC.</summary>
+    public static IReadOnlyList<string> Find(ISystemPaths sp)
     {
-        ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(sp);
         var found = new List<string>();
 
@@ -45,16 +44,23 @@ public static partial class GameFinder
         foreach (var pf in sp.ProgramFilesDirectories)
             foreach (var n in KnownLauncherFolders) found.Add(Path.Combine(pf, n));
 
-        var games = config.BlockedPaths.Where(e => e.Category == RuleCategory.Games)
-            .Select(e => PathRules.TryNormalize(e.Path, out var p) ? p : null).OfType<string>().ToList();
         return
         [
             .. found
                 .Select(p => PathRules.TryNormalize(p, out var n) ? n : null).OfType<string>()
                 .Where(Directory.Exists)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Where(p => !PathRules.IsUnderAny(p, games)),
+                .Distinct(StringComparer.OrdinalIgnoreCase),
         ];
+    }
+
+    /// <summary>The found folders that a preset does not list as games yet.</summary>
+    public static IReadOnlyList<string> NotListed(IEnumerable<string> found, Preset preset)
+    {
+        ArgumentNullException.ThrowIfNull(found);
+        ArgumentNullException.ThrowIfNull(preset);
+        var games = preset.BlockedPaths.Where(e => e.Category == RuleCategory.Games)
+            .Select(e => PathRules.TryNormalize(e.Path, out var p) ? p : null).OfType<string>().ToList();
+        return [.. found.Where(p => !PathRules.IsUnderAny(p, games))];
     }
 
     /// <summary>The library folders listed in Steam's libraryfolders.vdf.</summary>

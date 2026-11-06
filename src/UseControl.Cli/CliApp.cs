@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using UseControl.Core;
 using UseControl.Core.Configuration;
+using UseControl.Core.Games;
 using UseControl.Core.Paths;
 using UseControl.Core.Validation;
 using UseControl.Ipc;
@@ -11,6 +12,7 @@ using UseControl.Windows.Accounts;
 using UseControl.Windows.Audit;
 using UseControl.Windows.FileSystem;
 using UseControl.Windows.Installation;
+using UseControl.Windows.Scanning;
 
 namespace UseControl.Cli;
 
@@ -93,6 +95,7 @@ internal sealed class CliApp
         "preview" => Preview(a),
         "audit" => Audit(a),
         "users" => Users(a),
+        "preset" or "presets" => Presets(a),
         "games" => Games(a),
         "block" => Block(a),
         "unblock" => Unblock(a),
@@ -192,7 +195,6 @@ internal sealed class CliApp
         if (a.Flag("json")) return await Json(s).ConfigureAwait(false);
         await Line("Cli.StatusService", s.Version).ConfigureAwait(false);
         await Line(s.Enabled ? "Cli.StatusEnabled" : "Cli.StatusSuspended").ConfigureAwait(false);
-        await (s.GamesAllowedUntil is { } until ? Line("Cli.StatusGamesAllowed", Local(until)) : Line("Cli.StatusGamesBlocked")).ConfigureAwait(false);
         await Line("Cli.StatusLastApplied", s.LastApplied is { } la ? Local(la) : Loc.T("Cli.StatusNever")).ConfigureAwait(false);
         await Line(s.StoreInstallsAdminOnly ? "Cli.StatusStoreAdmins" : "Cli.StatusStoreEveryone").ConfigureAwait(false);
         await _out.WriteLineAsync().ConfigureAwait(false);
@@ -203,6 +205,8 @@ internal sealed class CliApp
             else if (!st.Applied) await Line("Cli.StatusAccountNotApplied", acc.User).ConfigureAwait(false);
             else await Line("Cli.StatusAccount", acc.User, st.BlockedPathRules, st.AllowedPathRules, st.HashRules / 2, st.BlockedNames, YesNo(st.KeysLocked)).ConfigureAwait(false);
         }
+        if (s.Games.Count > 0) await _out.WriteLineAsync().ConfigureAwait(false);
+        foreach (var g in s.Games) await GamesLine(g).ConfigureAwait(false);
         foreach (var r in s.LastResults.Where(r => !r.Success)) await Line("Cli.AccountFailed", r.User, r.Error).ConfigureAwait(false);
         return Ok;
     }
@@ -280,13 +284,18 @@ internal sealed class CliApp
         {
             case "" or "list":
                 var c = await _client.GetConfigAsync().ConfigureAwait(false);
-                await Line("Cli.UsersRestricted", c.Users.Count == 0 ? Loc.T("Cli.None") : string.Join(", ", c.Users)).ConfigureAwait(false);
+                var restricted = c.Presets.SelectMany(p => p.Accounts.Select(u => Loc.T("Cli.UserInPreset", u, p.Name))).ToList();
+                await Line("Cli.UsersRestricted", restricted.Count == 0 ? Loc.T("Cli.None") : string.Join(", ", restricted)).ConfigureAwait(false);
                 var others = StandardAccounts().Where(n => !c.Users.Contains(n, StringComparer.OrdinalIgnoreCase)).ToList();
                 await Line("Cli.UsersCandidates", others.Count == 0 ? Loc.T("Cli.None") : string.Join(", ", others)).ConfigureAwait(false);
                 return Ok;
             case "add":
                 var add = Required(a.Value(2), "<name>");
-                return await Edit(cfg => ConfigEditor.AddUser(cfg, add)).ConfigureAwait(false);
+                return await Edit(cfg => { ConfigEditor.AddUser(cfg, add, a.Option("preset")); }).ConfigureAwait(false);
+            case "move":
+                var who = Required(a.Value(2), "<name>");
+                var to = Required(a.Value(3) ?? a.Option("preset"), "<preset>");
+                return await Edit(cfg => ConfigEditor.MoveUser(cfg, who, to)).ConfigureAwait(false);
             case "remove":
                 var remove = Required(a.Value(2), "<name>");
                 return await Edit(cfg => ConfigEditor.RemoveUser(cfg, remove)).ConfigureAwait(false);
@@ -295,22 +304,76 @@ internal sealed class CliApp
         }
     }
 
+    private async Task<int> Presets(CliArgs a)
+    {
+        switch (a.Word(1))
+        {
+            case "" or "list":
+                var c = await _client.GetConfigAsync().ConfigureAwait(false);
+                if (c.Presets.Count == 0) await Line("Cli.PresetsNone").ConfigureAwait(false);
+                foreach (var p in c.Presets)
+                {
+                    var accounts = p.Accounts.Count == 0 ? Loc.T("Cli.None") : string.Join(", ", p.Accounts);
+                    await Line("Cli.PresetLine", p.Name, accounts, Loc.T("Cli.GamesMode." + p.Games.Mode)).ConfigureAwait(false);
+                }
+                return Ok;
+            case "add":
+                var name = Required(a.Value(2), "<name>");
+                var from = a.Option("from");
+                return await Edit(cfg => { ConfigEditor.AddPreset(cfg, name, from is null ? null : cfg.GetPreset(from)); }).ConfigureAwait(false);
+            case "rename":
+                var old = Required(a.Value(2), "<name>");
+                var renamed = Required(a.Value(3), "<new name>");
+                return await Edit(cfg => ConfigEditor.RenamePreset(cfg, old, renamed)).ConfigureAwait(false);
+            case "remove":
+                var gone = Required(a.Value(2), "<name>");
+                return await Edit(cfg => { ConfigEditor.RemovePreset(cfg, gone); }).ConfigureAwait(false);
+            default:
+                throw new UsageException(Loc.T("Cli.UnknownCommand", "preset " + a.Value(1)));
+        }
+    }
+
     private async Task<int> Games(CliArgs a)
     {
         switch (a.Word(1))
         {
+            case "" or "status":
+                var st = await _client.GetStatusAsync().ConfigureAwait(false);
+                if (st.Games.Count == 0) await Line("Cli.StatusNoAccounts").ConfigureAwait(false);
+                foreach (var g in st.Games) await GamesLine(g).ConfigureAwait(false);
+                return Ok;
             case "allow":
                 var text = Required(a.Value(2), "<hours>").Replace(',', '.');
                 if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var hours)) throw new UcException(ErrorCodes.InvalidArgument, text, "hours");
-                var s = await _client.AllowGamesAsync(hours).ConfigureAwait(false);
-                await Line("Cli.GamesAllowed", s.GamesAllowedUntil is { } u ? Local(u) : "?").ConfigureAwait(false);
+                var s = await _client.AllowGamesAsync(a.Option("user"), hours, countPlayOnly: !a.Flag("now")).ConfigureAwait(false);
+                foreach (var g in s.Games.Where(g => a.Option("user") is not { } u || g.User.Equals(u, StringComparison.OrdinalIgnoreCase))) await GamesLine(g).ConfigureAwait(false);
                 return Ok;
             case "lock":
-                await _client.LockGamesAsync().ConfigureAwait(false);
+                await _client.LockGamesAsync(a.Option("user")).ConfigureAwait(false);
                 await Line("Cli.GamesLocked").ConfigureAwait(false);
                 return Ok;
+            case "mode":
+                var mode = a.Word(2) switch
+                {
+                    "manual" => GamesMode.Manual,
+                    "schedule" => GamesMode.Schedule,
+                    _ => throw new UsageException(Loc.T("Cli.MissingArgument", "manual|schedule")),
+                };
+                return await EditPreset(a, p => ConfigEditor.SetGamesMode(p, mode)).ConfigureAwait(false);
+            case "close":
+                var close = a.Word(2) switch
+                {
+                    "on" => true,
+                    "off" => false,
+                    _ => throw new UsageException(Loc.T("Cli.MissingArgument", "on|off")),
+                };
+                return await EditPreset(a, p => p.Games.CloseGamesWhenOver = close).ConfigureAwait(false);
+            case "schedule":
+                return await Schedule(a).ConfigureAwait(false);
             case "find":
-                var found = await _client.FindGamesAsync().ConfigureAwait(false);
+                var all = await _client.FindGamesAsync().ConfigureAwait(false);
+                var cfg0 = await _client.GetConfigAsync().ConfigureAwait(false);
+                var found = GameFinder.NotListed(all, TargetPreset(cfg0, a));
                 if (a.Flag("json")) return await Json(found).ConfigureAwait(false);
                 if (found.Count == 0)
                 {
@@ -324,11 +387,93 @@ internal sealed class CliApp
                     await Line("Cli.GamesFoundHint").ConfigureAwait(false);
                     return Ok;
                 }
-                return await Edit(cfg => { foreach (var f in found) ConfigEditor.AddBlockedPath(cfg, f, RuleCategory.Games, _sp); }).ConfigureAwait(false);
+                return await EditPreset(a, p => { foreach (var f in found) ConfigEditor.AddBlockedPath(p, f, RuleCategory.Games, _sp); }).ConfigureAwait(false);
             default:
                 throw new UsageException(Loc.T("Cli.UnknownCommand", "games " + a.Value(1)));
         }
     }
+
+    private async Task<int> Schedule(CliArgs a)
+    {
+        switch (a.Word(2))
+        {
+            case "" or "list":
+                var p = TargetPreset(await _client.GetConfigAsync().ConfigureAwait(false), a);
+                await Line("Cli.ScheduleHeader", p.Name, Loc.T("Cli.GamesMode." + p.Games.Mode)).ConfigureAwait(false);
+                if (p.Games.Schedule.Count == 0) await _out.WriteLineAsync("  " + Loc.T("Cli.None")).ConfigureAwait(false);
+                for (var i = 0; i < p.Games.Schedule.Count; i++) await _out.WriteLineAsync($"  {i + 1}. {GamesText.Window(p.Games.Schedule[i])}").ConfigureAwait(false);
+                return Ok;
+            case "add":
+                var days = ParseDays(Required(a.Value(3), "<days>"));
+                var times = Required(a.Value(4), "<from>-<to>").Split('-', 2);
+                if (times.Length != 2) throw new UcException(ErrorCodes.InvalidTime, a.Value(4)!);
+                var limit = 0;
+                if (a.Option("limit") is { } l && !int.TryParse(l, NumberStyles.None, CultureInfo.InvariantCulture, out limit)) throw new UcException(ErrorCodes.InvalidArgument, l, "--limit");
+                return await EditPreset(a, p => ConfigEditor.AddGamesWindow(p, days, times[0], times[1], limit)).ConfigureAwait(false);
+            case "remove":
+                var n = Required(a.Value(3), "<number>");
+                if (!int.TryParse(n, NumberStyles.None, CultureInfo.InvariantCulture, out var index)) throw new UcException(ErrorCodes.InvalidArgument, n, "<number>");
+                return await EditPreset(a, p => ConfigEditor.RemoveGamesWindow(p, index - 1)).ConfigureAwait(false);
+            default:
+                throw new UsageException(Loc.T("Cli.UnknownCommand", "games schedule " + a.Value(2)));
+        }
+    }
+
+    private Task GamesLine(AccountGames g) =>
+        Line("Cli.GamesAccount", g.User, GamesText.State(g.Allowed, g.Reason, g.Until, g.MinutesLeft, g.NextStart, DateTimeOffset.Now),
+            GamesText.Duration(g.PlayedToday), g.Playing ? Loc.T("Cli.GamesPlaying") : "");
+
+    /// <summary>"mon-fri", "sat,sun", "mon,wed,fri", "weekdays", "weekend", "all".</summary>
+    internal static List<DayOfWeek> ParseDays(string text)
+    {
+        var week = GamesText.Week.ToList();
+        var days = new List<DayOfWeek>();
+        foreach (var part in text.ToLowerInvariant().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            switch (part)
+            {
+                case "all" or "daily" or "every":
+                    days.AddRange(week);
+                    continue;
+                case "weekdays":
+                    days.AddRange(week.Take(5));
+                    continue;
+                case "weekend":
+                    days.AddRange(week.Skip(5));
+                    continue;
+            }
+            var range = part.Split('-', 2);
+            var from = Day(range[0]);
+            var to = range.Length == 2 ? Day(range[1]) : from;
+            int i = week.IndexOf(from), j = week.IndexOf(to);
+            if (j < i) throw new UcException(ErrorCodes.InvalidArgument, part, "<days>");
+            days.AddRange(week.Skip(i).Take(j - i + 1));
+        }
+        return [.. days.Distinct()];
+
+        // "mo", "mon", "monday": at least two letters of the English name.
+        static DayOfWeek Day(string s)
+        {
+            var match = Enum.GetValues<DayOfWeek>().Where(d => s.Length >= 2 && d.ToString().StartsWith(s, StringComparison.OrdinalIgnoreCase)).ToList();
+            return match.Count == 1 ? match[0] : throw new UcException(ErrorCodes.InvalidArgument, s, "<days>");
+        }
+    }
+
+    /// <summary>The preset a command is for: --preset, or the only one there is.</summary>
+    internal static Preset TargetPreset(UcConfig c, CliArgs a)
+    {
+        if (a.Option("preset") is { } name) return c.GetPreset(name);
+        return c.Presets.Count switch
+        {
+            0 => throw new UcException(ErrorCodes.NoPresets),
+            1 => c.Presets[0],
+            _ => throw new UcException(ErrorCodes.PresetRequired, string.Join(", ", c.Presets.Select(p => p.Name))),
+        };
+    }
+
+    private Task<int> EditPreset(CliArgs a, Action<Preset> change) => Edit(cfg => change(TargetPreset(cfg, a)));
+
+    private Task<int> EditPreset(CliArgs a, Func<Preset, object?> change) => Edit(cfg => { change(TargetPreset(cfg, a)); });
 
     // ---------------------------------------------------------------- programs
 
@@ -339,14 +484,14 @@ internal sealed class CliApp
         {
             case "folder":
                 var folder = Required(a.Rest(2), "<path>");
-                return await Edit(cfg => ConfigEditor.AddBlockedPath(cfg, folder, category, _sp)).ConfigureAwait(false);
+                return await EditPreset(a, p => ConfigEditor.AddBlockedPath(p, folder, category, _sp)).ConfigureAwait(false);
             case "name":
                 var name = Required(a.Value(2), "<file.exe>");
-                return await Edit(cfg => ConfigEditor.AddBlockedName(cfg, name, category)).ConfigureAwait(false);
+                return await EditPreset(a, p => ConfigEditor.AddBlockedName(p, name, category)).ConfigureAwait(false);
             case "file":
                 var path = Required(a.Rest(2), "<path to .exe>");
                 var entry = Fingerprint(PathRules.Normalize(path), category);
-                var code = await Edit(cfg => ConfigEditor.AddBlockedFile(cfg, entry)).ConfigureAwait(false);
+                var code = await EditPreset(a, p => ConfigEditor.AddBlockedFile(p, entry)).ConfigureAwait(false);
                 if (code == Ok) await Line("Cli.FileBlocked", entry.FileName).ConfigureAwait(false);
                 return code;
             default:
@@ -360,14 +505,14 @@ internal sealed class CliApp
         {
             case "folder":
                 var folder = Required(a.Rest(2), "<path>");
-                return await Edit(cfg => ConfigEditor.RemoveBlockedPath(cfg, folder)).ConfigureAwait(false);
+                return await EditPreset(a, p => ConfigEditor.RemoveBlockedPath(p, folder)).ConfigureAwait(false);
             case "name":
                 var name = Required(a.Value(2), "<file.exe>");
-                return await Edit(cfg => ConfigEditor.RemoveBlockedName(cfg, name)).ConfigureAwait(false);
+                return await EditPreset(a, p => ConfigEditor.RemoveBlockedName(p, name)).ConfigureAwait(false);
             case "file":
                 var value = Required(a.Rest(2), "<path or SHA-256>");
                 var sha = Validators.IsHex(value, 64) ? value : Fingerprint(PathRules.Normalize(value), RuleCategory.Other).Sha256;
-                return await Edit(cfg => ConfigEditor.RemoveBlockedFile(cfg, sha)).ConfigureAwait(false);
+                return await EditPreset(a, p => ConfigEditor.RemoveBlockedFile(p, sha)).ConfigureAwait(false);
             default:
                 throw new UsageException(Loc.T("Cli.UnknownCommand", "unblock " + a.Value(1)));
         }
@@ -378,8 +523,8 @@ internal sealed class CliApp
         var path = Required(a.Rest(2), "<path>");
         return a.Word(1) switch
         {
-            "folder" => await Edit(cfg => ConfigEditor.AddAllowedPath(cfg, path)).ConfigureAwait(false),
-            "remove" => await Edit(cfg => ConfigEditor.RemoveAllowedPath(cfg, path)).ConfigureAwait(false),
+            "folder" => await EditPreset(a, p => ConfigEditor.AddAllowedPath(p, path)).ConfigureAwait(false),
+            "remove" => await EditPreset(a, p => ConfigEditor.RemoveAllowedPath(p, path)).ConfigureAwait(false),
             _ => throw new UsageException(Loc.T("Cli.UnknownCommand", "allow " + a.Value(1))),
         };
     }
@@ -407,8 +552,8 @@ internal sealed class CliApp
         var id = Required(a.Value(3), "<extension id>");
         return a.Word(1) switch
         {
-            "allow" or "add" => await Edit(cfg => ConfigEditor.AddExtension(cfg, browser, id)).ConfigureAwait(false),
-            "remove" => await Edit(cfg => ConfigEditor.RemoveExtension(cfg, browser, id)).ConfigureAwait(false),
+            "allow" or "add" => await EditPreset(a, p => ConfigEditor.AddExtension(p, browser, id)).ConfigureAwait(false),
+            "remove" => await EditPreset(a, p => ConfigEditor.RemoveExtension(p, browser, id)).ConfigureAwait(false),
             _ => throw new UsageException(Loc.T("Cli.UnknownCommand", "ext " + a.Value(1))),
         };
     }
@@ -421,9 +566,9 @@ internal sealed class CliApp
         {
             case "set":
                 var value = Required(a.Rest(4), "<value>");
-                return await Edit(cfg => ConfigEditor.SetBrowserPolicy(cfg, browser, name, value)).ConfigureAwait(false);
+                return await EditPreset(a, p => ConfigEditor.SetBrowserPolicy(p, browser, name, value)).ConfigureAwait(false);
             case "remove":
-                return await Edit(cfg => ConfigEditor.RemoveBrowserPolicy(cfg, browser, name)).ConfigureAwait(false);
+                return await EditPreset(a, p => ConfigEditor.RemoveBrowserPolicy(p, browser, name)).ConfigureAwait(false);
             default:
                 throw new UsageException(Loc.T("Cli.UnknownCommand", "policy " + a.Value(1)));
         }

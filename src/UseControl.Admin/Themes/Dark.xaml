@@ -1,0 +1,30 @@
+<!-- Colours of the dark theme: the same keys as Light.xaml. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <SolidColorBrush x:Key="Accent" Color="#3B82F6" />
+  <SolidColorBrush x:Key="AccentHover" Color="#2563EB" />
+  <SolidColorBrush x:Key="AccentLight" Color="#1E3A5F" />
+  <SolidColorBrush x:Key="AccentText" Color="#93C5FD" />
+  <SolidColorBrush x:Key="OnAccent" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="WindowBackground" Color="#15171C" />
+  <SolidColorBrush x:Key="NavBackground" Color="#1B1E24" />
+  <SolidColorBrush x:Key="CardBackground" Color="#1F2229" />
+  <SolidColorBrush x:Key="ControlBackground" Color="#2A2E37" />
+  <SolidColorBrush x:Key="ControlHover" Color="#343943" />
+  <SolidColorBrush x:Key="InputBackground" Color="#181B20" />
+  <SolidColorBrush x:Key="HeaderBackground" Color="#252931" />
+  <SolidColorBrush x:Key="Subtle" Color="#2A2E37" />
+  <SolidColorBrush x:Key="Border" Color="#30343D" />
+  <SolidColorBrush x:Key="BorderStrong" Color="#454B57" />
+  <SolidColorBrush x:Key="ScrollThumb" Color="#4B515D" />
+  <SolidColorBrush x:Key="Text" Color="#E6E8EC" />
+  <SolidColorBrush x:Key="TextMuted" Color="#9AA1AD" />
+  <SolidColorBrush x:Key="Ok" Color="#4ADE80" />
+  <SolidColorBrush x:Key="OkLight" Color="#163322" />
+  <SolidColorBrush x:Key="Warning" Color="#FBBF24" />
+  <SolidColorBrush x:Key="WarningLight" Color="#3A2F12" />
+  <SolidColorBrush x:Key="Danger" Color="#F87171" />
+  <SolidColorBrush x:Key="DangerLight" Color="#3D1D1D" />
+  <SolidColorBrush x:Key="DangerBorder" Color="#7F1D1D" />
+  <SolidColorBrush x:Key="InfoLight" Color="#16314B" />
+</ResourceDictionary>

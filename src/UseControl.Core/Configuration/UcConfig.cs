@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using UseControl.Core.Games;
 
 namespace UseControl.Core.Configuration;
 
@@ -7,16 +9,51 @@ public sealed class UcConfig
 {
     public int SchemaVersion { get; set; } = ConfigSerializer.CurrentSchemaVersion;
 
-    /// <summary>Local standard accounts that are restricted.</summary>
-    public List<string> Users { get; set; } = [];
-
     /// <summary>Only administrators may install Store/MSIX apps (machine-wide).</summary>
     public bool BlockStoreInstalls { get; set; } = true;
+
+    /// <summary>
+    /// Sets of rules, each for the accounts listed in it. Every restricted account is in exactly one
+    /// preset; a preset may have no accounts (kept for later or as a template).
+    /// </summary>
+    public List<Preset> Presets { get; set; } = [];
+
+    /// <summary>NTFS access of restricted accounts to folders and files.</summary>
+    public List<FileAccessRule> FileAccess { get; set; } = [];
+
+    public AuditSettings Audit { get; set; } = new();
+
+    /// <summary>Every restricted account, in the order of the presets.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<string> Users => [.. Presets.SelectMany(p => p.Accounts)];
+
+    /// <summary>The preset an account belongs to, or null when it is not restricted.</summary>
+    public Preset? PresetOf(string user) =>
+        Presets.FirstOrDefault(p => p.Accounts.Contains(user?.Trim() ?? "", StringComparer.OrdinalIgnoreCase));
+
+    /// <summary>The preset with this name (any letter case), or null.</summary>
+    public Preset? FindPreset(string name) =>
+        Presets.FirstOrDefault(p => p.Name.Equals(name?.Trim(), StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>The preset with this name; throws <see cref="UcException"/> when there is none.</summary>
+    public Preset GetPreset(string name) => FindPreset(name) ?? throw new UcException(ErrorCodes.PresetNotFound, name ?? "");
+}
+
+/// <summary>
+/// What a group of accounts may do: Windows tools, blocked programs and games, games time, browsers.
+/// One account per preset gives every account its own settings; several accounts may share one.
+/// </summary>
+public sealed class Preset
+{
+    public string Name { get; set; } = "";
+
+    /// <summary>Local standard accounts that get these restrictions.</summary>
+    public List<string> Accounts { get; set; } = [];
 
     /// <summary>Places found on the PC and blocked automatically.</summary>
     public AutoBlockOptions Auto { get; set; } = new();
 
-    /// <summary>Windows tools and settings taken away from restricted accounts.</summary>
+    /// <summary>Windows tools and settings taken away.</summary>
     public AccountRestrictions Restrictions { get; set; } = new();
 
     /// <summary>Folders (or files) from which programs may not start.</summary>
@@ -31,12 +68,10 @@ public sealed class UcConfig
     /// <summary>Programs blocked by their content, whatever they are called and wherever they are.</summary>
     public List<FileHashEntry> BlockedFiles { get; set; } = [];
 
-    /// <summary>NTFS access of restricted accounts to folders and files.</summary>
-    public List<FileAccessRule> FileAccess { get; set; } = [];
+    /// <summary>When the games of this preset may be played.</summary>
+    public GamesSettings Games { get; set; } = new();
 
     public BrowserSettings Browsers { get; set; } = new();
-
-    public AuditSettings Audit { get; set; } = new();
 }
 
 public enum RuleCategory

@@ -13,6 +13,13 @@
 
     <Border Style="{StaticResource Card}">
       <StackPanel>
+        <TextBlock Text="{l:Tr Ui.Settings.ThemeHeader}" Style="{StaticResource SectionTitle}" />
+        <ComboBox ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme}" DisplayMemberPath="Text" Width="220" HorizontalAlignment="Left" />
+      </StackPanel>
+    </Border>
+
+    <Border Style="{StaticResource Card}">
+      <StackPanel>
         <TextBlock Text="{l:Tr Ui.Settings.BackupHeader}" Style="{StaticResource SectionTitle}" />
         <StackPanel Orientation="Horizontal">
           <Button Content="{l:Tr Ui.Settings.Export}" Command="{Binding ExportCommand}" />

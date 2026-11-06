@@ -22,15 +22,32 @@ public static class ConfigValidator
         if (c.SchemaVersion > ConfigSerializer.CurrentSchemaVersion)
             problems.Add(new UcException(ErrorCodes.ConfigTooNew, "config", c.SchemaVersion, ConfigSerializer.CurrentSchemaVersion));
 
-        foreach (var u in c.Users) if (!Validators.IsUserName(u)) problems.Add(new UcException(ErrorCodes.InvalidUserName, u));
-        Duplicates(c.Users, problems);
+        Duplicates(c.Presets.Select(p => p.Name), problems, ErrorCodes.PresetExists);
+        foreach (var g in c.Users.GroupBy(u => u, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1))
+            problems.Add(new UcException(ErrorCodes.AccountInTwoPresets, g.Key));
 
-        foreach (var e in c.BlockedPaths) Check(() => PathRules.EnsureCanBlock(e.Path, sp));
+        foreach (var p in c.Presets) ValidatePreset(p, sp, problems, Check);
+
+        foreach (var r in c.FileAccess)
+        {
+            Check(() => PathRules.EnsureCanChangeAccess(r.Path, sp));
+            if (r.Rights == FileAccessRights.None) problems.Add(new UcException(ErrorCodes.NoRights));
+            foreach (var u in r.Users) if (!Validators.IsUserName(u)) problems.Add(new UcException(ErrorCodes.InvalidUserName, u));
+        }
+        return problems;
+    }
+
+    private static void ValidatePreset(Preset c, ISystemPaths sp, List<UcException> problems, Action<Action> check)
+    {
+        if (!Validators.IsPresetName(c.Name)) problems.Add(new UcException(ErrorCodes.InvalidPresetName, c.Name));
+        foreach (var u in c.Accounts) if (!Validators.IsUserName(u)) problems.Add(new UcException(ErrorCodes.InvalidUserName, u));
+
+        foreach (var e in c.BlockedPaths) check(() => PathRules.EnsureCanBlock(e.Path, sp));
         DuplicatePaths(c.BlockedPaths.Select(e => e.Path), problems);
 
         foreach (var e in c.AllowedPaths)
         {
-            Check(() =>
+            check(() =>
             {
                 var p = PathRules.Normalize(e.Path);
                 if (PathRules.IsDriveRoot(p)) throw new UcException(ErrorCodes.WholeDriveNotAllowed, p);
@@ -47,12 +64,8 @@ public static class ConfigValidator
         }
         Duplicates(c.BlockedFiles.Select(f => f.Sha256), problems);
 
-        foreach (var r in c.FileAccess)
-        {
-            Check(() => PathRules.EnsureCanChangeAccess(r.Path, sp));
-            if (r.Rights == FileAccessRights.None) problems.Add(new UcException(ErrorCodes.NoRights));
-            foreach (var u in r.Users) if (!Validators.IsUserName(u)) problems.Add(new UcException(ErrorCodes.InvalidUserName, u));
-        }
+        if (!Enum.IsDefined(c.Games.Mode)) problems.Add(new UcException(ErrorCodes.InvalidArgument, c.Games.Mode, "mode"));
+        foreach (var w in c.Games.Schedule) check(w.EnsureValid);
 
         foreach (var (kind, list) in new[]
         {
@@ -63,10 +76,9 @@ public static class ConfigValidator
         {
             foreach (var id in list) if (!Validators.IsExtensionId(kind, id)) problems.Add(new UcException(ErrorCodes.InvalidExtensionId, id, kind));
         }
-        Check(() => Browsers.PolicyValues.FromConfig(c.Browsers.Chrome.Policies));
-        Check(() => Browsers.PolicyValues.FromConfig(c.Browsers.Edge.Policies));
-        Check(() => Browsers.PolicyValues.FromConfig(c.Browsers.Firefox.Policies));
-        return problems;
+        check(() => Browsers.PolicyValues.FromConfig(c.Browsers.Chrome.Policies));
+        check(() => Browsers.PolicyValues.FromConfig(c.Browsers.Edge.Policies));
+        check(() => Browsers.PolicyValues.FromConfig(c.Browsers.Firefox.Policies));
     }
 
     /// <summary>Throws the first problem, if any.</summary>
@@ -76,10 +88,10 @@ public static class ConfigValidator
         if (problems.Count > 0) throw problems[0];
     }
 
-    private static void Duplicates(IEnumerable<string> values, List<UcException> problems)
+    private static void Duplicates(IEnumerable<string> values, List<UcException> problems, string code = ErrorCodes.AlreadyInList)
     {
         foreach (var g in values.GroupBy(v => v, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1))
-            problems.Add(new UcException(ErrorCodes.AlreadyInList, g.Key));
+            problems.Add(new UcException(code, g.Key));
     }
 
     private static void DuplicatePaths(IEnumerable<string> paths, List<UcException> problems) =>

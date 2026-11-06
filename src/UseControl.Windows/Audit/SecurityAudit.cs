@@ -129,7 +129,8 @@ public static class SecurityAudit
 
     private static AuditCheck CheckWritableFolders(UcConfig config, IReadOnlyList<AutoPath> auto)
     {
-        var on = config.Auto.WritableProgramFolders && config.Auto.WritableDriveRoots && config.Auto.SystemDriveRoot;
+        var on = config.Presets.Where(p => p.Accounts.Count > 0)
+            .All(p => p.Auto.WritableProgramFolders && p.Auto.WritableDriveRoots && p.Auto.SystemDriveRoot);
         if (!on) return R("writableFolders", AuditStatus.Warning, "WritableOff");
         var found = auto.Where(a => a.Reason.StartsWith("program folder", StringComparison.Ordinal) || a.Reason.StartsWith("drive writable", StringComparison.Ordinal))
             .Select(a => a.Path).ToList();
@@ -140,12 +141,13 @@ public static class SecurityAudit
 
     private static AuditCheck CheckAllowedFolders(UcConfig config, IReadOnlyList<string> weak)
     {
-        var open = config.AllowedPaths
+        var allowed = config.Presets.SelectMany(p => p.AllowedPaths)
             .Select(e => PathRules.TryNormalize(e.Path, out var p) ? p : null).OfType<string>()
-            .Where(p => Directory.Exists(p) && AclInspector.WritableBy(p, weak).Count > 0).ToList();
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var open = allowed.Where(p => Directory.Exists(p) && AclInspector.WritableBy(p, weak).Count > 0).ToList();
         return open.Count > 0
             ? R("allowedFolders", AuditStatus.Warning, "AllowedWritable", null, List(open))
-            : R("allowedFolders", AuditStatus.Ok, "AllowedOk", null, config.AllowedPaths.Count);
+            : R("allowedFolders", AuditStatus.Ok, "AllowedOk", null, allowed.Count);
     }
 
     private static AuditCheck CheckPrivateFolder(string folder, IReadOnlyList<string> weak)

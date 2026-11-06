@@ -28,7 +28,7 @@ public sealed class FileSystemTests : IDisposable
 
     private static UcConfig ConfigWith(string path, FileAccessMode mode, FileAccessRights rights)
     {
-        var c = new UcConfig { Users = ["kid"] };
+        var c = new UcConfig { Presets = [new Preset { Name = "kid", Accounts = ["kid"] }] };
         c.FileAccess.Add(new FileAccessRule { Path = path, Mode = mode, Rights = rights });
         return c;
     }
@@ -52,7 +52,7 @@ public sealed class FileSystemTests : IDisposable
         Assert.Single(RulesFor(folder, GuestsSid));
 
         // Without the rule in the config, the entry goes away.
-        Assert.Equal("removed", Assert.Single(m.Apply(new UcConfig { Users = ["kid"] }, _accounts)).Action);
+        Assert.Equal("removed", Assert.Single(m.Apply(new UcConfig { Presets = [new Preset { Name = "kid", Accounts = ["kid"] }] }, _accounts)).Action);
         Assert.Empty(RulesFor(folder, GuestsSid));
         Assert.Empty(m.LoadLedger());
     }

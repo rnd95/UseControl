@@ -49,6 +49,14 @@ public static class Loc
         return args.Length == 0 ? text : string.Format(Culture, text, args);
     }
 
+    /// <summary>The text in a given language (for messages shown to someone else than the administrator).</summary>
+    public static string In(CultureInfo culture, string key, params object?[] args)
+    {
+        ArgumentNullException.ThrowIfNull(culture);
+        var text = Resources.GetString(key, culture) ?? key;
+        return args.Length == 0 ? text : string.Format(culture, text, args);
+    }
+
     /// <summary>The message of an error in the current language.</summary>
     public static string Error(UcException e)
     {

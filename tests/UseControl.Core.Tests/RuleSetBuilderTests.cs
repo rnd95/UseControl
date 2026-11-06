@@ -14,9 +14,9 @@ public class RuleSetBuilderTests
 
     private static readonly string[] SystemAllowed = [@"C:\Windows", @"C:\Program Files", @"C:\Program Files (x86)"];
 
-    private static UcConfig Config()
+    private static Preset Config()
     {
-        var c = new UcConfig { Users = ["kid"] };
+        var c = new Preset { Name = "kid", Accounts = ["kid"] };
         c.BlockedPaths.Add(new PathEntry { Path = @"D:\games", Category = RuleCategory.Games });
         c.BlockedPaths.Add(new PathEntry { Path = @"C:\Program Files (x86)\Steam", Category = RuleCategory.Games });
         c.BlockedPaths.Add(new PathEntry { Path = @"C:\Program Files\WireGuard", Category = RuleCategory.Vpn });

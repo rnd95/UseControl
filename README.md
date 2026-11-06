@@ -2,12 +2,18 @@
 
 UseControl restricts standard Windows accounts on a shared or family PC. The restricted accounts:
 
-- сannot run games or VPN/proxy clients;
+- cannot run games (except in the time you allow) or VPN/proxy clients;
 - cannot install programs without an administrator;
 - get only the browser extensions and settings you allow;
 - cannot open folders you keep private.
 
-Games can be allowed for a while. Screen-time limits are coming.
+Every restricted account gets a **preset**: its own set of rules, or one it shares with other accounts.
+
+Games time is set per preset and counted per account:
+
+- a weekly schedule with a daily limit (for example Mon–Fri 16:00–20:00, at most 1 hour of play);
+- hours you give by hand, counted only while a game runs, or from now on;
+- a warning on the account's screen five minutes before the end, and games closed a minute after it.
 
 UseControl is local: no cloud and no telemetry. It works with ordinary local accounts, and no Microsoft account is needed.
 
@@ -18,7 +24,7 @@ UseControl is local: no cloud and no telemetry. It works with ordinary local acc
 | Stage | Contents |
 |---|---|
 | 1. Foundation | Windows service, admin panel (WPF), `uc.exe` command line. Everything the PowerShel version does, plus file and folder acces control and blocking programs by file fingerprint |
-| 2. Screen time | Daily limits overall and per game or app, allowed hours, a tray agent with warnings, requests for extra time |
+| 2. Screen time | Daily limits for the whole PC and per app, a tray agent, requests for extra time (games schedules and limits are done) |
 | 3. Browsers | A catalogue of Chrome, Edge and Firefox policies, site block and allow lists |
 | 4. Release | Reports, MSI installer, code signing, winget, more languages |
 
@@ -74,14 +80,15 @@ An installation of the PowerShell version is replaced: its configuration becomes
 
 The panel is split so that its look can change without touching its behaviour:
 
-- `src/UseControl.Admin/Themes/Theme.xaml` holds every colour, size and control style.
+- `src/UseControl.Admin/Themes/Light.xaml` and `Dark.xaml` hold the colours of the two themes (same keys).
+- `src/UseControl.Admin/Themes/Theme.xaml` holds every size and control style; colours are `DynamicResource`, so the theme switches live.
 - `src/UseControl.Admin/Views/*.xaml` lay out one page each. They only bind to the page's view model.
 - `src/UseControl.Admin/App.xaml` maps each page to its view. Point a page to a new view to redesign it.
 
 To see every page filled in without installing the service, run the panel with sample data:
 
 ```
-UseControl.exe --demo [--page 0-8] [--lang en|uk]
+UseControl.exe --demo [--page 0-8] [--lang en|uk] [--theme light|dark|system]
 ```
 
 Pages are numbered from 0: 0 Status, 1 Accounts, 2 Restrictions, 3 Games, 4 Programs, 5 Files and folders, 6 Browsers, 7 Security check, 8 Settings.

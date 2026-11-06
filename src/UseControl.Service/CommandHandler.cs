@@ -18,8 +18,8 @@ public sealed class CommandHandler(UcController controller)
             Commands.SetConfig => await controller.SetConfigAsync(Payload<UcConfig>(request), ct).ConfigureAwait(false),
             Commands.Apply => await controller.ApplyAsync(ct).ConfigureAwait(false),
             Commands.Suspend => await controller.SuspendAsync(ct).ConfigureAwait(false),
-            Commands.AllowGames => await controller.AllowGamesAsync(Payload<AllowGamesRequest>(request).Hours, ct).ConfigureAwait(false),
-            Commands.LockGames => await controller.LockGamesAsync(ct).ConfigureAwait(false),
+            Commands.AllowGames => await AllowGames(Payload<AllowGamesRequest>(request), ct).ConfigureAwait(false),
+            Commands.LockGames => await controller.LockGamesAsync(IpcJson.FromElement<LockGamesRequest>(request.Payload)?.User, ct).ConfigureAwait(false),
             Commands.Preview => await Preview(ct).ConfigureAwait(false),
             Commands.Audit => await controller.AuditAsync(ct).ConfigureAwait(false),
             Commands.FindGames => await controller.FindGamesAsync(ct).ConfigureAwait(false),
@@ -27,6 +27,8 @@ public sealed class CommandHandler(UcController controller)
         };
         return new Response(true, IpcJson.ToElement(result));
     }
+
+    private Task<ServiceStatus> AllowGames(AllowGamesRequest r, CancellationToken ct) => controller.AllowGamesAsync(r.User, r.Hours, r.CountPlayOnly, ct);
 
     private async Task<PreviewResult> Preview(CancellationToken ct)
     {

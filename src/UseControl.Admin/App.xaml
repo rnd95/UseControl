@@ -8,6 +8,8 @@
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
+        <!-- First: the colours (ThemeManager replaces this one with Dark.xaml). Then the styles. -->
+        <ResourceDictionary Source="Themes/Light.xaml" />
         <ResourceDictionary Source="Themes/Theme.xaml" />
       </ResourceDictionary.MergedDictionaries>
 

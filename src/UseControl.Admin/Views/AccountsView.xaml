@@ -8,7 +8,7 @@
     <TextBlock Text="{l:Tr Ui.Accounts.Empty}" Style="{StaticResource Help}"
                Visibility="{Binding Accounts.Count, Converter={StaticResource ZeroToVisibility}}" />
 
-    <!-- One card per account: name, state, and the one button that applies to it. -->
+    <!-- One card per account: name, state, its preset, and the one button that applies to it. -->
     <ItemsControl ItemsSource="{Binding Accounts}">
       <ItemsControl.ItemTemplate>
         <DataTemplate>
@@ -18,22 +18,23 @@
                 <ColumnDefinition Width="36" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
               <TextBlock Text="&#xE77B;" FontFamily="{StaticResource IconFont}" FontSize="18" VerticalAlignment="Center"
-                         Foreground="{StaticResource TextMuted}" />
+                         Foreground="{DynamicResource TextMuted}" />
               <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" />
                 <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                   <Border CornerRadius="4" Padding="8,1">
                     <Border.Style>
                       <Style TargetType="Border">
-                        <Setter Property="Background" Value="#F3F4F6" />
+                        <Setter Property="Background" Value="{DynamicResource Subtle}" />
                         <Style.Triggers>
                           <DataTrigger Binding="{Binding IsRestricted}" Value="True">
-                            <Setter Property="Background" Value="{StaticResource AccentLight}" />
+                            <Setter Property="Background" Value="{DynamicResource AccentLight}" />
                           </DataTrigger>
                           <DataTrigger Binding="{Binding Exists}" Value="False">
-                            <Setter Property="Background" Value="{StaticResource WarningLight}" />
+                            <Setter Property="Background" Value="{DynamicResource WarningLight}" />
                           </DataTrigger>
                         </Style.Triggers>
                       </Style>
@@ -42,7 +43,12 @@
                   </Border>
                 </StackPanel>
               </StackPanel>
-              <Grid Grid.Column="2" VerticalAlignment="Center">
+              <!-- The preset: for a restricted account changing it moves the account; otherwise it is the preset it will get. -->
+              <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                <TextBlock Text="{l:Tr Ui.Preset.Label}" Style="{StaticResource Label}" />
+                <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding Preset}" DisplayMemberPath="Text" MinWidth="190" />
+              </StackPanel>
+              <Grid Grid.Column="3" VerticalAlignment="Center">
                 <Button Content="{l:Tr Ui.Accounts.Add}" Style="{StaticResource PrimaryButton}" Margin="0" MinWidth="150"
                         Command="{Binding DataContext.RestrictCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
                         Visibility="{Binding IsRestricted, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
@@ -55,5 +61,15 @@
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
+    <TextBlock Text="{l:Tr Ui.Accounts.PresetHelp}" Style="{StaticResource Help}" Margin="0,0,0,16" />
+
+    <!-- For the whole PC, whatever the presets say. -->
+    <Border Style="{StaticResource Card}">
+      <StackPanel>
+        <TextBlock Text="{l:Tr Ui.Accounts.WholePc}" Style="{StaticResource SectionTitle}" />
+        <CheckBox Content="{l:Tr Ui.Settings.Store}" IsChecked="{Binding BlockStoreInstalls}" />
+        <TextBlock Text="{l:Tr Ui.Restrictions.InstallHelp}" Style="{StaticResource Help}" />
+      </StackPanel>
+    </Border>
   </StackPanel>
 </UserControl>

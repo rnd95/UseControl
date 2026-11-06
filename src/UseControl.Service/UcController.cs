@@ -1,15 +1,18 @@
 using Microsoft.Extensions.Logging;
 using UseControl.Core;
 using UseControl.Core.Configuration;
+using UseControl.Core.Games;
 using UseControl.Core.Paths;
 using UseControl.Ipc;
 using UseControl.Windows;
+using UseControl.Windows.Games;
 
 namespace UseControl.Service;
 
 /// <summary>
-/// The service's brain: owns the configuration and the state, applies them through the engine, runs the
-/// games timer and puts the restrictions back when something removed them. One operation at a time.
+/// The service's brain: owns the configuration and the state, applies them through the engine, keeps
+/// games time (schedules, time an administrator gave, play counted while a game runs) and puts the
+/// restrictions back when something removed them. One operation at a time.
 /// </summary>
 public sealed partial class UcController : IDisposable
 {
@@ -19,6 +22,15 @@ public sealed partial class UcController : IDisposable
     private static readonly TimeSpan DriftCheckInterval = TimeSpan.FromMinutes(5);
     private static readonly TimeSpan FullApplyInterval = TimeSpan.FromHours(6);
 
+    /// <summary>A warning is shown this long before games time ends.</summary>
+    private static readonly TimeSpan WarnBefore = TimeSpan.FromMinutes(5);
+
+    /// <summary>Games still running this long after the end of games time are closed.</summary>
+    private static readonly TimeSpan CloseAfter = TimeSpan.FromMinutes(1);
+
+    /// <summary>Longest gap between two ticks counted as play (the PC may have slept in between).</summary>
+    private static readonly TimeSpan MaxTickGap = TimeSpan.FromMinutes(2);
+
     private readonly IEngine _engine;
     private readonly ISystemPaths _sp;
     private readonly TimeProvider _time;
@@ -27,6 +39,15 @@ public sealed partial class UcController : IDisposable
     private readonly string _configPath;
     private readonly string _statePath;
     private DateTimeOffset _lastDriftCheck;
+    private DateTimeOffset? _lastTick;
+
+    // Accounts whose game rules were left out at the last apply.
+    private HashSet<string> _gamesApplied = new(StringComparer.OrdinalIgnoreCase);
+
+    // Games running at the last tick, the accounts already warned, and when to close games.
+    private IReadOnlyList<RunningGame> _running = [];
+    private readonly HashSet<string> _warned = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, DateTimeOffset> _closeAt = new(StringComparer.OrdinalIgnoreCase);
 
     public UcController(string dataDirectory, IEngine engine, ISystemPaths sp, TimeProvider time, ILogger log)
     {
@@ -49,7 +70,19 @@ public sealed partial class UcController : IDisposable
 
     private DateTimeOffset Now => _time.GetUtcNow();
 
-    private bool GamesAllowedNow => State.GamesAllowedUntil is { } u && u > Now;
+    private TimeZoneInfo Zone => _time.LocalTimeZone;
+
+    private GamesState GamesOf(string user)
+    {
+        if (!State.Games.TryGetValue(user, out var s)) State.Games[user] = s = new GamesState();
+        return s;
+    }
+
+    private GamesDecision Decide(string user) => Config.PresetOf(user) is { } p
+        ? GamesClock.Evaluate(p.Games, GamesOf(user), Now, Zone)
+        : new GamesDecision(false, GamesReason.Blocked, null, null, null);
+
+    private HashSet<string> GamesAllowedNow() => new(Config.Users.Where(u => Decide(u).Allowed), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Loads (or creates) the configuration and state and applies them.</summary>
     public async Task InitializeAsync(CancellationToken ct)
@@ -68,7 +101,7 @@ public sealed partial class UcController : IDisposable
                 ConfigSerializer.Save(Config, _configPath);
             }
             State = ServiceState.Load(_statePath);
-            if (State.GamesAllowedUntil is { } u && u <= Now) State.GamesAllowedUntil = null;
+            foreach (var g in State.Games.Values) GamesClock.StartDay(g, Now, Zone);
             ApplyLocked("service start");
         }
         finally
@@ -96,6 +129,7 @@ public sealed partial class UcController : IDisposable
 
         var removedUsers = Config.Users.Where(u => !normalized.Users.Contains(u, StringComparer.OrdinalIgnoreCase)).ToList();
         var removed = removedUsers.Select(_engine.RemoveAccount).ToList();
+        foreach (var u in removedUsers) State.Games.Remove(u);
 
         ConfigSerializer.Save(normalized, _configPath);
         Config = normalized;
@@ -115,7 +149,12 @@ public sealed partial class UcController : IDisposable
     public Task<ApplyResult> SuspendAsync(CancellationToken ct) => Locked(() =>
     {
         State.Enabled = false;
-        State.GamesAllowedUntil = null;
+        foreach (var g in State.Games.Values)
+        {
+            // Time an administrator gave does not survive a suspend; what was played today stays counted.
+            g.AllowedUntil = null;
+            g.PlayMinutesLeft = 0;
+        }
         var r = _engine.RemoveAll(Config);
         State.LastResults = [.. r.Accounts];
         State.Save(_statePath);
@@ -123,42 +162,65 @@ public sealed partial class UcController : IDisposable
         return r;
     }, ct);
 
-    public Task<ServiceStatus> AllowGamesAsync(double hours, CancellationToken ct) => Locked(() =>
+    /// <summary>Allows games for one account or every one: for some hours from now, or for some hours of play.</summary>
+    public Task<ServiceStatus> AllowGamesAsync(string? user, double hours, bool countPlayOnly, CancellationToken ct) => Locked(() =>
     {
         if (double.IsNaN(hours) || hours < MinGamesHours || hours > MaxGamesHours)
             throw new UcException(ErrorCodes.HoursOutOfRange, MinGamesHours, MaxGamesHours);
-        State.GamesAllowedUntil = Now.AddHours(hours);
-        ApplyLocked($"games allowed until {State.GamesAllowedUntil:u}");
+        foreach (var u in Targets(user))
+        {
+            GamesClock.Allow(GamesOf(u), Now, hours, countPlayOnly);
+            _closeAt.Remove(u);
+        }
+        ApplyLocked(countPlayOnly ? $"{hours} h of play allowed" : $"games allowed for {hours} h");
         return Status([]);
     }, ct);
 
-    public Task<ServiceStatus> LockGamesAsync(CancellationToken ct) => Locked(() =>
+    /// <summary>Blocks games now (inside a schedule: until the end of the day) and closes running games.</summary>
+    public Task<ServiceStatus> LockGamesAsync(string? user, CancellationToken ct) => Locked(() =>
     {
-        State.GamesAllowedUntil = null;
+        var targets = Targets(user);
+        foreach (var u in targets) GamesClock.Lock(GamesOf(u), Now, Zone);
+        var before = _gamesApplied;
         ApplyLocked("games blocked");
+        foreach (var u in targets.Where(before.Contains)) GamesEnded(u);
         return Status([]);
     }, ct);
 
-    public Task<PreviewData> PreviewAsync(CancellationToken ct) => Locked(() => _engine.Preview(Config, GamesAllowedNow), ct);
+    private List<string> Targets(string? user)
+    {
+        if (user is null) return [.. Config.Users];
+        var p = Config.PresetOf(user) ?? throw new UcException(ErrorCodes.NotRestricted, user);
+        return [p.Accounts.First(a => a.Equals(user.Trim(), StringComparison.OrdinalIgnoreCase))];
+    }
+
+    public Task<PreviewData> PreviewAsync(CancellationToken ct) => Locked(() =>
+    {
+        var allowed = GamesAllowedNow();
+        return _engine.Preview(Config, allowed.Contains);
+    }, ct);
 
     public Task<IReadOnlyList<Windows.Audit.AuditCheck>> AuditAsync(CancellationToken ct) => Locked(() => _engine.Audit(Config), ct);
 
-    public Task<IReadOnlyList<string>> FindGamesAsync(CancellationToken ct) => Locked(() => _engine.FindNewGames(Config), ct);
+    public Task<IReadOnlyList<string>> FindGamesAsync(CancellationToken ct) => Locked(() => _engine.FindGames(), ct);
 
     /// <summary>
-    /// Called every minute: ends games time when it is over, and every few minutes checks that the
-    /// restrictions are still in place (an account's registry could have been changed while the
-    /// service was stopped, or restored from a backup).
+    /// Called every minute: counts play, warns before games time ends, blocks games when it is over and
+    /// closes those still running a minute later; every few minutes checks that the restrictions are
+    /// still in place (an account's registry could have been changed while the service was stopped,
+    /// or restored from a backup).
     /// </summary>
     public Task TickAsync(CancellationToken ct) => Locked(() =>
     {
-        if (State.GamesAllowedUntil is { } until && until <= Now)
-        {
-            State.GamesAllowedUntil = null;
-            ApplyLocked("games time is over");
-            return true;
-        }
+        var gap = _lastTick is { } last ? Now - last : TimeSpan.FromMinutes(1);
+        _lastTick = Now;
         if (!State.Enabled || Config.Users.Count == 0) return false;
+
+        var dirty = false;
+        foreach (var u in Config.Users) dirty |= GamesClock.StartDay(GamesOf(u), Now, Zone);
+        if (TickGames(gap)) return true;
+        if (dirty) State.Save(_statePath);
+
         if (State.LastApplied is null || Now - State.LastApplied >= FullApplyInterval)
         {
             ApplyLocked("regular re-apply");
@@ -170,6 +232,105 @@ public sealed partial class UcController : IDisposable
         if (drift is not null) ApplyLocked("restrictions changed: " + drift);
         return drift is not null;
     }, ct);
+
+    /// <summary>The games part of a tick. True when the restrictions were applied again.</summary>
+    private bool TickGames(TimeSpan gap)
+    {
+        _running = FindRunningGames();
+        var minutes = Math.Clamp(gap.TotalMinutes, 0, MaxTickGap.TotalMinutes);
+        var playing = _running.Select(g => g.User).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        foreach (var u in playing)
+        {
+            if (Config.PresetOf(u) is { } p) GamesClock.RecordPlay(p.Games, GamesOf(u), Now, Zone, minutes);
+        }
+
+        foreach (var u in Config.Users)
+        {
+            var d = Decide(u);
+            var left = d.Remaining(Now);
+            if (!d.Allowed || left is null || left > WarnBefore)
+            {
+                _warned.Remove(u);
+                continue;
+            }
+            if (playing.Contains(u, StringComparer.OrdinalIgnoreCase) && _warned.Add(u))
+                Notify(u, "Notify.GamesEndSoon", Math.Max(1, (int)Math.Ceiling(left.Value.TotalMinutes)));
+        }
+
+        var allowed = GamesAllowedNow();
+        if (!allowed.SetEquals(_gamesApplied))
+        {
+            var ended = _gamesApplied.Where(u => !allowed.Contains(u)).ToList();
+            ApplyLocked("games time changed");
+            foreach (var u in ended) GamesEnded(u);
+            return true;
+        }
+
+        foreach (var (u, at) in _closeAt.ToList())
+        {
+            if (at > Now) continue;
+            _closeAt.Remove(u);
+            if (allowed.Contains(u)) continue;
+            var games = _running.Where(g => g.User.Equals(u, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (games.Count > 0) LogGamesClosed(_log, u, _engine.CloseGames(games));
+        }
+        if (playing.Count > 0) State.Save(_statePath);
+        return false;
+    }
+
+    /// <summary>Games time of an account just ended: tell it, and close its games a minute later if the preset says so.</summary>
+    private void GamesEnded(string user)
+    {
+        var close = Config.PresetOf(user)?.Games.CloseGamesWhenOver ?? false;
+        if (!_running.Any(g => g.User.Equals(user, StringComparison.OrdinalIgnoreCase))) return;
+        Notify(user, close ? "Notify.GamesOverClosing" : "Notify.GamesOver");
+        if (close) _closeAt[user] = Now + CloseAfter;
+    }
+
+    private IReadOnlyList<RunningGame> FindRunningGames()
+    {
+        try
+        {
+            return _engine.RunningGames(Config);
+        }
+        catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException or UnauthorizedAccessException or IOException)
+        {
+            LogGamesFailed(_log, e.Message);
+            return [];
+        }
+    }
+
+    private void Notify(string user, string key, params object?[] args)
+    {
+        var game = _running.FirstOrDefault(g => g.User.Equals(user, StringComparison.OrdinalIgnoreCase));
+        if (game is null) return;
+        try
+        {
+            _engine.Notify(game, key, args);
+        }
+        catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException or System.Security.SecurityException)
+        {
+            LogGamesFailed(_log, e.Message);
+        }
+    }
+
+    /// <summary>Games time of every restricted account, for the panel and uc.exe.</summary>
+    private List<AccountGames> GamesStatus()
+    {
+        var today = TimeZoneInfo.ConvertTime(Now, Zone).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        var list = new List<AccountGames>();
+        foreach (var p in Config.Presets)
+        {
+            foreach (var u in p.Accounts)
+            {
+                var st = GamesOf(u);
+                var d = GamesClock.Evaluate(p.Games, st, Now, Zone);
+                var playing = _running.Any(g => g.User.Equals(u, StringComparison.OrdinalIgnoreCase));
+                list.Add(new AccountGames(u, p.Name, d.Allowed, d.Reason, d.Until, d.MinutesLeft, d.NextStart, st.Day == today ? st.PlayedToday : 0, playing));
+            }
+        }
+        return list;
+    }
 
     /// <summary>What differs between the last apply and the registry now, or null.</summary>
     private string? FindDrift()
@@ -193,7 +354,9 @@ public sealed partial class UcController : IDisposable
             State.Save(_statePath);
             return null;
         }
-        var r = _engine.Apply(Config, GamesAllowedNow);
+        var allowed = GamesAllowedNow();
+        var r = _engine.Apply(Config, allowed.Contains);
+        _gamesApplied = allowed;
         State.LastApplied = Now;
         State.LastResults = [.. r.Accounts];
         State.Save(_statePath);
@@ -207,7 +370,7 @@ public sealed partial class UcController : IDisposable
     private ServiceStatus Status(IReadOnlyList<AccountStatus> accounts) => new(
         typeof(UcController).Assembly.GetName().Version?.ToString(3) ?? "?",
         State.Enabled,
-        GamesAllowedNow ? State.GamesAllowedUntil : null,
+        GamesStatus(),
         State.LastApplied,
         State.LastResults,
         accounts,
@@ -243,4 +406,10 @@ public sealed partial class UcController : IDisposable
 
     [LoggerMessage(5, LogLevel.Warning, "Restrictions suspended by an administrator")]
     private static partial void LogSuspended(ILogger log);
+
+    [LoggerMessage(6, LogLevel.Information, "Games time of {User} is over: {Count} games closed")]
+    private static partial void LogGamesClosed(ILogger log, string user, int count);
+
+    [LoggerMessage(7, LogLevel.Warning, "Games time: {Error}")]
+    private static partial void LogGamesFailed(ILogger log, string error);
 }

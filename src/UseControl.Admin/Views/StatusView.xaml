@@ -54,5 +54,26 @@
         </ItemsControl>
       </StackPanel>
     </Border>
+
+    <Border Style="{StaticResource Card}" Visibility="{Binding Games.Count, Converter={StaticResource ZeroToVisibility}, ConverterParameter=Invert}">
+      <StackPanel>
+        <TextBlock Text="{l:Tr Ui.Status.GamesHeader}" Style="{StaticResource SectionTitle}" />
+        <ItemsControl ItemsSource="{Binding Games}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid Margin="0,4">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="220" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Label}" FontWeight="SemiBold" />
+                <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap"
+                           Foreground="{Binding Warning, Converter={StaticResource StateBrush}, ConverterParameter=Text}" />
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
   </StackPanel>
 </UserControl>

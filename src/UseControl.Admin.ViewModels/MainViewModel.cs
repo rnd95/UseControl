@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using UseControl.Admin.ViewModels.Infrastructure;
 using UseControl.Admin.ViewModels.Pages;
 using UseControl.Core.Configuration;
+using UseControl.Localization;
 
 namespace UseControl.Admin.ViewModels;
 
@@ -14,20 +15,23 @@ public sealed partial class MainViewModel : ObservableObject
         PanelSession session,
         Func<IReadOnlyList<string>> standardAccounts,
         Func<string, RuleCategory, FileHashEntry> fingerprint,
-        Action<CultureInfo> saveLanguage)
+        Action<CultureInfo> saveLanguage,
+        ThemeChoices? themes = null)
     {
         Session = session;
+        session.Reloaded += (_, _) => OnPropertyChanged(nameof(PresetAccounts));
+        TranslationSource.Instance.CultureChanged += (_, _) => OnPropertyChanged(nameof(PresetAccounts));
         Pages =
         [
             new StatusPageViewModel(session),
             new AccountsPageViewModel(session, standardAccounts),
             new RestrictionsPageViewModel(session),
-            new GamesPageViewModel(session),
+            new GamesPageViewModel(session, fingerprint),
             new ProgramsPageViewModel(session, fingerprint),
             new FileAccessPageViewModel(session),
             new BrowsersPageViewModel(session),
             new AuditPageViewModel(session),
-            new SettingsPageViewModel(session, saveLanguage),
+            new SettingsPageViewModel(session, saveLanguage, themes ?? ThemeChoices.None),
         ];
         _selectedPage = Pages[0];
     }
@@ -40,6 +44,53 @@ public sealed partial class MainViewModel : ObservableObject
     private PageViewModel _selectedPage;
 
     partial void OnSelectedPageChanged(PageViewModel value) => _ = value.ActivateAsync();
+
+    /// <summary>"For: alpine, kid" under the preset chooser.</summary>
+    public string PresetAccounts => Session.Preset is not { } p
+        ? Loc.T("Ui.Preset.NoneYet")
+        : p.Accounts.Count == 0 ? Loc.T("Ui.Preset.NoAccounts") : Loc.T("Ui.Preset.For", string.Join(", ", p.Accounts));
+
+    /// <summary>A new preset: a copy of the one shown, or the recommended settings when there is none.</summary>
+    [RelayCommand]
+    private Task NewPreset()
+    {
+        var name = Session.Dialogs.Prompt(Loc.T("Ui.Preset.NewPrompt"), "");
+        if (string.IsNullOrWhiteSpace(name)) return Task.CompletedTask;
+        var from = Session.PresetName;
+        return EditAndShow(c => ConfigEditor.AddPreset(c, name, from is null ? null : c.GetPreset(from)).Name);
+    }
+
+    [RelayCommand]
+    private Task RenamePreset()
+    {
+        if (Session.PresetName is not { } old) return Task.CompletedTask;
+        var name = Session.Dialogs.Prompt(Loc.T("Ui.Preset.RenamePrompt", old), old);
+        if (string.IsNullOrWhiteSpace(name) || name.Trim() == old) return Task.CompletedTask;
+        return EditAndShow(c =>
+        {
+            ConfigEditor.RenamePreset(c, old, name);
+            return name.Trim();
+        });
+    }
+
+    [RelayCommand]
+    private Task DeletePreset()
+    {
+        if (Session.Preset is not { } p) return Task.CompletedTask;
+        var question = p.Accounts.Count == 0
+            ? Loc.T("Ui.Preset.ConfirmDelete", p.Name)
+            : Loc.T("Ui.Preset.ConfirmDeleteAccounts", p.Name, string.Join(", ", p.Accounts));
+        if (!Session.Dialogs.Confirm(question)) return Task.CompletedTask;
+        var name = p.Name;
+        return Session.EditAsync(c => ConfigEditor.RemovePreset(c, name));
+    }
+
+    // Changes the configuration, then shows the preset whose name the change returns.
+    private async Task EditAndShow(Func<UcConfig, string> change)
+    {
+        string? show = null;
+        if (await Session.EditAsync(c => show = change(c)).ConfigureAwait(true) && show is not null) Session.PresetName = show;
+    }
 
     /// <summary>Called once the window is shown: connects to the service and loads everything.</summary>
     public async Task StartAsync()

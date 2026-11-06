@@ -26,10 +26,10 @@ public sealed class RestrictionWriterTests : IDisposable
         }
     }
 
-    private static UcConfig Config()
+    private static Preset Config()
     {
-        var c = ConfigSerializer.LoadDefault();
-        c.Users.Add("kid");
+        var c = ConfigSerializer.DefaultPreset("kid");
+        c.Accounts.Add("kid");
         c.Browsers.Chrome.ExtensionsAllowed.Add("cjpalhdlnbpafiamejdnhcphjbkeiagm");
         c.Browsers.Firefox.ExtensionsAllowed.Add("uBlock0@raymondhill.net");
         return c;

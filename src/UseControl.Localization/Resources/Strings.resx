@@ -51,7 +51,7 @@
   <data name="Cli.AccountRemoved" xml:space="preserve"><value>{0}: restrictions removed</value></data>
   <data name="Cli.FileAccessFailed" xml:space="preserve"><value>File access {0} ({1}): {2}</value></data>
   <data name="Cli.GamesAllowed" xml:space="preserve"><value>Games allowed until {0}.</value></data>
-  <data name="Cli.GamesLocked" xml:space="preserve"><value>Games are blocked again.</value></data>
+  <data name="Cli.GamesLocked" xml:space="preserve"><value>Games are blocked.</value></data>
   <data name="Cli.UsersRestricted" xml:space="preserve"><value>Restricted accounts: {0}</value></data>
   <data name="Cli.UsersCandidates" xml:space="preserve"><value>Other standard accounts on this PC: {0}</value></data>
   <data name="Cli.None" xml:space="preserve"><value>(none)</value></data>
@@ -83,14 +83,23 @@
   <data name="Cli.No" xml:space="preserve"><value>no</value></data>
   <data name="Cli.Help" xml:space="preserve"><value>UseControl: restrictions for standard Windows accounts. Run as administrator.
 
-  uc status                         state of the service and of every restricted account
+  uc status                         state of the service, of every restricted account and its games
   uc apply                          apply the configuration now (and turn restrictions back on)
   uc suspend [--yes]                remove all restrictions until &quot;uc apply&quot;
   uc preview                        every rule that would be written, and why
   uc audit                          security check of this PC
 
-  uc users list | add &lt;name&gt; | remove &lt;name&gt;
-  uc games allow &lt;hours&gt; | lock     games for a limited time (0.25 to 24 hours)
+  uc users list | add &lt;name&gt; [--preset &lt;p&gt;] | move &lt;name&gt; &lt;preset&gt; | remove &lt;name&gt;
+  uc preset list | add &lt;name&gt; [--from &lt;preset&gt;] | rename &lt;name&gt; &lt;new name&gt; | remove &lt;name&gt;
+
+  uc games [status]                 who may play now and how much was played today
+  uc games allow &lt;hours&gt; [--user &lt;name&gt;] [--now]
+                                    hours of play (counted while a game runs); --now: from now on
+  uc games lock [--user &lt;name&gt;]     block now (with a schedule: until the end of the day)
+  uc games mode manual|schedule     games only when allowed, or by the schedule
+  uc games schedule [list] | add &lt;days&gt; &lt;from&gt;-&lt;to&gt; [--limit &lt;minutes&gt;] | remove &lt;number&gt;
+                                    days: mon-fri, sat,sun, weekdays, weekend, all
+  uc games close on|off             close games when games time is over
   uc games find [--add]             look for game folders that are not blocked yet
 
   uc block folder &lt;path&gt; [--category games|vpn|tools|other]
@@ -112,6 +121,8 @@
   uc uninstall [--keep-restrictions] [--purge] [--yes]
   uc ping | help
 
+Commands that change a preset (games, block, unblock, allow, ext, policy) take --preset &lt;name&gt;
+when there is more than one preset.
 Options: --json (status, preview, audit, games find), --lang en|uk</value></data>
   <data name="Audit.account" xml:space="preserve"><value>Restricted account</value></data>
   <data name="Audit.services" xml:space="preserve"><value>Services</value></data>
@@ -186,16 +197,16 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Ui.Accounts.Remove" xml:space="preserve"><value>Stop restricting</value></data>
   <data name="Ui.Accounts.ConfirmRemove" xml:space="preserve"><value>Stop restricting {0} and remove its restrictions?</value></data>
   <data name="Ui.Accounts.Help" xml:space="preserve"><value>Restrictions apply only to the accounts marked as restricted. Administrators are never listed and never restricted. An account appears here after it has signed in once.</value></data>
-  <data name="Ui.Games.AllowFor" xml:space="preserve"><value>Allow games for</value></data>
-  <data name="Ui.Games.Hours" xml:space="preserve"><value>hours</value></data>
-  <data name="Ui.Games.Allow" xml:space="preserve"><value>Allow games</value></data>
-  <data name="Ui.Games.Lock" xml:space="preserve"><value>Block games now</value></data>
+  <data name="Ui.Games.AllowFor" xml:space="preserve"><value>&quot;Allow&quot; gives</value></data>
+  <data name="Ui.Games.Hours" xml:space="preserve"><value>h</value></data>
+  <data name="Ui.Games.Allow" xml:space="preserve"><value>Allow</value></data>
+  <data name="Ui.Games.Lock" xml:space="preserve"><value>Block</value></data>
   <data name="Ui.Games.Now" xml:space="preserve"><value>Now</value></data>
   <data name="Ui.Games.FindHeader" xml:space="preserve"><value>Installed games that are not blocked yet</value></data>
   <data name="Ui.Games.Find" xml:space="preserve"><value>Search</value></data>
   <data name="Ui.Games.BlockSelected" xml:space="preserve"><value>Block selected</value></data>
   <data name="Ui.Games.FoundCount" xml:space="preserve"><value>{0} game folders found.</value></data>
-  <data name="Ui.Games.Help" xml:space="preserve"><value>During games time the folders of category &quot;games&quot; are allowed and game names are not blocked. The service blocks them again at the end time, also after a restart. Online games blocked by a DNS filter are not affected.</value></data>
+  <data name="Ui.Games.Help" xml:space="preserve"><value>Games are the programs, folders and names in the list below. While games are allowed they start; otherwise they are blocked. Five minutes before the end a message appears on the account&apos;s screen. Online games blocked by a DNS filter are not affected.</value></data>
   <data name="Ui.Programs.BlockedFolders" xml:space="preserve"><value>Blocked folders</value></data>
   <data name="Ui.Programs.AllowedFolders" xml:space="preserve"><value>Allowed folders (run even inside a blocked place)</value></data>
   <data name="Ui.Programs.BlockedNames" xml:space="preserve"><value>Blocked program names</value></data>
@@ -209,7 +220,7 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Ui.Programs.PickAllowFolder" xml:space="preserve"><value>A program folder that should run although it is inside a blocked place</value></data>
   <data name="Ui.Programs.PickBlockFile" xml:space="preserve"><value>Program to block by its fingerprint</value></data>
   <data name="Ui.Programs.ProgramsFilter" xml:space="preserve"><value>Programs</value></data>
-  <data name="Ui.Programs.Help" xml:space="preserve"><value>Also blocked automatically: the account&apos;s profile and Downloads, places that ordinary users can write to, USB and network drives. Windows and Program Files stay allowed.</value></data>
+  <data name="Ui.Programs.Help" xml:space="preserve"><value>Pick a program and it will not start for restricted accounts, even renamed, moved or updated. Games have their own page. Command prompt, PowerShell and similar tools are blocked by default (category &quot;system tools&quot;).</value></data>
   <data name="Ui.Category.Writable" xml:space="preserve"><value>writable place</value></data>
   <data name="Ui.Category.Games" xml:space="preserve"><value>games</value></data>
   <data name="Ui.Category.Vpn" xml:space="preserve"><value>VPN and proxies</value></data>
@@ -317,7 +328,7 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Ui.Restrictions.PasswordChange" xml:space="preserve"><value>Changing the account password (useful for a shared account)</value></data>
   <data name="Ui.Restrictions.ToolsHelp" xml:space="preserve"><value>Command prompt, registry editor and PowerShell can be used to undo restrictions, so they are blocked by default. PowerShell and other tools are blocked by name on the Programs page (category &quot;system tools&quot;).</value></data>
   <data name="Ui.Restrictions.InstallHeader" xml:space="preserve"><value>Installing programs</value></data>
-  <data name="Ui.Restrictions.InstallHelp" xml:space="preserve"><value>Installers that need administrator rights already ask for the password. The automatic blocking below stops the rest: programs downloaded or copied by the account do not start.</value></data>
+  <data name="Ui.Restrictions.InstallHelp" xml:space="preserve"><value>Store apps install for the account without a password; with this on, only administrators can install them.</value></data>
   <data name="Ui.Restrictions.Save" xml:space="preserve"><value>Save and apply</value></data>
   <data name="Ui.Audit.ExpectHeader" xml:space="preserve"><value>What the check expects (one per line)</value></data>
   <data name="Ui.Audit.ExpectSave" xml:space="preserve"><value>Save</value></data>
@@ -354,4 +365,110 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Ui.Accounts.NotRestricted" xml:space="preserve"><value>not restricted</value></data>
   <data name="Ui.Accounts.Missing" xml:space="preserve"><value>not found on this PC</value></data>
   <data name="Ui.Accounts.Empty" xml:space="preserve"><value>There are no standard accounts on this PC yet. Create one in Windows Settings &gt; Accounts, sign in to it once, then come back here.</value></data>
+  <data name="Ui.Column.Kind" xml:space="preserve"><value>Blocked by</value></data>
+  <data name="Ui.Block.Kind.Program" xml:space="preserve"><value>file and name</value></data>
+  <data name="Ui.Block.Kind.Name" xml:space="preserve"><value>name</value></data>
+  <data name="Ui.Block.Kind.Folder" xml:space="preserve"><value>folder</value></data>
+  <data name="Ui.Block.AddProgram" xml:space="preserve"><value>Block a program…</value></data>
+  <data name="Ui.Block.AddFolder" xml:space="preserve"><value>Block a folder…</value></data>
+  <data name="Ui.Block.AddName" xml:space="preserve"><value>Block by name</value></data>
+  <data name="Ui.Block.Empty" xml:space="preserve"><value>Nothing here yet.</value></data>
+  <data name="Ui.Programs.Header" xml:space="preserve"><value>Blocked programs</value></data>
+  <data name="Ui.Games.TimeHeader" xml:space="preserve"><value>Games time</value></data>
+  <data name="Ui.Games.ListHeader" xml:space="preserve"><value>Blocked games</value></data>
+  <data name="Ui.Games.AddGame" xml:space="preserve"><value>Add a game…</value></data>
+  <data name="Ui.Games.AddGameFolder" xml:space="preserve"><value>Add a games folder…</value></data>
+  <data name="Ui.Games.PickGame" xml:space="preserve"><value>The game&apos;s program (.exe)</value></data>
+  <data name="Ui.Games.PickFolder" xml:space="preserve"><value>A folder with games (everything inside is blocked)</value></data>
+  <data name="Ui.Restrictions.AllowedHeader" xml:space="preserve"><value>Exceptions: program folders that run inside blocked places</value></data>
+  <data name="Ui.Restrictions.AddAllowed" xml:space="preserve"><value>Add an exception…</value></data>
+  <data name="Ui.Restrictions.AllowedHelp" xml:space="preserve"><value>For example a school program installed in C:\Tools: without an exception it would not start, because the root of drive C: is blocked.</value></data>
+  <data name="Ui.Access.Intro" xml:space="preserve"><value>Keep restricted accounts out of private files and folders, or let them only look.</value></data>
+  <data name="Ui.Access.Preset" xml:space="preserve"><value>Access</value></data>
+  <data name="Ui.Access.Preset.NoAccess" xml:space="preserve"><value>No access at all</value></data>
+  <data name="Ui.Access.Preset.ReadOnly" xml:space="preserve"><value>Can open, cannot change or delete</value></data>
+  <data name="Ui.Access.Preset.NoRun" xml:space="preserve"><value>Cannot start programs from here</value></data>
+  <data name="Ui.Access.Preset.FullAllow" xml:space="preserve"><value>Full access</value></data>
+  <data name="Ui.Access.ForAccounts" xml:space="preserve"><value>For</value></data>
+  <data name="Error.PresetNotFound" xml:space="preserve"><value>There is no preset &apos;{0}&apos;.</value></data>
+  <data name="Error.InvalidPresetName" xml:space="preserve"><value>&apos;{0}&apos; cannot be a preset name (1 to 40 characters).</value></data>
+  <data name="Error.PresetExists" xml:space="preserve"><value>A preset &apos;{0}&apos; already exists.</value></data>
+  <data name="Error.PresetRequired" xml:space="preserve"><value>Several presets exist ({0}); choose one with --preset &lt;name&gt;.</value></data>
+  <data name="Error.AccountInTwoPresets" xml:space="preserve"><value>{0} is in two presets; an account can be in one only.</value></data>
+  <data name="Error.InvalidTime" xml:space="preserve"><value>&apos;{0}&apos; is not a time (for example 16:00).</value></data>
+  <data name="Error.WindowEndsBeforeStart" xml:space="preserve"><value>The time window {0}–{1} ends before it starts.</value></data>
+  <data name="Error.NoDays" xml:space="preserve"><value>Choose at least one day.</value></data>
+  <data name="Error.NotRestricted" xml:space="preserve"><value>{0} is not a restricted account.</value></data>
+  <data name="Error.NoPresets" xml:space="preserve"><value>There are no presets yet: restrict an account first (uc users add &lt;name&gt;).</value></data>
+  <data name="Notify.Title" xml:space="preserve"><value>UseControl</value></data>
+  <data name="Notify.GamesEndSoon" xml:space="preserve"><value>Games time ends in {0} min. Save your game.</value></data>
+  <data name="Notify.GamesOver" xml:space="preserve"><value>Games time is over.</value></data>
+  <data name="Notify.GamesOverClosing" xml:space="preserve"><value>Games time is over. Games will be closed in a minute: save now.</value></data>
+  <data name="Games.State.Allowed" xml:space="preserve"><value>allowed until {0}</value></data>
+  <data name="Games.State.PlayTime" xml:space="preserve"><value>{0} of play left (counted only while a game runs)</value></data>
+  <data name="Games.State.Schedule" xml:space="preserve"><value>allowed by the schedule until {0}</value></data>
+  <data name="Games.State.ScheduleLimit" xml:space="preserve"><value>allowed by the schedule until {0}, {1} of play left today</value></data>
+  <data name="Games.State.Blocked" xml:space="preserve"><value>blocked</value></data>
+  <data name="Games.State.Locked" xml:space="preserve"><value>blocked until the end of the day</value></data>
+  <data name="Games.State.LockedNext" xml:space="preserve"><value>blocked until the end of the day, next time {0}</value></data>
+  <data name="Games.State.LimitReached" xml:space="preserve"><value>today&apos;s limit is used up</value></data>
+  <data name="Games.State.LimitReachedNext" xml:space="preserve"><value>today&apos;s limit is used up, next time {0}</value></data>
+  <data name="Games.State.OutsideSchedule" xml:space="preserve"><value>blocked, next time {0}</value></data>
+  <data name="Games.State.NoWindows" xml:space="preserve"><value>blocked: the schedule has no time yet</value></data>
+  <data name="Games.Minutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Games.Hours" xml:space="preserve"><value>{0} h</value></data>
+  <data name="Games.HoursMinutes" xml:space="preserve"><value>{0} h {1} min</value></data>
+  <data name="Games.Tomorrow" xml:space="preserve"><value>tomorrow {0}</value></data>
+  <data name="Games.OnDay" xml:space="preserve"><value>{0} {1}</value></data>
+  <data name="Games.EveryDay" xml:space="preserve"><value>every day</value></data>
+  <data name="Games.UpTo" xml:space="preserve"><value>up to {0}</value></data>
+  <data name="Cli.UserInPreset" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="Cli.PresetsNone" xml:space="preserve"><value>No presets yet: uc users add &lt;name&gt; creates one for the account.</value></data>
+  <data name="Cli.PresetLine" xml:space="preserve"><value>{0}: accounts {1}; games: {2}</value></data>
+  <data name="Cli.GamesMode.Manual" xml:space="preserve"><value>when an administrator allows</value></data>
+  <data name="Cli.GamesMode.Schedule" xml:space="preserve"><value>by the schedule</value></data>
+  <data name="Cli.ScheduleHeader" xml:space="preserve"><value>Preset {0}, games {1}:</value></data>
+  <data name="Cli.GamesAccount" xml:space="preserve"><value>[{0}] games {1}; played today {2} {3}</value></data>
+  <data name="Cli.GamesPlaying" xml:space="preserve"><value>(playing now)</value></data>
+  <data name="Ui.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Ui.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Ui.Preset.Label" xml:space="preserve"><value>Preset</value></data>
+  <data name="Ui.Preset.New" xml:space="preserve"><value>New preset…</value></data>
+  <data name="Ui.Preset.Rename" xml:space="preserve"><value>Rename</value></data>
+  <data name="Ui.Preset.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Ui.Preset.For" xml:space="preserve"><value>For: {0}</value></data>
+  <data name="Ui.Preset.NoAccounts" xml:space="preserve"><value>No account uses this preset yet: choose it on the Accounts page.</value></data>
+  <data name="Ui.Preset.NoneYet" xml:space="preserve"><value>There are no presets yet: restrict an account on the Accounts page first.</value></data>
+  <data name="Ui.Preset.NewPrompt" xml:space="preserve"><value>Name of the new preset (it starts as a copy of the one shown now):</value></data>
+  <data name="Ui.Preset.RenamePrompt" xml:space="preserve"><value>New name of the preset {0}:</value></data>
+  <data name="Ui.Preset.ConfirmDelete" xml:space="preserve"><value>Delete the preset {0}?</value></data>
+  <data name="Ui.Preset.ConfirmDeleteAccounts" xml:space="preserve"><value>Delete the preset {0}? {1} will no longer be restricted.</value></data>
+  <data name="Ui.Accounts.OwnPreset" xml:space="preserve"><value>Own: {0} (new)</value></data>
+  <data name="Ui.Accounts.PresetHelp" xml:space="preserve"><value>A preset is the set of rules an account gets: Windows tools, games and their time, programs, browsers. Each account can have its own preset, or several accounts can share one. Change a preset on the Restrictions, Games, Programs and Browsers pages.</value></data>
+  <data name="Ui.Accounts.WholePc" xml:space="preserve"><value>For the whole PC</value></data>
+  <data name="Ui.Restrictions.AutoHelp" xml:space="preserve"><value>Programs downloaded or copied by the account do not start from these places. Installers that need administrator rights ask for the password anyway.</value></data>
+  <data name="Ui.Settings.ThemeHeader" xml:space="preserve"><value>Theme</value></data>
+  <data name="Ui.Settings.Theme.System" xml:space="preserve"><value>Like Windows</value></data>
+  <data name="Ui.Settings.Theme.Light" xml:space="preserve"><value>Light</value></data>
+  <data name="Ui.Settings.Theme.Dark" xml:space="preserve"><value>Dark</value></data>
+  <data name="Ui.Status.GamesHeader" xml:space="preserve"><value>Games now</value></data>
+  <data name="Ui.Games.NowHeader" xml:space="preserve"><value>Now</value></data>
+  <data name="Ui.Games.Locked" xml:space="preserve"><value>{0}: games are blocked until the end of the day.</value></data>
+  <data name="Ui.Games.PlayedToday" xml:space="preserve"><value>played today: {0}</value></data>
+  <data name="Ui.Games.PlayingNow" xml:space="preserve"><value>playing now</value></data>
+  <data name="Ui.Games.CountPlay" xml:space="preserve"><value>of play (the timer runs only while a game runs)</value></data>
+  <data name="Ui.Games.CountClock" xml:space="preserve"><value>from now on</value></data>
+  <data name="Ui.Games.AllowHelp" xml:space="preserve"><value>&quot;Block&quot; takes back the given time and, with a schedule, blocks games until the end of the day.</value></data>
+  <data name="Ui.Games.WhenHeader" xml:space="preserve"><value>When games are allowed</value></data>
+  <data name="Ui.Games.ModeManual" xml:space="preserve"><value>Only when I allow them</value></data>
+  <data name="Ui.Games.ModeSchedule" xml:space="preserve"><value>By a schedule (and when I allow them)</value></data>
+  <data name="Ui.Games.NoWindows" xml:space="preserve"><value>No time yet: add days and hours below.</value></data>
+  <data name="Ui.Games.AddWindowHeader" xml:space="preserve"><value>Add time:</value></data>
+  <data name="Ui.Games.From" xml:space="preserve"><value>from</value></data>
+  <data name="Ui.Games.To" xml:space="preserve"><value>to</value></data>
+  <data name="Ui.Games.Limit" xml:space="preserve"><value>at most</value></data>
+  <data name="Ui.Games.NoLimit" xml:space="preserve"><value>the whole time</value></data>
+  <data name="Ui.Games.AddWindow" xml:space="preserve"><value>Add</value></data>
+  <data name="Ui.Games.ScheduleHelp" xml:space="preserve"><value>The limit counts only the time a game actually runs, over the whole day. For example: Mon–Fri 16:00–20:00, at most 1 h; Sat–Sun 10:00–21:00, at most 3 h.</value></data>
+  <data name="Ui.Games.CloseWhenOver" xml:space="preserve"><value>Close games when games time is over (after a warning, a minute later)</value></data>
 </root>

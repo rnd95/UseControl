@@ -47,19 +47,24 @@ public sealed class PipeTests : IAsyncLifetime, IDisposable
     public async Task Configuration_round_trips_through_the_service()
     {
         var c = await _client.GetConfigAsync();
-        c.Users = ["kid"];
-        c.AllowedPaths.Add(new AllowedPathEntry { Path = @"C:\Tools" });
+        var p = ConfigEditor.AddUser(c, "kid");
+        p.AllowedPaths.Add(new AllowedPathEntry { Path = @"C:\Tools" });
+        ConfigEditor.AddGamesWindow(p, [DayOfWeek.Saturday], "10:00", "12:00", 60);
         var r = await _client.SetConfigAsync(c);
         Assert.NotNull(r.Applied);
         var again = await _client.GetConfigAsync();
         Assert.Equal(["kid"], again.Users);
-        Assert.Equal(@"C:\Tools", again.AllowedPaths.Single().Path);
+        Assert.Equal(@"C:\Tools", again.Presets.Single().AllowedPaths.Single().Path);
+        Assert.Equal("10:00", again.Presets.Single().Games.Schedule.Single().From);
+
+        var s = await _client.AllowGamesAsync("kid", 1, countPlayOnly: true);
+        Assert.Equal(60, s.Games.Single().MinutesLeft);
     }
 
     [Fact]
     public async Task Errors_arrive_with_their_code()
     {
-        var e = await Assert.ThrowsAsync<UcException>(() => _client.AllowGamesAsync(99));
+        var e = await Assert.ThrowsAsync<UcException>(() => _client.AllowGamesAsync(null, 99, true));
         Assert.Equal(ErrorCodes.HoursOutOfRange, e.Code);
         Assert.Contains("24", e.Message, StringComparison.Ordinal);
 

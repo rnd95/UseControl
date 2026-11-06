@@ -63,6 +63,16 @@ public static class ErrorCodes
     public const string InstallSourceIncomplete = nameof(InstallSourceIncomplete);
     public const string InstallFolderNotSafe = nameof(InstallFolderNotSafe);
     public const string InstallFailed = nameof(InstallFailed);
+    public const string PresetNotFound = nameof(PresetNotFound);
+    public const string InvalidPresetName = nameof(InvalidPresetName);
+    public const string PresetExists = nameof(PresetExists);
+    public const string PresetRequired = nameof(PresetRequired);
+    public const string AccountInTwoPresets = nameof(AccountInTwoPresets);
+    public const string InvalidTime = nameof(InvalidTime);
+    public const string WindowEndsBeforeStart = nameof(WindowEndsBeforeStart);
+    public const string NoDays = nameof(NoDays);
+    public const string NotRestricted = nameof(NotRestricted);
+    public const string NoPresets = nameof(NoPresets);
 }
 
 /// <summary>English texts of the error codes (the fallback when no translation exists).</summary>
@@ -104,6 +114,16 @@ public static class ErrorMessages
         [ErrorCodes.InstallSourceIncomplete] = "{0} does not contain {1}. Run uc install from the folder with the published programs.",
         [ErrorCodes.InstallFolderNotSafe] = "{0} can be changed by ordinary users ({1}); fix its permissions first.",
         [ErrorCodes.InstallFailed] = "Installation step failed: {0}",
+        [ErrorCodes.PresetNotFound] = "There is no preset '{0}'.",
+        [ErrorCodes.InvalidPresetName] = "'{0}' cannot be a preset name (1 to 40 characters).",
+        [ErrorCodes.PresetExists] = "A preset '{0}' already exists.",
+        [ErrorCodes.PresetRequired] = "Several presets exist ({0}); choose one with --preset <name>.",
+        [ErrorCodes.AccountInTwoPresets] = "{0} is in two presets; an account can be in one only.",
+        [ErrorCodes.InvalidTime] = "'{0}' is not a time (for example 16:00).",
+        [ErrorCodes.WindowEndsBeforeStart] = "The time window {0}–{1} ends before it starts.",
+        [ErrorCodes.NoDays] = "Choose at least one day.",
+        [ErrorCodes.NotRestricted] = "{0} is not a restricted account.",
+        [ErrorCodes.NoPresets] = "There are no presets yet: restrict an account first (uc users add <name>).",
     };
 
     public static string Format(string code, params object[] args)

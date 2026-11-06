@@ -1,110 +1,346 @@
 {
-  "schemaVersion": 1,
-  "users": [],
+  "schemaVersion": 2,
   "blockStoreInstalls": true,
-  "auto": {
-    "systemDriveRoot": true,
-    "writableDriveRoots": true,
-    "otherDriveLetters": true,
-    "recycleBins": true,
-    "systemWritableFolders": true,
-    "writableProgramFolders": true
-  },
-  "allowedPaths": [],
-  "blockedPaths": [
-    { "path": "%ProgramFiles(x86)%\\Steam", "category": "games" },
-    { "path": "%ProgramFiles%\\Epic Games", "category": "games" },
-    { "path": "%ProgramFiles(x86)%\\Epic Games", "category": "games" },
-    { "path": "C:\\Riot Games", "category": "games" },
-    { "path": "%ProgramFiles(x86)%\\Battle.net", "category": "games" },
-    { "path": "%ProgramFiles(x86)%\\GOG Galaxy", "category": "games" },
-    { "path": "%ProgramFiles%\\EA Games", "category": "games" },
-    { "path": "%ProgramFiles%\\Electronic Arts", "category": "games" },
-    { "path": "%ProgramFiles(x86)%\\Ubisoft", "category": "games" },
-    { "path": "%ProgramFiles%\\Rockstar Games", "category": "games" },
-    { "path": "%ProgramFiles(x86)%\\Minecraft Launcher", "category": "games" },
-    { "path": "%ProgramFiles%\\BlueStacks_nxt", "category": "games", "note": "Android emulator" },
-
-    { "path": "%ProgramFiles%\\WireGuard", "category": "vpn" },
-    { "path": "%ProgramFiles%\\OpenVPN", "category": "vpn" },
-    { "path": "%ProgramFiles%\\OpenVPN Connect", "category": "vpn" },
-    { "path": "%ProgramFiles%\\Proton\\VPN", "category": "vpn" },
-    { "path": "%ProgramFiles%\\NordVPN", "category": "vpn" },
-    { "path": "%ProgramFiles(x86)%\\ExpressVPN", "category": "vpn" },
-    { "path": "%ProgramFiles%\\Windscribe", "category": "vpn" },
-    { "path": "%ProgramFiles%\\Cloudflare", "category": "vpn", "note": "WARP" },
-    { "path": "%ProgramFiles(x86)%\\Hotspot Shield", "category": "vpn" },
-    { "path": "%ProgramFiles(x86)%\\Radmin VPN", "category": "vpn" },
-    { "path": "%ProgramFiles(x86)%\\LogMeIn Hamachi", "category": "vpn" },
-    { "path": "%ProgramFiles%\\Tailscale", "category": "vpn" },
-    { "path": "%ProgramFiles(x86)%\\ZeroTier", "category": "vpn" }
-  ],
-  "blockedFiles": [],
-  "fileAccess": [],
-  "blockedNames": [
-    { "name": "cmd.exe", "category": "tools" }, { "name": "powershell.exe", "category": "tools" },
-    { "name": "powershell_ise.exe", "category": "tools" }, { "name": "pwsh.exe", "category": "tools" },
-    { "name": "wt.exe", "category": "tools" }, { "name": "regedit.exe", "category": "tools" },
-    { "name": "regedt32.exe", "category": "tools" }, { "name": "reg.exe", "category": "tools" },
-    { "name": "wscript.exe", "category": "tools" }, { "name": "cscript.exe", "category": "tools" },
-    { "name": "mshta.exe", "category": "tools" },
-
-    { "name": "steam.exe", "category": "games" }, { "name": "EpicGamesLauncher.exe", "category": "games" },
-    { "name": "Battle.net.exe", "category": "games" }, { "name": "RobloxPlayerBeta.exe", "category": "games" },
-    { "name": "RobloxPlayerLauncher.exe", "category": "games" }, { "name": "MinecraftLauncher.exe", "category": "games" },
-    { "name": "Minecraft.Windows.exe", "category": "games" }, { "name": "GalaxyClient.exe", "category": "games" },
-    { "name": "EADesktop.exe", "category": "games" }, { "name": "Origin.exe", "category": "games" },
-    { "name": "UbisoftConnect.exe", "category": "games" }, { "name": "upc.exe", "category": "games" },
-    { "name": "RiotClientServices.exe", "category": "games" }, { "name": "LeagueClient.exe", "category": "games" },
-    { "name": "Valorant.exe", "category": "games" }, { "name": "FortniteClient-Win64-Shipping_EAC.exe", "category": "games" },
-    { "name": "FortniteClient-Win64-Shipping_BE.exe", "category": "games" }, { "name": "wgc.exe", "category": "games" },
-
-    { "name": "Windscribe.exe", "category": "vpn" }, { "name": "Cloudflare WARP.exe", "category": "vpn" },
-    { "name": "wireguard.exe", "category": "vpn" }, { "name": "openvpn-gui.exe", "category": "vpn" },
-    { "name": "openvpn.exe", "category": "vpn" }, { "name": "ProtonVPN.exe", "category": "vpn" },
-    { "name": "NordVPN.exe", "category": "vpn" }, { "name": "ExpressVPN.exe", "category": "vpn" },
-    { "name": "hsscp.exe", "category": "vpn" }, { "name": "psiphon3.exe", "category": "vpn" },
-    { "name": "RadminVPN.exe", "category": "vpn" }, { "name": "tor.exe", "category": "vpn" }
-  ],
-  "browsers": {
-    "chrome": {
-      "blockExtensions": true,
-      "extensionsAllowed": [],
-      "policies": {
-        "DnsOverHttpsMode": "off",
-        "ForceGoogleSafeSearch": 1,
-        "ForceYouTubeRestrict": 0,
-        "IncognitoModeAvailability": 1,
-        "BrowserGuestModeEnabled": 0,
-        "BrowserAddPersonEnabled": 0,
-        "DownloadRestrictions": 1,
-        "SafeBrowsingProtectionLevel": 1,
-        "DeveloperToolsAvailability": 2
+  "presets": [
+    {
+      "name": "Default",
+      "accounts": [],
+      "auto": {
+        "systemDriveRoot": true,
+        "writableDriveRoots": true,
+        "otherDriveLetters": true,
+        "recycleBins": true,
+        "systemWritableFolders": true,
+        "writableProgramFolders": true
+      },
+      "blockedPaths": [
+        {
+          "path": "%ProgramFiles(x86)%\\Steam",
+          "category": "games"
+        },
+        {
+          "path": "%ProgramFiles%\\Epic Games",
+          "category": "games"
+        },
+        {
+          "path": "%ProgramFiles(x86)%\\Epic Games",
+          "category": "games"
+        },
+        {
+          "path": "C:\\Riot Games",
+          "category": "games"
+        },
+        {
+          "path": "%ProgramFiles(x86)%\\Battle.net",
+          "category": "games"
+        },
+        {
+          "path": "%ProgramFiles(x86)%\\GOG Galaxy",
+          "category": "games"
+        },
+        {
+          "path": "%ProgramFiles%\\EA Games",
+          "category": "games"
+        },
+        {
+          "path": "%ProgramFiles%\\Electronic Arts",
+          "category": "games"
+        },
+        {
+          "path": "%ProgramFiles(x86)%\\Ubisoft",
+          "category": "games"
+        },
+        {
+          "path": "%ProgramFiles%\\Rockstar Games",
+          "category": "games"
+        },
+        {
+          "path": "%ProgramFiles(x86)%\\Minecraft Launcher",
+          "category": "games"
+        },
+        {
+          "path": "%ProgramFiles%\\BlueStacks_nxt",
+          "category": "games",
+          "note": "Android emulator"
+        },
+        {
+          "path": "%ProgramFiles%\\WireGuard",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles%\\OpenVPN",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles%\\OpenVPN Connect",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles%\\Proton\\VPN",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles%\\NordVPN",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles(x86)%\\ExpressVPN",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles%\\Windscribe",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles%\\Cloudflare",
+          "category": "vpn",
+          "note": "WARP"
+        },
+        {
+          "path": "%ProgramFiles(x86)%\\Hotspot Shield",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles(x86)%\\Radmin VPN",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles(x86)%\\LogMeIn Hamachi",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles%\\Tailscale",
+          "category": "vpn"
+        },
+        {
+          "path": "%ProgramFiles(x86)%\\ZeroTier",
+          "category": "vpn"
+        }
+      ],
+      "allowedPaths": [],
+      "blockedNames": [
+        {
+          "name": "cmd.exe",
+          "category": "tools"
+        },
+        {
+          "name": "powershell.exe",
+          "category": "tools"
+        },
+        {
+          "name": "powershell_ise.exe",
+          "category": "tools"
+        },
+        {
+          "name": "pwsh.exe",
+          "category": "tools"
+        },
+        {
+          "name": "wt.exe",
+          "category": "tools"
+        },
+        {
+          "name": "regedit.exe",
+          "category": "tools"
+        },
+        {
+          "name": "regedt32.exe",
+          "category": "tools"
+        },
+        {
+          "name": "reg.exe",
+          "category": "tools"
+        },
+        {
+          "name": "wscript.exe",
+          "category": "tools"
+        },
+        {
+          "name": "cscript.exe",
+          "category": "tools"
+        },
+        {
+          "name": "mshta.exe",
+          "category": "tools"
+        },
+        {
+          "name": "steam.exe",
+          "category": "games"
+        },
+        {
+          "name": "EpicGamesLauncher.exe",
+          "category": "games"
+        },
+        {
+          "name": "Battle.net.exe",
+          "category": "games"
+        },
+        {
+          "name": "RobloxPlayerBeta.exe",
+          "category": "games"
+        },
+        {
+          "name": "RobloxPlayerLauncher.exe",
+          "category": "games"
+        },
+        {
+          "name": "MinecraftLauncher.exe",
+          "category": "games"
+        },
+        {
+          "name": "Minecraft.Windows.exe",
+          "category": "games"
+        },
+        {
+          "name": "GalaxyClient.exe",
+          "category": "games"
+        },
+        {
+          "name": "EADesktop.exe",
+          "category": "games"
+        },
+        {
+          "name": "Origin.exe",
+          "category": "games"
+        },
+        {
+          "name": "UbisoftConnect.exe",
+          "category": "games"
+        },
+        {
+          "name": "upc.exe",
+          "category": "games"
+        },
+        {
+          "name": "RiotClientServices.exe",
+          "category": "games"
+        },
+        {
+          "name": "LeagueClient.exe",
+          "category": "games"
+        },
+        {
+          "name": "Valorant.exe",
+          "category": "games"
+        },
+        {
+          "name": "FortniteClient-Win64-Shipping_EAC.exe",
+          "category": "games"
+        },
+        {
+          "name": "FortniteClient-Win64-Shipping_BE.exe",
+          "category": "games"
+        },
+        {
+          "name": "wgc.exe",
+          "category": "games"
+        },
+        {
+          "name": "Windscribe.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "Cloudflare WARP.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "wireguard.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "openvpn-gui.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "openvpn.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "ProtonVPN.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "NordVPN.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "ExpressVPN.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "hsscp.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "psiphon3.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "RadminVPN.exe",
+          "category": "vpn"
+        },
+        {
+          "name": "tor.exe",
+          "category": "vpn"
+        }
+      ],
+      "blockedFiles": [],
+      "restrictions": {
+        "disableCommandPrompt": true,
+        "disableRegistryEditor": true,
+        "disableTaskManager": false,
+        "disableControlPanel": false,
+        "disableRunDialog": false,
+        "disableAutorun": true,
+        "disablePasswordChange": false
+      },
+      "games": {
+        "mode": "manual",
+        "schedule": [],
+        "closeGamesWhenOver": true
+      },
+      "browsers": {
+        "chrome": {
+          "blockExtensions": true,
+          "extensionsAllowed": [],
+          "policies": {
+            "DnsOverHttpsMode": "off",
+            "ForceGoogleSafeSearch": 1,
+            "ForceYouTubeRestrict": 0,
+            "IncognitoModeAvailability": 1,
+            "BrowserGuestModeEnabled": 0,
+            "BrowserAddPersonEnabled": 0,
+            "DownloadRestrictions": 1,
+            "SafeBrowsingProtectionLevel": 1,
+            "DeveloperToolsAvailability": 2
+          }
+        },
+        "edge": {
+          "blockExtensions": true,
+          "extensionsAllowed": [],
+          "policies": {
+            "DnsOverHttpsMode": "off",
+            "ForceGoogleSafeSearch": 1,
+            "ForceBingSafeSearch": 1,
+            "ForceYouTubeRestrict": 0,
+            "InPrivateModeAvailability": 1,
+            "BrowserGuestModeEnabled": 0,
+            "BrowserAddProfileEnabled": 0,
+            "DownloadRestrictions": 1,
+            "SmartScreenEnabled": 1,
+            "DeveloperToolsAvailability": 2
+          }
+        },
+        "firefox": {
+          "blockExtensions": true,
+          "extensionsAllowed": [],
+          "disableDnsOverHttps": true,
+          "disablePrivateBrowsing": true
+        }
       }
-    },
-    "edge": {
-      "blockExtensions": true,
-      "extensionsAllowed": [],
-      "policies": {
-        "DnsOverHttpsMode": "off",
-        "ForceGoogleSafeSearch": 1,
-        "ForceBingSafeSearch": 1,
-        "ForceYouTubeRestrict": 0,
-        "InPrivateModeAvailability": 1,
-        "BrowserGuestModeEnabled": 0,
-        "BrowserAddProfileEnabled": 0,
-        "DownloadRestrictions": 1,
-        "SmartScreenEnabled": 1,
-        "DeveloperToolsAvailability": 2
-      }
-    },
-    "firefox": {
-      "blockExtensions": true,
-      "extensionsAllowed": [],
-      "disableDnsOverHttps": true,
-      "disablePrivateBrowsing": true
     }
-  },
+  ],
+  "fileAccess": [],
   "audit": {
     "admins": [],
     "privateFolders": [],

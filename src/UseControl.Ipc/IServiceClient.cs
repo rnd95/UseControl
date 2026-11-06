@@ -19,13 +19,16 @@ public interface IServiceClient
 
     Task<ApplyResult> SuspendAsync(CancellationToken ct = default);
 
-    Task<ServiceStatus> AllowGamesAsync(double hours, CancellationToken ct = default);
+    /// <summary>Allows games for one account (or every one, when <paramref name="user"/> is null).</summary>
+    Task<ServiceStatus> AllowGamesAsync(string? user, double hours, bool countPlayOnly, CancellationToken ct = default);
 
-    Task<ServiceStatus> LockGamesAsync(CancellationToken ct = default);
+    /// <summary>Blocks games now, for one account or every one; inside a schedule until the end of the day.</summary>
+    Task<ServiceStatus> LockGamesAsync(string? user, CancellationToken ct = default);
 
     Task<PreviewResult> PreviewAsync(CancellationToken ct = default);
 
     Task<IReadOnlyList<AuditCheck>> AuditAsync(CancellationToken ct = default);
 
+    /// <summary>Game folders found on the PC (whether a preset lists them already is up to the caller).</summary>
     Task<IReadOnlyList<string>> FindGamesAsync(CancellationToken ct = default);
 }

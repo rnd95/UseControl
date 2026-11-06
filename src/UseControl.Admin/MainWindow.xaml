@@ -5,8 +5,8 @@
         Title="{l:Tr Ui.App.Title}" Icon="Assets/uc.ico"
         Width="1100" Height="760" MinWidth="820" MinHeight="560"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource WindowBackground}"
-        FontFamily="Segoe UI" FontSize="13" Foreground="{StaticResource Text}"
+        Background="{DynamicResource WindowBackground}"
+        FontFamily="Segoe UI" FontSize="13" Foreground="{DynamicResource Text}"
         UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
   <Grid>
     <Grid.ColumnDefinitions>
@@ -15,7 +15,7 @@
     </Grid.ColumnDefinitions>
 
     <!-- Navigation -->
-    <Border Background="{StaticResource NavBackground}" BorderBrush="{StaticResource Border}" BorderThickness="0,0,1,0">
+    <Border Background="{DynamicResource NavBackground}" BorderBrush="{DynamicResource Border}" BorderThickness="0,0,1,0">
       <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="20,20,20,24">
           <Image Source="Assets/uc.ico" Width="28" Height="28" />
@@ -52,9 +52,9 @@
       <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="24,0,24,12">
         <ProgressBar IsIndeterminate="True" Width="120" Height="4" Margin="0,0,10,0"
                      Visibility="{Binding Session.IsBusy, Converter={StaticResource BoolToVisibility}}" />
-        <TextBlock Text="{l:Tr Ui.Busy}" Foreground="{StaticResource TextMuted}"
+        <TextBlock Text="{l:Tr Ui.Busy}" Foreground="{DynamicResource TextMuted}"
                    Visibility="{Binding Session.IsBusy, Converter={StaticResource BoolToVisibility}}" />
-        <TextBlock Text="{l:Tr Ui.NotConnected}" Foreground="{StaticResource Danger}" VerticalAlignment="Center" Margin="0,0,10,0"
+        <TextBlock Text="{l:Tr Ui.NotConnected}" Foreground="{DynamicResource Danger}" VerticalAlignment="Center" Margin="0,0,10,0"
                    Visibility="{Binding Session.IsConnected, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
         <Button Content="{l:Tr Ui.Retry}" Command="{Binding RetryCommand}"
                 Visibility="{Binding Session.IsConnected, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
@@ -63,6 +63,25 @@
       <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,16,24,8">
         <StackPanel>
           <TextBlock Text="{Binding SelectedPage.Title}" Style="{StaticResource PageTitle}" />
+
+          <!-- Preset bar: which preset the page shows and changes. Only on pages that belong to a preset. -->
+          <Border Style="{StaticResource Card}" Padding="14,10" BorderBrush="{DynamicResource Accent}"
+                  Visibility="{Binding SelectedPage.UsesPreset, Converter={StaticResource BoolToVisibility}}"
+                  IsEnabled="{Binding Session.CanEdit}">
+            <DockPanel>
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Content="{l:Tr Ui.Preset.New}" Command="{Binding NewPresetCommand}" />
+                <Button Content="&#xE70F;" Style="{StaticResource RowButton}" MinHeight="32" Padding="10,4" ToolTip="{l:Tr Ui.Preset.Rename}"
+                        Command="{Binding RenamePresetCommand}" />
+                <Button Content="&#xE74D;" Style="{StaticResource RowButton}" MinHeight="32" Padding="10,4" ToolTip="{l:Tr Ui.Preset.Delete}"
+                        Command="{Binding DeletePresetCommand}" />
+              </StackPanel>
+              <TextBlock Text="{l:Tr Ui.Preset.Label}" Style="{StaticResource Label}" FontWeight="SemiBold" />
+              <ComboBox ItemsSource="{Binding Session.PresetNames}" SelectedItem="{Binding Session.PresetName}" MinWidth="200" VerticalAlignment="Center" />
+              <TextBlock Text="{Binding PresetAccounts}" Style="{StaticResource Label}" Margin="14,0,8,0" TextTrimming="CharacterEllipsis" />
+            </DockPanel>
+          </Border>
+
           <ContentControl Content="{Binding SelectedPage}" IsEnabled="{Binding Session.CanEdit}" />
         </StackPanel>
       </ScrollViewer>
