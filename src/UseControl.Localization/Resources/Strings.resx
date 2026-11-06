@@ -182,12 +182,10 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Ui.Status.SuspendAll" xml:space="preserve"><value>Suspend all restrictions</value></data>
   <data name="Ui.Status.Resume" xml:space="preserve"><value>Turn restrictions on</value></data>
   <data name="Ui.Status.ConfirmSuspend" xml:space="preserve"><value>Remove ALL restrictions until you turn them on again?</value></data>
-  <data name="Ui.Accounts.Restricted" xml:space="preserve"><value>Restricted accounts</value></data>
-  <data name="Ui.Accounts.Available" xml:space="preserve"><value>Other standard accounts on this PC</value></data>
   <data name="Ui.Accounts.Add" xml:space="preserve"><value>Restrict</value></data>
   <data name="Ui.Accounts.Remove" xml:space="preserve"><value>Stop restricting</value></data>
   <data name="Ui.Accounts.ConfirmRemove" xml:space="preserve"><value>Stop restricting {0} and remove its restrictions?</value></data>
-  <data name="Ui.Accounts.Help" xml:space="preserve"><value>Restrictions apply only to the accounts listed here; administrators are never restricted. An account must have signed in once before it can be added.</value></data>
+  <data name="Ui.Accounts.Help" xml:space="preserve"><value>Restrictions apply only to the accounts marked as restricted. Administrators are never listed and never restricted. An account appears here after it has signed in once.</value></data>
   <data name="Ui.Games.AllowFor" xml:space="preserve"><value>Allow games for</value></data>
   <data name="Ui.Games.Hours" xml:space="preserve"><value>hours</value></data>
   <data name="Ui.Games.Allow" xml:space="preserve"><value>Allow games</value></data>
@@ -352,4 +350,8 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Cli.ConfirmUninstallKeep" xml:space="preserve"><value>Remove UseControl but leave the restrictions in place? Type YES to continue</value></data>
   <data name="Cli.UninstallLiftFailed" xml:space="preserve"><value>Could not lift the restrictions through the service: {0}. Uninstall stopped; use --keep-restrictions to remove UseControl anyway.</value></data>
   <data name="Cli.UninstallDone" xml:space="preserve"><value>UseControl is removed.</value></data>
+  <data name="Ui.Accounts.IsRestricted" xml:space="preserve"><value>restricted</value></data>
+  <data name="Ui.Accounts.NotRestricted" xml:space="preserve"><value>not restricted</value></data>
+  <data name="Ui.Accounts.Missing" xml:space="preserve"><value>not found on this PC</value></data>
+  <data name="Ui.Accounts.Empty" xml:space="preserve"><value>There are no standard accounts on this PC yet. Create one in Windows Settings &gt; Accounts, sign in to it once, then come back here.</value></data>
 </root>

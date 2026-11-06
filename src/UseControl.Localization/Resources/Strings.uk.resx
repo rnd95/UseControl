@@ -182,12 +182,10 @@
   <data name="Ui.Status.SuspendAll" xml:space="preserve"><value>Призупинити всі обмеження</value></data>
   <data name="Ui.Status.Resume" xml:space="preserve"><value>Увімкнути обмеження</value></data>
   <data name="Ui.Status.ConfirmSuspend" xml:space="preserve"><value>Зняти ВСІ обмеження, доки ви їх знову не ввімкнете?</value></data>
-  <data name="Ui.Accounts.Restricted" xml:space="preserve"><value>Обмежені облікові записи</value></data>
-  <data name="Ui.Accounts.Available" xml:space="preserve"><value>Інші звичайні облікові записи на цьому ПК</value></data>
   <data name="Ui.Accounts.Add" xml:space="preserve"><value>Обмежити</value></data>
   <data name="Ui.Accounts.Remove" xml:space="preserve"><value>Зняти обмеження</value></data>
   <data name="Ui.Accounts.ConfirmRemove" xml:space="preserve"><value>Перестати обмежувати {0} і зняти його обмеження?</value></data>
-  <data name="Ui.Accounts.Help" xml:space="preserve"><value>Обмеження діють лише на облікові записи з цього списку; адміністратори ніколи не обмежуються. Обліковий запис має хоча б раз увійти в систему, перш ніж його можна додати.</value></data>
+  <data name="Ui.Accounts.Help" xml:space="preserve"><value>Обмеження діють лише на облікові записи, позначені як обмежені. Адміністратори тут не показуються й ніколи не обмежуються. Обліковий запис з&apos;являється тут після першого входу в систему.</value></data>
   <data name="Ui.Games.AllowFor" xml:space="preserve"><value>Дозволити ігри на</value></data>
   <data name="Ui.Games.Hours" xml:space="preserve"><value>год</value></data>
   <data name="Ui.Games.Allow" xml:space="preserve"><value>Дозволити ігри</value></data>
@@ -352,4 +350,8 @@
   <data name="Cli.ConfirmUninstallKeep" xml:space="preserve"><value>Видалити UseControl, але залишити обмеження як є? Введіть YES, щоб продовжити</value></data>
   <data name="Cli.UninstallLiftFailed" xml:space="preserve"><value>Не вдалося зняти обмеження через службу: {0}. Видалення зупинено; --keep-restrictions видалить UseControl попри це.</value></data>
   <data name="Cli.UninstallDone" xml:space="preserve"><value>UseControl видалено.</value></data>
+  <data name="Ui.Accounts.IsRestricted" xml:space="preserve"><value>обмежено</value></data>
+  <data name="Ui.Accounts.NotRestricted" xml:space="preserve"><value>без обмежень</value></data>
+  <data name="Ui.Accounts.Missing" xml:space="preserve"><value>немає на цьому ПК</value></data>
+  <data name="Ui.Accounts.Empty" xml:space="preserve"><value>На цьому ПК ще немає звичайних облікових записів. Створіть його в Параметрах Windows &gt; Облікові записи, увійдіть у нього один раз і поверніться сюди.</value></data>
 </root>

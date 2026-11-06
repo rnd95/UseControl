@@ -99,24 +99,37 @@ public sealed class PanelTests
     }
 
     [Fact]
-    public async Task Accounts_are_added_from_candidates_and_removed_after_confirmation()
+    public async Task Every_account_has_its_own_button_and_restricted_ones_come_first()
     {
         await _main.StartAsync();
         var page = Page<AccountsPageViewModel>();
-        Assert.Equal(["kid", "teen"], page.Candidates);
-        page.SelectedCandidate = "kid";
-        await page.AddCommand.ExecuteAsync(null);
-        Assert.Equal(["kid"], _svc.Config.Users);
-        Assert.Equal(["teen"], page.Candidates);
+        Assert.Equal(["kid", "teen"], page.Accounts.Select(a => a.Name));
+        Assert.All(page.Accounts, a => Assert.False(a.IsRestricted));
+
+        await page.RestrictCommand.ExecuteAsync(page.Accounts.Single(a => a.Name == "teen"));
+        Assert.Equal(["teen"], _svc.Config.Users);
+        Assert.Equal("teen", page.Accounts[0].Name);
+        Assert.True(page.Accounts[0].IsRestricted);
+        Assert.Equal("restricted", page.Accounts[0].StatusText);
         Assert.Equal(MessageKind.Success, Session.MessageKind);
 
-        page.SelectedRestricted = "kid";
         _dialogs.Answer = false;
-        await page.RemoveCommand.ExecuteAsync(null);
-        Assert.Equal(["kid"], _svc.Config.Users);
+        await page.UnrestrictCommand.ExecuteAsync(page.Accounts[0]);
+        Assert.Equal(["teen"], _svc.Config.Users);
         _dialogs.Answer = true;
-        await page.RemoveCommand.ExecuteAsync(null);
+        await page.UnrestrictCommand.ExecuteAsync(page.Accounts[0]);
         Assert.Empty(_svc.Config.Users);
+    }
+
+    [Fact]
+    public async Task Restricted_accounts_missing_on_the_PC_are_shown_so_they_can_be_removed()
+    {
+        await _main.StartAsync();
+        await Session.EditAsync(c => c.Users.Add("gone"));
+        var row = Page<AccountsPageViewModel>().Accounts.Single(a => a.Name == "gone");
+        Assert.True(row.IsRestricted);
+        Assert.False(row.Exists);
+        Assert.Equal("not found on this PC", row.StatusText);
     }
 
     [Fact]

@@ -3,27 +3,57 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:l="clr-namespace:UseControl.Admin.Infrastructure">
   <StackPanel>
-    <Border Style="{StaticResource Card}">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <StackPanel>
-          <TextBlock Text="{l:Tr Ui.Accounts.Restricted}" Style="{StaticResource SectionTitle}" />
-          <ListBox ItemsSource="{Binding Restricted}" SelectedItem="{Binding SelectedRestricted}" Height="220" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,30,16,0">
-          <Button Content="{l:Tr Ui.Accounts.Add}" Style="{StaticResource PrimaryButton}" Command="{Binding AddCommand}" Margin="0,0,0,8" />
-          <Button Content="{l:Tr Ui.Accounts.Remove}" Command="{Binding RemoveCommand}" Margin="0" />
-        </StackPanel>
-        <StackPanel Grid.Column="2">
-          <TextBlock Text="{l:Tr Ui.Accounts.Available}" Style="{StaticResource SectionTitle}" />
-          <ListBox ItemsSource="{Binding Candidates}" SelectedItem="{Binding SelectedCandidate}" Height="220" />
-        </StackPanel>
-      </Grid>
-    </Border>
-    <TextBlock Text="{l:Tr Ui.Accounts.Help}" Style="{StaticResource Help}" />
+    <TextBlock Text="{l:Tr Ui.Accounts.Help}" Style="{StaticResource Help}" Margin="0,0,0,12" />
+
+    <TextBlock Text="{l:Tr Ui.Accounts.Empty}" Style="{StaticResource Help}"
+               Visibility="{Binding Accounts.Count, Converter={StaticResource ZeroToVisibility}}" />
+
+    <!-- One card per account: name, state, and the one button that applies to it. -->
+    <ItemsControl ItemsSource="{Binding Accounts}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,0,8">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="36" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="&#xE77B;" FontFamily="{StaticResource IconFont}" FontSize="18" VerticalAlignment="Center"
+                         Foreground="{StaticResource TextMuted}" />
+              <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" />
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                  <Border CornerRadius="4" Padding="8,1">
+                    <Border.Style>
+                      <Style TargetType="Border">
+                        <Setter Property="Background" Value="#F3F4F6" />
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsRestricted}" Value="True">
+                            <Setter Property="Background" Value="{StaticResource AccentLight}" />
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding Exists}" Value="False">
+                            <Setter Property="Background" Value="{StaticResource WarningLight}" />
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding StatusText}" FontSize="12" />
+                  </Border>
+                </StackPanel>
+              </StackPanel>
+              <Grid Grid.Column="2" VerticalAlignment="Center">
+                <Button Content="{l:Tr Ui.Accounts.Add}" Style="{StaticResource PrimaryButton}" Margin="0" MinWidth="150"
+                        Command="{Binding DataContext.RestrictCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                        Visibility="{Binding IsRestricted, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+                <Button Content="{l:Tr Ui.Accounts.Remove}" Margin="0" MinWidth="150"
+                        Command="{Binding DataContext.UnrestrictCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                        Visibility="{Binding IsRestricted, Converter={StaticResource BoolToVisibility}}" />
+              </Grid>
+            </Grid>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
   </StackPanel>
 </UserControl>
