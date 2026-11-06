@@ -20,7 +20,7 @@ public class ConfigSerializerTests
         Assert.True(c.BlockedNames.Count > 10);
         Assert.True(c.Auto.SystemDriveRoot);
         Assert.True(c.Restrictions.DisableCommandPrompt);
-        Assert.Equal(Games.GamesMode.Manual, c.Games.Mode);
+        Assert.Empty(c.Games.Schedule);
         Assert.Equal("off", c.Browsers.Chrome.Policies["DnsOverHttpsMode"].GetString());
     }
 

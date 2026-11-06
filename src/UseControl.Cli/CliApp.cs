@@ -95,7 +95,7 @@ internal sealed class CliApp
         "preview" => Preview(a),
         "audit" => Audit(a),
         "users" => Users(a),
-        "preset" or "presets" => Presets(a),
+        "profile" or "profiles" or "preset" or "presets" => Presets(a),
         "games" => Games(a),
         "block" => Block(a),
         "unblock" => Unblock(a),
@@ -291,10 +291,10 @@ internal sealed class CliApp
                 return Ok;
             case "add":
                 var add = Required(a.Value(2), "<name>");
-                return await Edit(cfg => { ConfigEditor.AddUser(cfg, add, a.Option("preset")); }).ConfigureAwait(false);
+                return await Edit(cfg => { ConfigEditor.AddUser(cfg, add, ProfileOption(a)); }).ConfigureAwait(false);
             case "move":
                 var who = Required(a.Value(2), "<name>");
-                var to = Required(a.Value(3) ?? a.Option("preset"), "<preset>");
+                var to = Required(a.Value(3) ?? ProfileOption(a), "<profile>");
                 return await Edit(cfg => ConfigEditor.MoveUser(cfg, who, to)).ConfigureAwait(false);
             case "remove":
                 var remove = Required(a.Value(2), "<name>");
@@ -314,7 +314,8 @@ internal sealed class CliApp
                 foreach (var p in c.Presets)
                 {
                     var accounts = p.Accounts.Count == 0 ? Loc.T("Cli.None") : string.Join(", ", p.Accounts);
-                    await Line("Cli.PresetLine", p.Name, accounts, Loc.T("Cli.GamesMode." + p.Games.Mode)).ConfigureAwait(false);
+                    var schedule = p.Games.Schedule.Count == 0 ? Loc.T("Cli.None") : string.Join("; ", p.Games.Schedule.Select(GamesText.Window));
+                    await Line("Cli.PresetLine", p.Name, accounts, schedule).ConfigureAwait(false);
                 }
                 return Ok;
             case "add":
@@ -329,7 +330,7 @@ internal sealed class CliApp
                 var gone = Required(a.Value(2), "<name>");
                 return await Edit(cfg => { ConfigEditor.RemovePreset(cfg, gone); }).ConfigureAwait(false);
             default:
-                throw new UsageException(Loc.T("Cli.UnknownCommand", "preset " + a.Value(1)));
+                throw new UsageException(Loc.T("Cli.UnknownCommand", "profile " + a.Value(1)));
         }
     }
 
@@ -342,24 +343,12 @@ internal sealed class CliApp
                 if (st.Games.Count == 0) await Line("Cli.StatusNoAccounts").ConfigureAwait(false);
                 foreach (var g in st.Games) await GamesLine(g).ConfigureAwait(false);
                 return Ok;
-            case "allow":
-                var text = Required(a.Value(2), "<hours>").Replace(',', '.');
-                if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var hours)) throw new UcException(ErrorCodes.InvalidArgument, text, "hours");
-                var s = await _client.AllowGamesAsync(a.Option("user"), hours, countPlayOnly: !a.Flag("now")).ConfigureAwait(false);
-                foreach (var g in s.Games.Where(g => a.Option("user") is not { } u || g.User.Equals(u, StringComparison.OrdinalIgnoreCase))) await GamesLine(g).ConfigureAwait(false);
-                return Ok;
             case "lock":
-                await _client.LockGamesAsync(a.Option("user")).ConfigureAwait(false);
-                await Line("Cli.GamesLocked").ConfigureAwait(false);
+                await PrintGames(a, await _client.LockGamesAsync(a.Option("user")).ConfigureAwait(false)).ConfigureAwait(false);
                 return Ok;
-            case "mode":
-                var mode = a.Word(2) switch
-                {
-                    "manual" => GamesMode.Manual,
-                    "schedule" => GamesMode.Schedule,
-                    _ => throw new UsageException(Loc.T("Cli.MissingArgument", "manual|schedule")),
-                };
-                return await EditPreset(a, p => ConfigEditor.SetGamesMode(p, mode)).ConfigureAwait(false);
+            case "unlock":
+                await PrintGames(a, await _client.UnlockGamesAsync(a.Option("user")).ConfigureAwait(false)).ConfigureAwait(false);
+                return Ok;
             case "close":
                 var close = a.Word(2) switch
                 {
@@ -399,7 +388,7 @@ internal sealed class CliApp
         {
             case "" or "list":
                 var p = TargetPreset(await _client.GetConfigAsync().ConfigureAwait(false), a);
-                await Line("Cli.ScheduleHeader", p.Name, Loc.T("Cli.GamesMode." + p.Games.Mode)).ConfigureAwait(false);
+                await Line("Cli.ScheduleHeader", p.Name).ConfigureAwait(false);
                 if (p.Games.Schedule.Count == 0) await _out.WriteLineAsync("  " + Loc.T("Cli.None")).ConfigureAwait(false);
                 for (var i = 0; i < p.Games.Schedule.Count; i++) await _out.WriteLineAsync($"  {i + 1}. {GamesText.Window(p.Games.Schedule[i])}").ConfigureAwait(false);
                 return Ok;
@@ -417,6 +406,12 @@ internal sealed class CliApp
             default:
                 throw new UsageException(Loc.T("Cli.UnknownCommand", "games schedule " + a.Value(2)));
         }
+    }
+
+    private async Task PrintGames(CliArgs a, ServiceStatus s)
+    {
+        foreach (var g in s.Games.Where(g => a.Option("user") is not { } u || g.User.Equals(u, StringComparison.OrdinalIgnoreCase)))
+            await GamesLine(g).ConfigureAwait(false);
     }
 
     private Task GamesLine(AccountGames g) =>
@@ -459,10 +454,13 @@ internal sealed class CliApp
         }
     }
 
-    /// <summary>The preset a command is for: --preset, or the only one there is.</summary>
+    /// <summary>--profile (or the older --preset).</summary>
+    private static string? ProfileOption(CliArgs a) => a.Option("profile") ?? a.Option("preset");
+
+    /// <summary>The profile a command is for: --profile, or the only one there is.</summary>
     internal static Preset TargetPreset(UcConfig c, CliArgs a)
     {
-        if (a.Option("preset") is { } name) return c.GetPreset(name);
+        if (ProfileOption(a) is { } name) return c.GetPreset(name);
         return c.Presets.Count switch
         {
             0 => throw new UcException(ErrorCodes.NoPresets),

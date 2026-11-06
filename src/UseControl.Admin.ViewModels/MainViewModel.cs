@@ -19,17 +19,16 @@ public sealed partial class MainViewModel : ObservableObject
         ThemeChoices? themes = null)
     {
         Session = session;
-        session.Reloaded += (_, _) => OnPropertyChanged(nameof(PresetAccounts));
-        TranslationSource.Instance.CultureChanged += (_, _) => OnPropertyChanged(nameof(PresetAccounts));
+        session.Reloaded += (_, _) => OnSubtitleChanged();
+        TranslationSource.Instance.CultureChanged += (_, _) => OnSubtitleChanged();
         Pages =
         [
             new StatusPageViewModel(session),
             new AccountsPageViewModel(session, standardAccounts),
+            new AppsPageViewModel(session, fingerprint),
             new RestrictionsPageViewModel(session),
-            new GamesPageViewModel(session, fingerprint),
-            new ProgramsPageViewModel(session, fingerprint),
-            new FileAccessPageViewModel(session),
             new BrowsersPageViewModel(session),
+            new FileAccessPageViewModel(session),
             new AuditPageViewModel(session),
             new SettingsPageViewModel(session, saveLanguage, themes ?? ThemeChoices.None),
         ];
@@ -43,9 +42,22 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private PageViewModel _selectedPage;
 
-    partial void OnSelectedPageChanged(PageViewModel value) => _ = value.ActivateAsync();
+    partial void OnSelectedPageChanged(PageViewModel value)
+    {
+        OnPropertyChanged(nameof(PageSubtitle));
+        _ = value.ActivateAsync();
+    }
 
-    /// <summary>"For: alpine, kid" under the preset chooser.</summary>
+    private void OnSubtitleChanged()
+    {
+        OnPropertyChanged(nameof(PresetAccounts));
+        OnPropertyChanged(nameof(PageSubtitle));
+    }
+
+    /// <summary>The line under the page title: whom the profile applies to, or what the page is for.</summary>
+    public string PageSubtitle => SelectedPage.UsesPreset ? PresetAccounts : SelectedPage.Subtitle;
+
+    /// <summary>"For: alpine, kid" under the page title of a profile page.</summary>
     public string PresetAccounts => Session.Preset is not { } p
         ? Loc.T("Ui.Preset.NoneYet")
         : p.Accounts.Count == 0 ? Loc.T("Ui.Preset.NoAccounts") : Loc.T("Ui.Preset.For", string.Join(", ", p.Accounts));

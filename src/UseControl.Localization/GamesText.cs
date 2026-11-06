@@ -10,26 +10,21 @@ public static class GamesText
     public static IReadOnlyList<DayOfWeek> Week { get; } =
         [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday];
 
-    /// <summary>"allowed until 18:30", "45 min of play left", "blocked, next time tomorrow 16:00"…</summary>
+    /// <summary>"allowed until 20:00, 45 min of play left today", "blocked, next time tomorrow 16:00"…</summary>
     public static string State(bool allowed, GamesReason reason, DateTimeOffset? until, double? minutesLeft, DateTimeOffset? nextStart, DateTimeOffset now)
     {
         if (allowed)
         {
-            return reason switch
-            {
-                GamesReason.PlayTime => Loc.T("Games.State.PlayTime", Duration(minutesLeft ?? 0)),
-                GamesReason.Schedule when minutesLeft is { } m => Loc.T("Games.State.ScheduleLimit", When(until, now), Duration(m)),
-                GamesReason.Schedule => Loc.T("Games.State.Schedule", When(until, now)),
-                _ => Loc.T("Games.State.Allowed", When(until, now)),
-            };
+            return minutesLeft is { } m
+                ? Loc.T("Games.State.ScheduleLimit", When(until, now), Duration(m))
+                : Loc.T("Games.State.Schedule", When(until, now));
         }
         var next = nextStart is null ? null : When(nextStart, now);
         return reason switch
         {
             GamesReason.Locked => next is null ? Loc.T("Games.State.Locked") : Loc.T("Games.State.LockedNext", next),
             GamesReason.LimitReached => next is null ? Loc.T("Games.State.LimitReached") : Loc.T("Games.State.LimitReachedNext", next),
-            GamesReason.OutsideSchedule => next is null ? Loc.T("Games.State.NoWindows") : Loc.T("Games.State.OutsideSchedule", next),
-            _ => Loc.T("Games.State.Blocked"),
+            _ => next is null ? Loc.T("Games.State.NoWindows") : Loc.T("Games.State.OutsideSchedule", next),
         };
     }
 

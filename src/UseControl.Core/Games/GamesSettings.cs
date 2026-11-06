@@ -2,21 +2,10 @@ using System.Globalization;
 
 namespace UseControl.Core.Games;
 
-public enum GamesMode
-{
-    /// <summary>Games are blocked until an administrator allows them.</summary>
-    Manual,
-
-    /// <summary>Games are allowed in the time windows of the schedule (and when an administrator allows them).</summary>
-    Schedule,
-}
-
-/// <summary>When the games of a preset may be played.</summary>
+/// <summary>When the games of a profile may be played: only in the time windows of the schedule.</summary>
 public sealed class GamesSettings
 {
-    public GamesMode Mode { get; set; } = GamesMode.Manual;
-
-    /// <summary>The time windows of <see cref="GamesMode.Schedule"/>.</summary>
+    /// <summary>Time windows when games are allowed. Empty: games are always blocked.</summary>
     public List<GamesWindow> Schedule { get; set; } = [];
 
     /// <summary>When games time is over, games still running are closed a minute after a warning.</summary>
@@ -73,12 +62,6 @@ public sealed class GamesWindow
 /// <summary>What the service remembers about one account's games (part of state.json).</summary>
 public sealed class GamesState
 {
-    /// <summary>Allowed by an administrator until this time (counted by the clock).</summary>
-    public DateTimeOffset? AllowedUntil { get; set; }
-
-    /// <summary>Allowed by an administrator for this many minutes of play (counted only while a game runs).</summary>
-    public double PlayMinutesLeft { get; set; }
-
     /// <summary>Blocked by an administrator until this time, also inside the schedule.</summary>
     public DateTimeOffset? LockedUntil { get; set; }
 
@@ -92,23 +75,14 @@ public sealed class GamesState
 /// <summary>Why games are allowed or blocked for an account now.</summary>
 public enum GamesReason
 {
-    /// <summary>Blocked: nobody allowed them (no schedule).</summary>
-    Blocked,
-
     /// <summary>Blocked by an administrator until the end of the day.</summary>
     Locked,
 
-    /// <summary>Blocked: outside the time windows of the schedule.</summary>
+    /// <summary>Blocked: outside the time windows of the schedule (or the schedule is empty).</summary>
     OutsideSchedule,
 
     /// <summary>Blocked: the daily limit of the schedule is used up.</summary>
     LimitReached,
-
-    /// <summary>Allowed by an administrator until a time.</summary>
-    Allowed,
-
-    /// <summary>Allowed by an administrator for some minutes of play.</summary>
-    PlayTime,
 
     /// <summary>Allowed by the schedule.</summary>
     Schedule,
@@ -116,12 +90,12 @@ public enum GamesReason
 
 /// <param name="Allowed">Whether games may run now.</param>
 /// <param name="Reason">Why.</param>
-/// <param name="Until">When allowed: the time it ends at the latest (end of the grant or of the window).</param>
-/// <param name="MinutesLeft">When allowed and counted by play: the minutes of play left.</param>
-/// <param name="NextStart">When blocked by the schedule: when the next window starts (within a week).</param>
+/// <param name="Until">When allowed: the end of the time window.</param>
+/// <param name="MinutesLeft">When allowed and the window has a daily limit: the minutes of play left today.</param>
+/// <param name="NextStart">When blocked: when the next time window starts (within a week).</param>
 public sealed record GamesDecision(bool Allowed, GamesReason Reason, DateTimeOffset? Until, double? MinutesLeft, DateTimeOffset? NextStart)
 {
-    /// <summary>How long games stay allowed if a game runs all the time, or null when it is not limited.</summary>
+    /// <summary>How long games stay allowed if a game runs all the time.</summary>
     public TimeSpan? Remaining(DateTimeOffset now)
     {
         if (!Allowed) return TimeSpan.Zero;

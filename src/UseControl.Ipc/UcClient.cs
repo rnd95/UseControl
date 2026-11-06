@@ -45,10 +45,9 @@ public sealed class UcClient : IServiceClient
     /// <summary>Removes all restrictions and keeps them off (the configuration stays) until <see cref="ApplyAsync"/>.</summary>
     public Task<ApplyResult> SuspendAsync(CancellationToken ct = default) => SendAsync<ApplyResult>(Commands.Suspend, null, ct);
 
-    public Task<ServiceStatus> AllowGamesAsync(string? user, double hours, bool countPlayOnly, CancellationToken ct = default) =>
-        SendAsync<ServiceStatus>(Commands.AllowGames, new AllowGamesRequest(user, hours, countPlayOnly), ct);
+    public Task<ServiceStatus> LockGamesAsync(string? user, CancellationToken ct = default) => SendAsync<ServiceStatus>(Commands.LockGames, new GamesRequest(user), ct);
 
-    public Task<ServiceStatus> LockGamesAsync(string? user, CancellationToken ct = default) => SendAsync<ServiceStatus>(Commands.LockGames, new LockGamesRequest(user), ct);
+    public Task<ServiceStatus> UnlockGamesAsync(string? user, CancellationToken ct = default) => SendAsync<ServiceStatus>(Commands.UnlockGames, new GamesRequest(user), ct);
 
     public Task<PreviewResult> PreviewAsync(CancellationToken ct = default) => SendAsync<PreviewResult>(Commands.Preview, null, ct);
 

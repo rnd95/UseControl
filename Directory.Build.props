@@ -12,8 +12,9 @@
 
     <Version>0.1.0</Version>
     <Product>UseControl</Product>
-    <Authors>UseControl contributors</Authors>
-    <Copyright>Copyright (c) 2026 UseControl contributors</Copyright>
+    <Authors>Rate Software</Authors>
+    <Company>Rate Software</Company>
+    <Copyright>Copyright © 2026 Rate Software</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>

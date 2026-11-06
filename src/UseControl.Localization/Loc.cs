@@ -13,7 +13,7 @@ public static class Loc
     private static readonly ResourceManager Resources = new("UseControl.Localization.Resources.Strings", typeof(Loc).Assembly);
 
     /// <summary>Languages that ship with UseControl. Add a code here when adding Strings.&lt;code&gt;.resx.</summary>
-    public static IReadOnlyList<CultureInfo> Available { get; } = [CultureInfo.GetCultureInfo("en"), CultureInfo.GetCultureInfo("uk")];
+    public static IReadOnlyList<CultureInfo> Available { get; } = [CultureInfo.GetCultureInfo("en"), CultureInfo.GetCultureInfo("uk"), CultureInfo.GetCultureInfo("de"), CultureInfo.GetCultureInfo("pl")];
 
     /// <summary>The language used; by default the Windows display language when it is available, otherwise English.</summary>
     public static CultureInfo Culture { get; set; } = Pick(CultureInfo.CurrentUICulture.Name);

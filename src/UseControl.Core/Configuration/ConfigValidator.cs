@@ -64,7 +64,6 @@ public static class ConfigValidator
         }
         Duplicates(c.BlockedFiles.Select(f => f.Sha256), problems);
 
-        if (!Enum.IsDefined(c.Games.Mode)) problems.Add(new UcException(ErrorCodes.InvalidArgument, c.Games.Mode, "mode"));
         foreach (var w in c.Games.Schedule) check(w.EnsureValid);
 
         foreach (var (kind, list) in new[]

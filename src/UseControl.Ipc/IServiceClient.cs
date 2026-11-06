@@ -19,11 +19,11 @@ public interface IServiceClient
 
     Task<ApplyResult> SuspendAsync(CancellationToken ct = default);
 
-    /// <summary>Allows games for one account (or every one, when <paramref name="user"/> is null).</summary>
-    Task<ServiceStatus> AllowGamesAsync(string? user, double hours, bool countPlayOnly, CancellationToken ct = default);
-
-    /// <summary>Blocks games now, for one account or every one; inside a schedule until the end of the day.</summary>
+    /// <summary>Blocks games until the end of the day, for one account (or every one, when <paramref name="user"/> is null).</summary>
     Task<ServiceStatus> LockGamesAsync(string? user, CancellationToken ct = default);
+
+    /// <summary>Takes such a block back: the schedule applies again.</summary>
+    Task<ServiceStatus> UnlockGamesAsync(string? user, CancellationToken ct = default);
 
     Task<PreviewResult> PreviewAsync(CancellationToken ct = default);
 

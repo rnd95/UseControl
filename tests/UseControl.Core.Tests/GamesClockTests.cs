@@ -10,7 +10,9 @@ public class GamesClockTests
     /// <summary>Friday 6 November 2026 at the given local time.</summary>
     private static DateTimeOffset Fri(int hour, int minute = 0) => new(2026, 11, 6, hour, minute, 0, TimeSpan.FromHours(2));
 
-    private static GamesSettings Schedule(params GamesWindow[] windows) => new() { Mode = GamesMode.Schedule, Schedule = [.. windows] };
+    private static readonly DateTimeOffset SaturdayTen = new(2026, 11, 7, 10, 0, 0, TimeSpan.FromHours(2));
+
+    private static GamesSettings Schedule(params GamesWindow[] windows) => new() { Schedule = [.. windows] };
 
     private static GamesWindow Weekdays(string from, string to, int limit = 0) => new()
     {
@@ -22,39 +24,18 @@ public class GamesClockTests
 
     private static GamesWindow Weekend(string from, string to) => new() { Days = [DayOfWeek.Saturday, DayOfWeek.Sunday], From = from, To = to };
 
-    [Fact]
-    public void Manual_mode_blocks_until_an_administrator_allows()
+    private static void Play(GamesState st, DateTimeOffset from, int minutes)
     {
-        var s = new GamesSettings();
-        var st = new GamesState();
-        Assert.Equal(GamesReason.Blocked, GamesClock.Evaluate(s, st, Fri(17), Zone).Reason);
-
-        GamesClock.Allow(st, Fri(17), 1.5, countPlayOnly: false);
-        var d = GamesClock.Evaluate(s, st, Fri(17), Zone);
-        Assert.True(d.Allowed);
-        Assert.Equal(GamesReason.Allowed, d.Reason);
-        Assert.Equal(Fri(18, 30), d.Until);
-        Assert.False(GamesClock.Evaluate(s, st, Fri(18, 30), Zone).Allowed);
+        for (var i = 0; i < minutes; i++) GamesClock.RecordPlay(st, from.AddMinutes(i), Zone, 1);
     }
 
     [Fact]
-    public void Play_time_counts_only_while_a_game_runs()
+    public void An_empty_schedule_blocks_games_always()
     {
-        var s = new GamesSettings();
-        var st = new GamesState();
-        GamesClock.Allow(st, Fri(10), 1, countPlayOnly: true);
-
-        // Hours later, nothing played: still a full hour.
-        var d = GamesClock.Evaluate(s, st, Fri(15), Zone);
-        Assert.Equal(GamesReason.PlayTime, d.Reason);
-        Assert.Equal(60, d.MinutesLeft);
-
-        for (var i = 0; i < 45; i++) GamesClock.RecordPlay(s, st, Fri(15).AddMinutes(i), Zone, 1);
-        Assert.Equal(15, GamesClock.Evaluate(s, st, Fri(16), Zone).MinutesLeft);
-        Assert.Equal(45, st.PlayedToday);
-
-        for (var i = 0; i < 15; i++) GamesClock.RecordPlay(s, st, Fri(17).AddMinutes(i), Zone, 1);
-        Assert.False(GamesClock.Evaluate(s, st, Fri(17, 20), Zone).Allowed);
+        var d = GamesClock.Evaluate(new GamesSettings(), new GamesState(), Fri(17), Zone);
+        Assert.False(d.Allowed);
+        Assert.Equal(GamesReason.OutsideSchedule, d.Reason);
+        Assert.Null(d.NextStart);
     }
 
     [Fact]
@@ -74,7 +55,7 @@ public class GamesClockTests
 
         var after = GamesClock.Evaluate(s, st, Fri(20), Zone);
         Assert.False(after.Allowed);
-        Assert.Equal(new DateTimeOffset(2026, 11, 7, 10, 0, 0, TimeSpan.FromHours(2)), after.NextStart);   // Saturday 10:00
+        Assert.Equal(SaturdayTen, after.NextStart);
     }
 
     [Fact]
@@ -82,56 +63,41 @@ public class GamesClockTests
     {
         var s = Schedule(Weekdays("16:00", "20:00", limit: 60), Weekend("10:00", "21:00"));
         var st = new GamesState();
-        for (var i = 0; i < 50; i++) GamesClock.RecordPlay(s, st, Fri(16).AddMinutes(i), Zone, 1);
+        Play(st, Fri(16), 50);
 
         var d = GamesClock.Evaluate(s, st, Fri(17), Zone);
         Assert.Equal(10, d.MinutesLeft);
         Assert.Equal(TimeSpan.FromMinutes(10), d.Remaining(Fri(17)));
 
-        for (var i = 0; i < 10; i++) GamesClock.RecordPlay(s, st, Fri(17).AddMinutes(i), Zone, 1);
+        Play(st, Fri(17), 10);
         var used = GamesClock.Evaluate(s, st, Fri(17, 30), Zone);
         Assert.Equal(GamesReason.LimitReached, used.Reason);
-        Assert.Equal(new DateTimeOffset(2026, 11, 7, 10, 0, 0, TimeSpan.FromHours(2)), used.NextStart);
+        Assert.Equal(SaturdayTen, used.NextStart);
 
         // Saturday: a new day, no limit in that window.
-        var sat = Fri(11).AddDays(1);
-        GamesClock.StartDay(st, sat, Zone);
+        GamesClock.StartDay(st, SaturdayTen, Zone);
         Assert.Equal(0, st.PlayedToday);
-        Assert.Equal(GamesReason.Schedule, GamesClock.Evaluate(s, st, sat, Zone).Reason);
+        Assert.Equal(GamesReason.Schedule, GamesClock.Evaluate(s, st, SaturdayTen, Zone).Reason);
     }
 
     [Fact]
-    public void Play_inside_the_schedule_does_not_use_up_given_minutes()
-    {
-        var s = Schedule(Weekdays("16:00", "20:00", limit: 30));
-        var st = new GamesState();
-        GamesClock.Allow(st, Fri(12), 1, countPlayOnly: true);
-        for (var i = 0; i < 30; i++) GamesClock.RecordPlay(s, st, Fri(16).AddMinutes(i), Zone, 1);
-        Assert.Equal(60, st.PlayMinutesLeft);
-
-        // The limit is used up: the given hour takes over.
-        var d = GamesClock.Evaluate(s, st, Fri(16, 30), Zone);
-        Assert.Equal(GamesReason.PlayTime, d.Reason);
-        GamesClock.RecordPlay(s, st, Fri(16, 30), Zone, 5);
-        Assert.Equal(55, st.PlayMinutesLeft);
-    }
-
-    [Fact]
-    public void Lock_takes_back_given_time_and_closes_the_schedule_until_tomorrow()
+    public void Lock_closes_the_schedule_until_tomorrow_and_unlock_takes_it_back()
     {
         var s = Schedule(Weekdays("16:00", "20:00"));
         var st = new GamesState();
-        GamesClock.Allow(st, Fri(16), 2, countPlayOnly: true);
         GamesClock.Lock(st, Fri(17), Zone);
 
         var d = GamesClock.Evaluate(s, st, Fri(17), Zone);
         Assert.Equal(GamesReason.Locked, d.Reason);
-        Assert.Equal(0, st.PlayMinutesLeft);
         Assert.Equal(Fri(16).AddDays(3), d.NextStart);   // Monday 16:00
+        Assert.Equal(Fri(0).AddDays(1), st.LockedUntil);   // midnight
 
-        // Allowing again lifts the lock.
-        GamesClock.Allow(st, Fri(17), 0.5, countPlayOnly: false);
+        GamesClock.Unlock(st);
         Assert.True(GamesClock.Evaluate(s, st, Fri(17), Zone).Allowed);
+
+        GamesClock.Lock(st, Fri(17), Zone);
+        Assert.True(GamesClock.StartDay(st, Fri(0).AddDays(1), Zone));   // the next day the lock is gone
+        Assert.Null(st.LockedUntil);
     }
 
     [Fact]

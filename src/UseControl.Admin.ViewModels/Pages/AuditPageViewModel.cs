@@ -15,6 +15,8 @@ public sealed partial class AuditPageViewModel : PageViewModel
 
     public AuditPageViewModel(PanelSession session) : base(session, "Ui.Nav.Audit", "") => _summary = Loc.T("Ui.Audit.NotRun");
 
+    public override NavSection Section => NavSection.Computer;
+
     public ObservableCollection<AuditRow> Checks { get; } = [];
 
     [ObservableProperty]

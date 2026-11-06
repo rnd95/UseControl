@@ -4,18 +4,24 @@
              xmlns:l="clr-namespace:UseControl.Admin.Infrastructure">
   <StackPanel>
     <Border Style="{StaticResource Card}">
-      <StackPanel>
-        <TextBlock Text="{l:Tr Ui.Settings.Language}" Style="{StaticResource SectionTitle}" />
-        <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" DisplayMemberPath="Text" Width="220" HorizontalAlignment="Left" />
-        <TextBlock Text="{l:Tr Ui.Settings.LanguageHelp}" Style="{StaticResource Help}" />
-      </StackPanel>
-    </Border>
-
-    <Border Style="{StaticResource Card}">
-      <StackPanel>
-        <TextBlock Text="{l:Tr Ui.Settings.ThemeHeader}" Style="{StaticResource SectionTitle}" />
-        <ComboBox ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme}" DisplayMemberPath="Text" Width="220" HorizontalAlignment="Left" />
-      </StackPanel>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="200" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
+          <TextBlock Text="{l:Tr Ui.Settings.Language}" FontWeight="SemiBold" VerticalAlignment="Center" />
+          <ToggleButton Style="{StaticResource HelpTip}" Tag="{l:Tr Ui.Settings.LanguageHelp}" />
+        </StackPanel>
+        <ComboBox Grid.Column="1" ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" DisplayMemberPath="Text" Width="220"
+                  HorizontalAlignment="Left" Margin="0,0,0,10" />
+        <TextBlock Grid.Row="1" Text="{l:Tr Ui.Settings.ThemeHeader}" FontWeight="SemiBold" VerticalAlignment="Center" />
+        <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme}" DisplayMemberPath="Text" Width="220" HorizontalAlignment="Left" />
+      </Grid>
     </Border>
 
     <Border Style="{StaticResource Card}">
@@ -29,26 +35,34 @@
     </Border>
 
     <Border Style="{StaticResource Card}">
-      <StackPanel>
-        <TextBlock Text="{l:Tr Ui.Settings.AboutHeader}" Style="{StaticResource SectionTitle}" />
-        <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220" />
-            <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-          </Grid.RowDefinitions>
-          <TextBlock Text="{l:Tr Ui.Settings.Version}" Style="{StaticResource Label}" Margin="0,3" />
-          <TextBlock Grid.Column="1" Text="{Binding PanelVersion}" Margin="0,3" />
-          <TextBlock Grid.Row="1" Text="{l:Tr Ui.Status.Service}" Style="{StaticResource Label}" Margin="0,3" />
-          <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServiceVersion}" Margin="0,3" />
-          <TextBlock Grid.Row="2" Text="{l:Tr Ui.Settings.DataFolder}" Style="{StaticResource Label}" Margin="0,3" />
-          <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DataDirectory}" Margin="0,3" />
-        </Grid>
-      </StackPanel>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Image Source="/UseControl;component/Assets/uc.ico" Width="48" Height="48" VerticalAlignment="Top" Margin="0,2,16,0" />
+        <StackPanel Grid.Column="1">
+          <TextBlock FontSize="16" FontWeight="SemiBold">
+            <Run Text="UseControl" />
+            <Run Text="{Binding PanelVersion, Mode=OneWay}" Foreground="{DynamicResource TextMuted}" FontWeight="Normal" />
+          </TextBlock>
+          <TextBlock Text="{Binding Copyright}" Foreground="{DynamicResource TextMuted}" Margin="0,2,0,10" />
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="200" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="{l:Tr Ui.Status.Service}" Style="{StaticResource Label}" Margin="0,3" />
+            <TextBlock Grid.Column="1" Text="{Binding ServiceVersion}" Margin="0,3" />
+            <TextBlock Grid.Row="1" Text="{l:Tr Ui.Settings.DataFolder}" Style="{StaticResource Label}" Margin="0,3" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DataDirectory}" Margin="0,3" TextWrapping="Wrap" />
+          </Grid>
+        </StackPanel>
+      </Grid>
     </Border>
   </StackPanel>
 </UserControl>

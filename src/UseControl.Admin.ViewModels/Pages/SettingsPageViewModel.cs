@@ -27,6 +27,8 @@ public sealed partial class SettingsPageViewModel : PageViewModel
         _language = Languages.FirstOrDefault(l => l.Culture.Name == Loc.Culture.Name) ?? Languages[0];
     }
 
+    public override NavSection Section => NavSection.Computer;
+
     public IReadOnlyList<LanguageChoice> Languages { get; }
 
     [ObservableProperty]
@@ -34,6 +36,10 @@ public sealed partial class SettingsPageViewModel : PageViewModel
 
     [ObservableProperty]
     private string _panelVersion = typeof(SettingsPageViewModel).Assembly.GetName().Version?.ToString(3) ?? "?";
+
+    /// <summary>"Copyright © 2026 Rate Software", from the assembly.</summary>
+    public string Copyright { get; } =
+        System.Reflection.CustomAttributeExtensions.GetCustomAttribute<System.Reflection.AssemblyCopyrightAttribute>(typeof(SettingsPageViewModel).Assembly)?.Copyright ?? "";
 
     [ObservableProperty]
     private string _serviceVersion = "—";

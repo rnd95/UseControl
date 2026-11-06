@@ -1,64 +1,107 @@
+<!-- Access of restricted accounts to private files and folders (Windows permissions). -->
 <UserControl x:Class="UseControl.Admin.Views.FileAccessView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:l="clr-namespace:UseControl.Admin.Infrastructure"
              xmlns:pages="clr-namespace:UseControl.Admin.ViewModels.Pages;assembly=UseControl.Admin.ViewModels">
   <StackPanel>
-    <TextBlock Text="{l:Tr Ui.Access.Intro}" Style="{StaticResource Help}" Margin="0,0,0,12" />
-
     <Border Style="{StaticResource Card}">
       <StackPanel>
-        <!-- 1. What -->
-        <TextBlock Text="{l:Tr Ui.Access.Path}" Style="{StaticResource SectionTitle}" />
-        <DockPanel Margin="0,0,0,14">
-          <Button DockPanel.Dock="Right" Content="{l:Tr Ui.Access.File}" Command="{Binding PickFileCommand}" Margin="8,0,0,0" />
-          <Button DockPanel.Dock="Right" Content="{l:Tr Ui.Access.Folder}" Command="{Binding PickFolderCommand}" Margin="8,0,0,0" />
-          <TextBox Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}" />
-        </DockPanel>
+        <StackPanel Style="{StaticResource CardHeader}">
+          <TextBlock Text="{l:Tr Ui.Access.NewHeader}" Style="{StaticResource CardTitle}" />
+          <ToggleButton Style="{StaticResource HelpTip}" Tag="{l:Tr Ui.Access.Help}" />
+        </StackPanel>
 
-        <!-- 2. Which access -->
-        <TextBlock Text="{l:Tr Ui.Access.Preset}" Style="{StaticResource SectionTitle}" />
-        <ComboBox ItemsSource="{x:Static pages:FileAccessPageViewModel.Presets}" SelectedItem="{Binding Preset}" DisplayMemberPath="Text"
-                  Width="420" HorizontalAlignment="Left" Margin="0,0,0,14" />
+        <Grid Margin="0,0,0,12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <TextBlock Text="{l:Tr Ui.Access.Preset}" Style="{StaticResource Label}" Margin="0,0,16,8" />
+          <ComboBox Grid.Column="1" ItemsSource="{x:Static pages:FileAccessPageViewModel.Choices}" SelectedItem="{Binding Access}" DisplayMemberPath="Text"
+                    Width="360" HorizontalAlignment="Left" Margin="0,0,0,8" />
+          <TextBlock Grid.Row="1" Text="{l:Tr Ui.Access.ForAccounts}" Style="{StaticResource Label}" Margin="0,0,16,0" />
+          <StackPanel Grid.Row="1" Grid.Column="1">
+            <TextBlock Text="{l:Tr Ui.Preset.NoneYet}" Style="{StaticResource Help}" Margin="0,4"
+                       Visibility="{Binding Accounts.Count, Converter={StaticResource ZeroToVisibility}}" />
+            <ItemsControl ItemsSource="{Binding Accounts}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,4,18,4" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Grid>
 
-        <!-- 3. For whom -->
-        <TextBlock Text="{l:Tr Ui.Access.ForAccounts}" Style="{StaticResource SectionTitle}" />
-        <ItemsControl ItemsSource="{Binding Accounts}" Margin="0,0,0,14">
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,4,18,4" />
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-
-        <Button Content="{l:Tr Ui.Access.AddRule}" Style="{StaticResource PrimaryButton}" Command="{Binding AddCommand}" HorizontalAlignment="Left" />
+        <StackPanel Orientation="Horizontal">
+          <Button Style="{StaticResource PrimaryButton}" Command="{Binding AddFoldersCommand}">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="&#xED25;" FontFamily="{StaticResource IconFont}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="{l:Tr Ui.Access.Folders}" />
+            </StackPanel>
+          </Button>
+          <Button Command="{Binding AddFilesCommand}">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="&#xE8A5;" FontFamily="{StaticResource IconFont}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="{l:Tr Ui.Access.Files}" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
       </StackPanel>
     </Border>
 
     <Border Style="{StaticResource Card}">
       <StackPanel>
         <TextBlock Text="{l:Tr Ui.Access.Header}" Style="{StaticResource SectionTitle}" />
-        <TextBlock Text="{l:Tr Ui.Block.Empty}" Style="{StaticResource Help}" Margin="0,0,0,4"
+        <TextBlock Text="{l:Tr Ui.Block.Empty}" Style="{StaticResource Help}" Margin="0"
                    Visibility="{Binding Rules.Count, Converter={StaticResource ZeroToVisibility}}" />
-        <DataGrid ItemsSource="{Binding Rules}">
-          <DataGrid.Columns>
-            <DataGridTextColumn Header="{l:Tr Ui.Column.Path}" Binding="{Binding Path}" Width="3*" />
-            <DataGridTextColumn Header="{l:Tr Ui.Column.Rights}" Binding="{Binding Rights}" Width="3*" />
-            <DataGridTextColumn Header="{l:Tr Ui.Column.Users}" Binding="{Binding Users}" Width="2*" />
-            <DataGridTemplateColumn Width="44">
-              <DataGridTemplateColumn.CellTemplate>
-                <DataTemplate>
-                  <Button Content="&#xE74D;" Style="{StaticResource RowButton}" ToolTip="{l:Tr Ui.Remove}"
+        <ItemsControl ItemsSource="{Binding Rules}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Style="{StaticResource ListRow}">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="36" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock FontFamily="{StaticResource IconFont}" FontSize="16" VerticalAlignment="Center">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="&#xE785;" />
+                        <Setter Property="Foreground" Value="{DynamicResource Ok}" />
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsDeny}" Value="True">
+                            <Setter Property="Text" Value="&#xE72E;" />
+                            <Setter Property="Foreground" Value="{DynamicResource Warning}" />
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <TextBlock Text="{Binding Path}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}" />
+                    <TextBlock Foreground="{DynamicResource TextMuted}" FontSize="12" TextTrimming="CharacterEllipsis">
+                      <Run Text="{Binding Rights, Mode=OneWay}" />
+                      <Run Text=" · " />
+                      <Run Text="{Binding Users, Mode=OneWay}" />
+                    </TextBlock>
+                  </StackPanel>
+                  <Button Grid.Column="2" Content="&#xE74D;" Style="{StaticResource DangerIconButton}" ToolTip="{l:Tr Ui.Remove}"
                           Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
-                </DataTemplate>
-              </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-          </DataGrid.Columns>
-        </DataGrid>
-        <TextBlock Text="{l:Tr Ui.Access.Help}" Style="{StaticResource Help}" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
       </StackPanel>
     </Border>
   </StackPanel>

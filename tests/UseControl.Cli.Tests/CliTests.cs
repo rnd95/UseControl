@@ -43,7 +43,7 @@ public sealed class CliTests : IDisposable
     public async Task Help_is_shown_without_a_command()
     {
         Assert.Equal(CliApp.Ok, await Run(""));
-        Assert.Contains("uc games allow", Out, StringComparison.Ordinal);
+        Assert.Contains("uc games schedule", Out, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -143,25 +143,20 @@ public sealed class CliTests : IDisposable
     }
 
     [Fact]
-    public async Task Games_are_allowed_as_play_time_or_from_now_and_locked()
+    public async Task Games_are_locked_for_the_day_and_unlocked()
     {
         _svc.Restrict("kid").Restrict("teen");
-        Assert.Equal(CliApp.Ok, await Run("games allow 1,5"));
-        Assert.Equal(90, _svc.GameStates["kid"].PlayMinutesLeft);
-        Assert.Equal(90, _svc.GameStates["teen"].PlayMinutesLeft);
-        Assert.Contains("1 h 30 min of play left", Out, StringComparison.Ordinal);
-
-        Assert.Equal(CliApp.Ok, await Run("games allow 0.5 --now --user teen"));
-        Assert.NotNull(_svc.GameStates["teen"].AllowedUntil);
-        Assert.DoesNotContain("[kid]", Out, StringComparison.Ordinal);
-
-        Assert.Equal(CliApp.Failed, await Run("games allow 99"));
-        Assert.Equal(CliApp.Failed, await Run("games allow lots"));
-        Assert.Equal(CliApp.Failed, await Run("games allow 1 --user nobody"));
         Assert.Equal(CliApp.Ok, await Run("games lock --user kid"));
-        Assert.Equal(0, _svc.GameStates["kid"].PlayMinutesLeft);
+        Assert.NotNull(_svc.GameStates["kid"].LockedUntil);
+        Assert.Contains("[kid] games blocked until the end of the day", Out, StringComparison.Ordinal);
+        Assert.DoesNotContain("[teen]", Out, StringComparison.Ordinal);
+        Assert.Equal(CliApp.Failed, await Run("games lock --user nobody"));
+        Assert.Equal(CliApp.Usage, await Run("games allow 1"));   // games come only from the schedule
+
+        Assert.Equal(CliApp.Ok, await Run("games unlock"));
+        Assert.Null(_svc.GameStates["kid"].LockedUntil);
         Assert.Equal(CliApp.Ok, await Run("games"));
-        Assert.Contains("[kid] games blocked", Out, StringComparison.Ordinal);
+        Assert.Contains("[kid] games blocked: the schedule is empty", Out, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -170,7 +165,6 @@ public sealed class CliTests : IDisposable
         _svc.Restrict("kid");
         Assert.Equal(CliApp.Ok, await Run("games schedule add mon-fri 16:00-20:00 --limit 60"));
         Assert.Equal(CliApp.Ok, await Run("games schedule add weekend 10:00-21:00"));
-        Assert.Equal(GamesMode.Schedule, _svc.Preset.Games.Mode);
         var w = _svc.Preset.Games.Schedule[0];
         Assert.Equal([DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday], w.Days);
         Assert.Equal(60, w.LimitMinutes);
@@ -183,8 +177,6 @@ public sealed class CliTests : IDisposable
         Assert.Equal(CliApp.Failed, await Run("games schedule add mon 18:00-17:00"));
         Assert.Equal(CliApp.Ok, await Run("games schedule remove 1"));
         Assert.Single(_svc.Preset.Games.Schedule);
-        Assert.Equal(CliApp.Ok, await Run("games mode manual"));
-        Assert.Equal(GamesMode.Manual, _svc.Preset.Games.Mode);
         Assert.Equal(CliApp.Ok, await Run("games close off"));
         Assert.False(_svc.Preset.Games.CloseGamesWhenOver);
     }
@@ -198,28 +190,28 @@ public sealed class CliTests : IDisposable
     public void Days_are_read_in_several_ways(string text, int count) => Assert.Equal(count, CliApp.ParseDays(text).Count);
 
     [Fact]
-    public async Task Presets_are_created_shared_and_required_when_there_are_several()
+    public async Task Profiles_are_created_shared_and_required_when_there_are_several()
     {
         Assert.Equal(CliApp.Failed, await Run("block name x.exe"));   // no preset yet
-        Assert.Contains("no presets yet", _err.ToString(), StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("no profiles yet", _err.ToString(), StringComparison.OrdinalIgnoreCase);
 
         await Run("users add kid");
-        Assert.Equal(CliApp.Ok, await Run("preset add Teens --from kid"));
-        Assert.Equal(CliApp.Ok, await Run("users add teen --preset teens"));
+        Assert.Equal(CliApp.Ok, await Run("profile add Teens --from kid"));
+        Assert.Equal(CliApp.Ok, await Run("users add teen --profile teens"));
         Assert.Equal(["teen"], _svc.Config.GetPreset("Teens").Accounts);
 
         Assert.Equal(CliApp.Failed, await Run("block name x.exe"));
-        Assert.Contains("--preset", _err.ToString(), StringComparison.Ordinal);
-        Assert.Equal(CliApp.Ok, await Run("block name x.exe --preset teens"));
+        Assert.Contains("--profile", _err.ToString(), StringComparison.Ordinal);
+        Assert.Equal(CliApp.Ok, await Run("block name x.exe --preset teens"));   // the older option name still works
         Assert.Contains(_svc.Config.GetPreset("Teens").BlockedNames, n => n.Name == "x.exe");
         Assert.DoesNotContain(_svc.Config.GetPreset("kid").BlockedNames, n => n.Name == "x.exe");
 
         Assert.Equal(CliApp.Ok, await Run("users move teen kid"));
         Assert.Equal(["kid", "teen"], _svc.Config.GetPreset("kid").Accounts);
-        Assert.Equal(CliApp.Ok, await Run("preset rename Teens Older"));
-        Assert.Equal(CliApp.Ok, await Run("preset list"));
-        Assert.Contains("Older: accounts (none)", Out, StringComparison.Ordinal);
-        Assert.Equal(CliApp.Ok, await Run("preset remove older"));
+        Assert.Equal(CliApp.Ok, await Run("profile rename Teens Older"));
+        Assert.Equal(CliApp.Ok, await Run("profile list"));
+        Assert.Contains("Older: accounts (none); games: (none)", Out, StringComparison.Ordinal);
+        Assert.Equal(CliApp.Ok, await Run("profile remove older"));
         Assert.Single(_svc.Config.Presets);
     }
 

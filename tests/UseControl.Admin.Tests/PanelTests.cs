@@ -18,7 +18,8 @@ namespace UseControl.Admin.Tests;
 internal sealed class FakeDialogs : IDialogService
 {
     public bool Answer { get; set; } = true;
-    public string? Folder { get; set; }
+    public List<string> Folders { get; set; } = [];
+    public List<string> Files { get; set; } = [];
     public string? File { get; set; }
     public List<string> Questions { get; } = [];
 
@@ -28,9 +29,11 @@ internal sealed class FakeDialogs : IDialogService
         return Answer;
     }
 
-    public string? PickFolder(string title) => Folder;
+    public IReadOnlyList<string> PickFolders(string title) => Folders;
 
     public string? PickFile(string title, string filter) => File;
+
+    public IReadOnlyList<string> PickFiles(string title, string filter) => Files;
 
     public string? PickSaveFile(string title, string filter, string defaultName) => File;
 
@@ -49,7 +52,7 @@ internal sealed class MissingService : IServiceClient
     public Task<SetConfigResult> SetConfigAsync(UcConfig config, CancellationToken ct = default) => Fail<SetConfigResult>();
     public Task<ApplyResult> ApplyAsync(CancellationToken ct = default) => Fail<ApplyResult>();
     public Task<ApplyResult> SuspendAsync(CancellationToken ct = default) => Fail<ApplyResult>();
-    public Task<ServiceStatus> AllowGamesAsync(string? user, double hours, bool countPlayOnly, CancellationToken ct = default) => Fail<ServiceStatus>();
+    public Task<ServiceStatus> UnlockGamesAsync(string? user, CancellationToken ct = default) => Fail<ServiceStatus>();
     public Task<ServiceStatus> LockGamesAsync(string? user, CancellationToken ct = default) => Fail<ServiceStatus>();
     public Task<PreviewResult> PreviewAsync(CancellationToken ct = default) => Fail<PreviewResult>();
     public Task<IReadOnlyList<AuditCheck>> AuditAsync(CancellationToken ct = default) => Fail<IReadOnlyList<AuditCheck>>();
@@ -74,10 +77,13 @@ public sealed class PanelTests
         _main = new MainViewModel(
             new PanelSession(_svc, _dialogs, new FixedSystemPaths()),
             () => ["kid", "teen"],
-            (path, cat) => new FileHashEntry { FileName = Path.GetFileName(path), Sha256 = new string('C', 64), Md5 = new string('D', 32), Size = 5, Category = cat },
+            (path, cat) => new FileHashEntry { FileName = Path.GetFileName(path), Sha256 = Hash(path), Md5 = new string('D', 32), Size = 5, Category = cat },
             c => _savedLanguage = c,
             new ThemeChoices(PanelTheme.System, t => _appliedTheme = t));
     }
+
+    /// <summary>A fake SHA-256 that differs per file.</summary>
+    private static string Hash(string path) => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(path)));
 
     private PanelSession Session => _main.Session;
 
@@ -90,14 +96,40 @@ public sealed class PanelTests
 
     private T Page<T>() where T : PageViewModel => _main.Pages.OfType<T>().Single();
 
+    private AppListViewModel Apps => Page<AppsPageViewModel>().Apps;
+
+    private GameTimeViewModel GameTime => Page<AppsPageViewModel>().GameTime;
+
     [Fact]
-    public async Task Start_connects_and_fills_the_status_page()
+    public async Task Start_connects_and_fills_the_overview()
     {
-        await _main.StartAsync();
+        await StartWithKid();
         Assert.True(Session.IsConnected);
         Assert.True(Session.CanEdit);
         var status = Page<StatusPageViewModel>();
-        Assert.Contains(status.Summary, l => l.Value == "on");
+        Assert.Equal("Protection is on", status.Headline);
+        Assert.StartsWith("Service 0.1.0", status.Details, StringComparison.Ordinal);
+        var kid = status.Accounts.Single();
+        Assert.Equal("kid", kid.User);
+        Assert.Equal("kid", kid.Profile);
+        Assert.Equal("blocked: the schedule is empty", kid.Games);
+        Assert.False(kid.GamesAllowed);
+    }
+
+    [Fact]
+    public async Task Navigation_is_grouped_into_general_profile_and_this_PC()
+    {
+        await _main.StartAsync();
+        Assert.Equal(
+            [NavSection.General, NavSection.General, NavSection.Profile, NavSection.Profile, NavSection.Profile, NavSection.Computer, NavSection.Computer, NavSection.Computer],
+            _main.Pages.Select(p => p.Section));
+        Assert.Equal("PROFILE", NavSection.Profile.Title);
+        Assert.Equal("", NavSection.General.Title);
+
+        // The line under the title: what the page is for, or whom the profile applies to.
+        Assert.Equal("Protection status of this PC", _main.PageSubtitle);
+        _main.SelectedPage = Page<AppsPageViewModel>();
+        Assert.Equal(_main.PresetAccounts, _main.PageSubtitle);
     }
 
     [Fact]
@@ -126,7 +158,7 @@ public sealed class PanelTests
         Assert.Equal("teen", Session.PresetName);
         Assert.Equal("teen", page.Accounts[0].Name);
         Assert.True(page.Accounts[0].IsRestricted);
-        Assert.Equal("restricted", page.Accounts[0].StatusText);
+        Assert.Equal("Restricted", page.Accounts[0].StatusText);
         Assert.Equal(MessageKind.Success, Session.MessageKind);
 
         _dialogs.Answer = false;
@@ -145,68 +177,80 @@ public sealed class PanelTests
         var row = Page<AccountsPageViewModel>().Accounts.Single(a => a.Name == "gone");
         Assert.True(row.IsRestricted);
         Assert.False(row.Exists);
-        Assert.Equal("not found on this PC", row.StatusText);
+        Assert.Equal("Not found on this PC", row.StatusText);
     }
 
     [Fact]
-    public async Task Picking_a_program_blocks_it_by_file_and_name_and_removing_takes_both_away()
+    public async Task Several_programs_are_blocked_at_once_by_file_and_name_and_removing_takes_both_away()
     {
         await StartWithKid();
-        var list = Page<ProgramsPageViewModel>().List;
-        _dialogs.File = @"D:\x\portable.exe";
-        await list.AddProgramCommand.ExecuteAsync(null);
-        var file = _svc.Preset.BlockedFiles.Single();
-        Assert.Equal(RuleCategory.Other, file.Category);
+        _dialogs.Files = [@"D:\x\portable.exe", @"D:\y\other.exe"];
+        await Apps.AddProgramsCommand.ExecuteAsync(null);
+        Assert.Equal(2, _svc.Preset.BlockedFiles.Count);
+        Assert.All(_svc.Preset.BlockedFiles, f => Assert.Equal(RuleCategory.Other, f.Category));   // "always blocked" unless chosen otherwise
         Assert.Contains(_svc.Preset.BlockedNames, n => n.Name == "portable.exe" && n.Category == RuleCategory.Other);
-        var row = list.Rows.Single(r => r.Text == "portable.exe");
+        var row = Apps.Rows.Single(r => r.Text == "portable.exe");
         Assert.Equal(BlockKind.Program, row.Kind);   // one row for the file and its name
+        Assert.False(row.IsGame);
 
-        await list.RemoveCommand.ExecuteAsync(row);
-        Assert.Empty(_svc.Preset.BlockedFiles);
+        await Apps.AddProgramsCommand.ExecuteAsync(null);   // the same files again: nothing new, no error
+        Assert.Equal(2, _svc.Preset.BlockedFiles.Count);
+        Assert.NotEqual(MessageKind.Error, Session.MessageKind);
+
+        await Apps.RemoveCommand.ExecuteAsync(row);
+        Assert.Single(_svc.Preset.BlockedFiles);
         Assert.DoesNotContain(_svc.Preset.BlockedNames, n => n.Name == "portable.exe");
     }
 
     [Fact]
-    public async Task Games_and_programs_pages_each_show_their_own_entries()
+    public async Task One_list_holds_games_and_blocked_programs_each_with_its_rule()
     {
         await StartWithKid();
-        var games = Page<GamesPageViewModel>().List;
-        var programs = Page<ProgramsPageViewModel>().List;
-        Assert.Contains(games.Rows, r => r.Text == "steam.exe");
-        Assert.DoesNotContain(programs.Rows, r => r.Text == "steam.exe");
-        Assert.Contains(programs.Rows, r => r.Text == "cmd.exe");
-        Assert.DoesNotContain(games.Rows, r => r.Text == "cmd.exe");
+        Assert.True(Apps.Rows.Single(r => r.Text == "steam.exe").IsGame);
+        Assert.False(Apps.Rows.Single(r => r.Text == "cmd.exe").IsGame);
+        Assert.True(Apps.Rows[0].IsGame);   // games first
 
-        _dialogs.Folder = @"F:\My Games";
-        await games.AddFolderCommand.ExecuteAsync(null);
-        Assert.Equal(RuleCategory.Games, _svc.Preset.BlockedPaths.Single(p => p.Path == @"F:\My Games").Category);
-        Assert.Contains(games.Rows, r => r.Kind == BlockKind.Folder && r.Key == @"F:\My Games");
+        // The filter shows one kind; adding while it is on adds that kind.
+        Apps.Filter = Apps.Filters.Single(f => f.Value == AppFilter.Games);
+        Assert.All(Apps.Rows, r => Assert.True(r.IsGame));
+        Assert.True(Apps.NewRule!.IsGame);
+        _dialogs.Folders = [@"F:\My Games", @"F:\More Games"];
+        await Apps.AddFoldersCommand.ExecuteAsync(null);
+        Assert.All(_svc.Preset.BlockedPaths.Where(p => p.Path.StartsWith(@"F:\", StringComparison.Ordinal)), p => Assert.Equal(RuleCategory.Games, p.Category));
+        Assert.Contains(Apps.Rows, r => r.Kind == BlockKind.Folder && r.Key == @"F:\More Games");
+        Assert.Equal(AppFilter.Games, Apps.Filter!.Value);   // kept after the reload
 
-        await games.RemoveCommand.ExecuteAsync(games.Rows.Single(r => r.Key == @"F:\My Games"));
-        Assert.DoesNotContain(_svc.Preset.BlockedPaths, p => p.Path == @"F:\My Games");
+        // Changing the rule of a row moves it to the other kind.
+        var row = Apps.Rows.Single(r => r.Key == @"F:\My Games");
+        row.Rule = row.Rules.Single(r => !r.IsGame);
+        await Task.Delay(50);
+        Assert.Equal(RuleCategory.Other, _svc.Preset.BlockedPaths.Single(p => p.Path == @"F:\My Games").Category);
+        Assert.DoesNotContain(Apps.Rows, r => r.Key == @"F:\My Games");
+
+        Apps.Filter = Apps.Filters.Single(f => f.Value == AppFilter.All);
+        Apps.Search = "my games";
+        Assert.Equal(@"F:\My Games", Apps.Rows.Single().Key);
     }
 
     [Fact]
-    public async Task Invalid_input_shows_a_translated_error_and_keeps_the_text()
+    public async Task Names_typed_by_hand_are_validated_and_several_can_be_added()
     {
         await StartWithKid();
-        var list = Page<ProgramsPageViewModel>().List;
         TranslationSource.Instance.Culture = Loc.Pick("uk");
-        list.NewName = "readme.txt";
-        await list.AddNameCommand.ExecuteAsync(null);
+        _dialogs.PromptAnswer = "readme.txt";
+        await Apps.AddNamesCommand.ExecuteAsync(null);
         Assert.Equal(MessageKind.Error, Session.MessageKind);
         Assert.Contains("не назва програми", Session.Message, StringComparison.Ordinal);
-        Assert.Equal("readme.txt", list.NewName);
         Assert.False(Session.IsBusy);
 
-        list.NewName = "badtool.exe";
-        await list.AddNameCommand.ExecuteAsync(null);
+        _dialogs.PromptAnswer = "badtool.exe, other.exe";
+        await Apps.AddNamesCommand.ExecuteAsync(null);
         Assert.Contains(_svc.Preset.BlockedNames, n => n.Name == "badtool.exe");
-        Assert.Equal("", list.NewName);
+        Assert.Contains(_svc.Preset.BlockedNames, n => n.Name == "other.exe");
     }
 
     [Fact]
-    public async Task File_access_uses_presets_and_ticked_accounts()
+    public async Task File_access_adds_a_rule_per_chosen_folder_for_the_ticked_accounts()
     {
         await _main.StartAsync();
         await Session.EditAsync(c =>
@@ -216,39 +260,47 @@ public sealed class PanelTests
         });
         var page = Page<FileAccessPageViewModel>();
         Assert.Equal(2, page.Accounts.Count);
+        Assert.DoesNotContain(FileAccessPageViewModel.Choices, p => p.Key == "NoRun");   // that is done by the profile
 
-        _dialogs.Folder = @"D:\Private";
-        page.PickFolderCommand.Execute(null);
-        page.Preset = FileAccessPageViewModel.Presets.Single(p => p.Key == "ReadOnly");
+        _dialogs.Folders = [@"D:\Private", @"D:\Photos"];
+        page.Access = FileAccessPageViewModel.Choices.Single(p => p.Key == "ReadOnly");
         page.Accounts.Single(a => a.Name == "teen").IsSelected = false;
-        await page.AddCommand.ExecuteAsync(null);
-        var r = _svc.Config.FileAccess.Single();
+        await page.AddFoldersCommand.ExecuteAsync(null);
+        Assert.Equal(2, _svc.Config.FileAccess.Count);
+        var r = _svc.Config.FileAccess.Single(x => x.Path == @"D:\Private");
         Assert.Equal(FileAccessMode.Deny, r.Mode);
         Assert.Equal(FileAccessRights.Write | FileAccessRights.Delete, r.Rights);
         Assert.Equal(["kid"], r.Users);
-        Assert.Equal("Can open, cannot change or delete", page.Rules.Single().Rights);
+        Assert.Equal("Read only", page.Rules[0].Rights);
 
         // Every account ticked = every restricted account, including ones added later.
-        _dialogs.Folder = @"D:\Secret";
-        page.PickFolderCommand.Execute(null);
-        page.Preset = FileAccessPageViewModel.Presets[0];
-        await page.AddCommand.ExecuteAsync(null);
+        _dialogs.Folders = [@"D:\Secret"];
+        _dialogs.Files = [];
+        page.Access = FileAccessPageViewModel.Choices[0];
+        page.Accounts.Single(a => a.Name == "teen").IsSelected = true;
+        await page.AddFoldersCommand.ExecuteAsync(null);
         Assert.Empty(_svc.Config.FileAccess.Single(x => x.Path == @"D:\Secret").Users);
 
+        // Nobody ticked: nothing is added.
+        foreach (var a in page.Accounts) a.IsSelected = false;
+        _dialogs.Folders = [@"D:\Other"];
+        await page.AddFoldersCommand.ExecuteAsync(null);
+        Assert.DoesNotContain(_svc.Config.FileAccess, x => x.Path == @"D:\Other");
+
         await page.RemoveCommand.ExecuteAsync(page.Rules.First());
-        Assert.Single(_svc.Config.FileAccess);
+        Assert.Equal(2, _svc.Config.FileAccess.Count);
     }
 
     [Fact]
-    public async Task Exceptions_are_managed_on_the_restrictions_page()
+    public async Task Always_allowed_folders_are_on_the_apps_page()
     {
         await StartWithKid();
-        var page = Page<RestrictionsPageViewModel>();
-        _dialogs.Folder = @"C:\Tools";
-        await page.AllowFolderCommand.ExecuteAsync(null);
-        Assert.Equal(@"C:\Tools", _svc.Preset.AllowedPaths.Single().Path);
-        await page.RemoveAllowedFolderCommand.ExecuteAsync(page.AllowedFolders.Single());
-        Assert.Empty(_svc.Preset.AllowedPaths);
+        var page = Page<AppsPageViewModel>();
+        _dialogs.Folders = [@"C:\Tools", @"C:\School"];
+        await page.AllowFoldersCommand.ExecuteAsync(null);
+        Assert.Equal([@"C:\Tools", @"C:\School"], _svc.Preset.AllowedPaths.Select(p => p.Path));
+        await page.RemoveAllowedFolderCommand.ExecuteAsync(page.AllowedFolders.First());
+        Assert.Single(_svc.Preset.AllowedPaths);
     }
 
     [Fact]
@@ -276,71 +328,76 @@ public sealed class PanelTests
     }
 
     [Fact]
-    public async Task Games_page_allows_and_blocks_each_account_and_blocks_found_games()
+    public async Task Game_time_locks_and_unlocks_each_account_and_found_games_are_added_as_games()
     {
         await StartWithKid();
-        var page = Page<GamesPageViewModel>();
-        var kid = page.Now.Single();
+        var kid = GameTime.Now.Single();
         Assert.Equal("kid", kid.User);
         Assert.False(kid.Allowed);
-        Assert.Equal("blocked", kid.State);
+        Assert.False(kid.Locked);
+        Assert.Equal("blocked: the schedule is empty", kid.State);
 
-        page.Hours = 2;
-        page.CountPlayOnly = true;
-        await page.AllowCommand.ExecuteAsync(kid);
-        Assert.Equal(120, _svc.GameStates["kid"].PlayMinutesLeft);
-        Assert.True(page.Now.Single().Allowed);
-        Assert.Contains("2 h of play left", page.Now.Single().State, StringComparison.Ordinal);
+        await GameTime.LockCommand.ExecuteAsync(kid);
+        Assert.True(GameTime.Now.Single().Locked);
+        Assert.Equal("blocked until the end of the day", GameTime.Now.Single().State);
+        await GameTime.UnlockCommand.ExecuteAsync(GameTime.Now.Single());
+        Assert.False(GameTime.Now.Single().Locked);
+        Assert.Null(_svc.GameStates["kid"].LockedUntil);
 
-        await page.LockCommand.ExecuteAsync(page.Now.Single());
-        Assert.False(page.Now.Single().Allowed);
-
-        await page.FindCommand.ExecuteAsync(null);
-        Assert.Single(page.Found);
-        await page.BlockSelectedCommand.ExecuteAsync(null);
+        Assert.False(Apps.AddFoundCommand.CanExecute(null));
+        await Apps.FindCommand.ExecuteAsync(null);
+        Assert.True(Apps.HasFound);
+        Assert.True(Apps.AddFoundCommand.CanExecute(null));
+        Apps.Found.Single().IsSelected = false;
+        Assert.False(Apps.AddFoundCommand.CanExecute(null));
+        Apps.Found.Single().IsSelected = true;
+        await Apps.AddFoundCommand.ExecuteAsync(null);
         Assert.Equal(RuleCategory.Games, _svc.Preset.BlockedPaths.Single(p => p.Path == @"D:\NewGames").Category);
-        Assert.Empty(page.Found);
+        Assert.Empty(Apps.Found);
+        Assert.False(Apps.HasFound);
     }
 
     [Fact]
     public async Task Games_schedule_is_built_from_days_hours_and_a_limit()
     {
         await StartWithKid();
-        var page = Page<GamesPageViewModel>();
-        Assert.True(page.IsManual);
-        Assert.Equal(5, page.Days.Count(d => d.IsSelected));   // Monday to Friday at first
+        var g = GameTime;
+        Assert.Equal(5, g.Days.Count(d => d.IsSelected));   // Monday to Friday at first
 
-        page.From = page.Times.Single(t => t.Text == "16:00");
-        page.To = page.Times.Single(t => t.Text == "20:00");
-        page.Limit = page.Limits.Single(l => l.Value == 60);
-        await page.AddWindowCommand.ExecuteAsync(null);
-        Assert.True(page.IsSchedule);
-        Assert.Equal(GamesMode.Schedule, _svc.Preset.Games.Mode);
-        Assert.Equal("Mon–Fri  16:00–20:00, up to 1 h", page.Schedule.Single().Text);
+        g.StartAddingCommand.Execute(null);
+        Assert.True(g.IsAdding);
+        g.From = g.Times.Single(t => t.Text == "16:00");
+        g.To = g.Times.Single(t => t.Text == "20:00");
+        g.Limit = g.Limits.Single(l => l.Value == 60);
+        await g.AddWindowCommand.ExecuteAsync(null);
+        Assert.False(g.IsAdding);   // closed after adding
+        var w = g.Schedule.Single();
+        Assert.Equal(("Mon–Fri", "16:00–20:00", "1 h"), (w.Days, w.Hours, w.Limit));
 
-        foreach (var d in page.Days) d.IsSelected = d.Day is DayOfWeek.Saturday or DayOfWeek.Sunday;
-        page.Limit = page.Limits[0];
-        await page.AddWindowCommand.ExecuteAsync(null);
-        Assert.Equal("Sat, Sun  16:00–20:00", page.Schedule[1].Text);
+        foreach (var d in g.Days) d.IsSelected = d.Day is DayOfWeek.Saturday or DayOfWeek.Sunday;
+        g.Limit = g.Limits[0];
+        await g.AddWindowCommand.ExecuteAsync(null);
+        Assert.Equal(("Sat, Sun", (string?)null), (g.Schedule[1].Days, g.Schedule[1].Limit));
 
-        page.From = page.Times.Single(t => t.Text == "21:00");
-        await page.AddWindowCommand.ExecuteAsync(null);   // ends before it starts
+        g.StartAddingCommand.Execute(null);
+        g.From = g.Times.Single(t => t.Text == "21:00");
+        await g.AddWindowCommand.ExecuteAsync(null);   // ends before it starts
         Assert.Equal(MessageKind.Error, Session.MessageKind);
+        Assert.True(g.IsAdding);   // stays open to correct it
         Assert.Equal(2, _svc.Preset.Games.Schedule.Count);
+        g.CancelAddingCommand.Execute(null);
+        Assert.False(g.IsAdding);
 
-        await page.RemoveWindowCommand.ExecuteAsync(page.Schedule[0]);
+        await g.RemoveWindowCommand.ExecuteAsync(g.Schedule[0]);
         Assert.Single(_svc.Preset.Games.Schedule);
 
-        page.IsManual = true;   // saved at once
-        await Task.Delay(50);
-        Assert.Equal(GamesMode.Manual, _svc.Preset.Games.Mode);
-        page.CloseGamesWhenOver = false;
+        g.CloseGamesWhenOver = false;   // saved at once
         await Task.Delay(50);
         Assert.False(_svc.Preset.Games.CloseGamesWhenOver);
     }
 
     [Fact]
-    public async Task Each_account_can_have_its_own_preset_or_share_one()
+    public async Task Each_account_can_have_its_own_profile_or_share_one()
     {
         _svc.Restrict("kid");
         await _main.StartAsync();
@@ -358,22 +415,23 @@ public sealed class PanelTests
         await _main.NewPresetCommand.ExecuteAsync(null);
         Assert.Equal("Teens", Session.PresetName);
         Assert.Equal(["kid", "Teens"], Session.PresetNames);
-        Assert.Equal("No account uses this preset yet: choose it on the Accounts page.", _main.PresetAccounts);
+        Assert.Equal("Not assigned to any account yet. Assign it on the Accounts page.", _main.PresetAccounts);
 
         var row = accounts.Accounts.Single(a => a.Name == "teen");
         row.Preset = row.Presets.Single(p => p.Name == "Teens");
         await Task.Delay(50);
         Assert.Equal(["teen"], _svc.Config.GetPreset("Teens").Accounts);
-        Assert.Equal("For: teen", _main.PresetAccounts);
+        Assert.Equal("Applies to: teen", _main.PresetAccounts);
 
         // Pages show and change only the chosen preset.
-        await Page<ProgramsPageViewModel>().List.AddNameCommand.ExecuteAsync(null);   // nothing typed: nothing happens
-        Page<ProgramsPageViewModel>().List.NewName = "tiktok.exe";
-        await Page<ProgramsPageViewModel>().List.AddNameCommand.ExecuteAsync(null);
+        _dialogs.PromptAnswer = null;
+        await Apps.AddNamesCommand.ExecuteAsync(null);   // cancelled: nothing happens
+        _dialogs.PromptAnswer = "tiktok.exe";
+        await Apps.AddNamesCommand.ExecuteAsync(null);
         Assert.Contains(_svc.Config.GetPreset("Teens").BlockedNames, n => n.Name == "tiktok.exe");
         Assert.DoesNotContain(_svc.Config.GetPreset("kid").BlockedNames, n => n.Name == "tiktok.exe");
         Session.PresetName = "kid";
-        Assert.DoesNotContain(Page<ProgramsPageViewModel>().List.Rows, r => r.Text == "tiktok.exe");
+        Assert.DoesNotContain(Apps.Rows, r => r.Text == "tiktok.exe");
 
         _dialogs.PromptAnswer = "Little ones";
         await _main.RenamePresetCommand.ExecuteAsync(null);
@@ -389,16 +447,33 @@ public sealed class PanelTests
     }
 
     [Fact]
-    public async Task Pages_of_a_preset_say_what_to_do_when_there_is_none()
+    public async Task Pages_of_a_profile_say_what_to_do_when_there_is_none()
     {
         await _main.StartAsync();
         Assert.Null(Session.PresetName);
-        Assert.True(Page<GamesPageViewModel>().UsesPreset);
+        Assert.True(Page<AppsPageViewModel>().UsesPreset);
         Assert.False(Page<AccountsPageViewModel>().UsesPreset);
-        Page<ProgramsPageViewModel>().List.NewName = "x.exe";
-        await Page<ProgramsPageViewModel>().List.AddNameCommand.ExecuteAsync(null);
+        _dialogs.PromptAnswer = "x.exe";
+        await Apps.AddNamesCommand.ExecuteAsync(null);
         Assert.Equal(MessageKind.Info, Session.MessageKind);
         Assert.Contains("restrict an account", Session.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Success_messages_hide_by_themselves_and_errors_stay()
+    {
+        Session.MessageLifetime = TimeSpan.FromMilliseconds(100);
+        Session.ShowMessage(MessageKind.Success, "done");
+        Session.ShowMessage(MessageKind.Info, "newer");   // the newer one gets its own full time
+        await Task.Delay(60);
+        Assert.Equal("newer", Session.Message);
+        await Task.Delay(200);
+        Assert.Null(Session.Message);
+
+        Session.ShowMessage(MessageKind.Error, "broken");
+        await Task.Delay(250);
+        Assert.Equal("broken", Session.Message);
+        await Task.CompletedTask;
     }
 
     [Fact]
@@ -407,9 +482,10 @@ public sealed class PanelTests
         await _main.StartAsync();
         var page = Page<SettingsPageViewModel>();
         Assert.Equal(PanelTheme.System, page.Theme!.Theme);
-        Assert.Equal(["Like Windows", "Light", "Dark"], page.Themes.Select(t => t.Text));
+        Assert.Equal(["Use Windows setting", "Light", "Dark"], page.Themes.Select(t => t.Text));
         page.Theme = page.Themes.Single(t => t.Theme == PanelTheme.Dark);
         Assert.Equal(PanelTheme.Dark, _appliedTheme);
+        Assert.Contains("Rate Software", page.Copyright, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -424,25 +500,37 @@ public sealed class PanelTests
         await page.SuspendCommand.ExecuteAsync(null);
         Assert.False(_svc.Enabled);
         Assert.False(page.IsEnabled);
+        Assert.Equal("Restrictions are suspended", page.Headline);
         await page.ApplyCommand.ExecuteAsync(null);
         Assert.True(_svc.Enabled);
     }
 
     [Fact]
-    public async Task Restrictions_page_switches_windows_tools_and_automatic_blocking()
+    public async Task Windows_restrictions_are_saved_as_soon_as_a_switch_is_clicked()
     {
         await StartWithKid();
         var page = Page<RestrictionsPageViewModel>();
         Assert.True(page.DisableCommandPrompt);
         Assert.False(page.DisableTaskManager);
+        var before = _svc.SetConfigCalls;
+
         page.DisableTaskManager = true;
+        await Task.Delay(50);
+        Assert.True(_svc.Preset.Restrictions.DisableTaskManager);
+        Assert.Equal(before + 1, _svc.SetConfigCalls);
+
         page.DisablePasswordChange = true;
         page.OtherDriveLetters = false;
-        await page.SaveCommand.ExecuteAsync(null);
-        Assert.True(_svc.Preset.Restrictions.DisableTaskManager);
+        await Task.Delay(50);
         Assert.True(_svc.Preset.Restrictions.DisablePasswordChange);
         Assert.True(_svc.Preset.Restrictions.DisableCommandPrompt);
         Assert.False(_svc.Preset.Auto.OtherDriveLetters);
+
+        // Showing another profile does not save anything.
+        before = _svc.SetConfigCalls;
+        Session.PresetName = "kid";
+        await Task.Delay(50);
+        Assert.Equal(before, _svc.SetConfigCalls);
 
         // The Store setting is for the whole PC: on the Accounts page, saved when clicked.
         Page<AccountsPageViewModel>().BlockStoreInstalls = false;
@@ -471,8 +559,6 @@ public sealed class PanelTests
         Assert.False(browsers.SetPolicyCommand.CanExecute(null));
         browsers.NewExtension = "x";
         Assert.True(browsers.AddExtensionCommand.CanExecute(null));
-        Assert.False(Page<ProgramsPageViewModel>().List.AddNameCommand.CanExecute(null));
-        Assert.False(Page<FileAccessPageViewModel>().AddCommand.CanExecute(null));
     }
 
     [Fact]
@@ -481,14 +567,21 @@ public sealed class PanelTests
         await _main.StartAsync();
         var page = Page<SettingsPageViewModel>();
         Assert.Equal("0.1.0", page.ServiceVersion);
+        Assert.Equal(["en", "uk", "de", "pl"], page.Languages.Select(l => l.Culture.Name));
 
         var status = Page<StatusPageViewModel>();
-        Assert.Equal("Status", status.Title);
+        Assert.Equal("Overview", status.Title);
         page.Language = page.Languages.Single(l => l.Culture.Name == "uk");
-        Assert.Equal("Стан", status.Title);
-        Assert.Contains(status.Summary, l => l.Value == "увімкнено");
+        Assert.Equal("Огляд", status.Title);
+        Assert.Equal("Захист увімкнено", status.Headline);
         Assert.Equal("uk", _savedLanguage?.Name);
-        Assert.Equal("Стан", TranslationSource.Instance["Ui.Nav.Status"]);
+        Assert.Equal("Огляд", TranslationSource.Instance["Ui.Nav.Status"]);
+        Assert.Equal("ПРОФІЛЬ", NavSection.Profile.Title);
+
+        page.Language = page.Languages.Single(l => l.Culture.Name == "de");
+        Assert.Equal("Apps und Spiele", Page<AppsPageViewModel>().Title);
+        page.Language = page.Languages.Single(l => l.Culture.Name == "pl");
+        Assert.Equal("Ochrona jest włączona", status.Headline);
     }
 
     [Fact]
@@ -510,7 +603,8 @@ public sealed class PanelTests
         await main.StartAsync();
         Assert.True(main.Session.IsConnected);
         Assert.NotEmpty(main.Pages.OfType<FileAccessPageViewModel>().Single().Rules);
-        Assert.Contains(main.Pages.OfType<GamesPageViewModel>().Single().List.Rows, r => r.Kind == BlockKind.Program);
+        Assert.Contains(main.Pages.OfType<AppsPageViewModel>().Single().Apps.Rows, r => r.Kind == BlockKind.Program);
+        Assert.NotEmpty(main.Pages.OfType<StatusPageViewModel>().Single().Accounts);
 
         var audit = main.Pages.OfType<AuditPageViewModel>().Single();
         await audit.RunCommand.ExecuteAsync(null);

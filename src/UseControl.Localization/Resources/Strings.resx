@@ -3,7 +3,8 @@
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>  <data name="Error.Unknown" xml:space="preserve"><value>Unknown error.</value></data>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Error.Unknown" xml:space="preserve"><value>Unknown error.</value></data>
   <data name="Error.ConfigNotFound" xml:space="preserve"><value>Configuration not found: {0}</value></data>
   <data name="Error.ConfigInvalid" xml:space="preserve"><value>Configuration {0} is not valid: {1}</value></data>
   <data name="Error.ConfigTooNew" xml:space="preserve"><value>Configuration {0} was written by a newer UseControl (schema {1}); this version understands up to {2}.</value></data>
@@ -23,7 +24,7 @@
   <data name="Error.InvalidPolicyValue" xml:space="preserve"><value>Policy {0}: only numbers, true/false, text or null are supported.</value></data>
   <data name="Error.AccountNotFound" xml:space="preserve"><value>There is no local account &apos;{0}&apos;.</value></data>
   <data name="Error.AccountIsAdministrator" xml:space="preserve"><value>{0} is an administrator; only standard accounts can be restricted.</value></data>
-  <data name="Error.ProfileMissing" xml:space="preserve"><value>The profile of {0} does not exist yet: sign in as {0} once, then sign out.</value></data>
+  <data name="Error.ProfileMissing" xml:space="preserve"><value>The account {0} has not signed in to Windows yet: sign in as {0} once, then sign out.</value></data>
   <data name="Error.HiveLoadFailed" xml:space="preserve"><value>Cannot open the settings of {0} (Windows error {1}). If the account is signed in, try again after it signs out.</value></data>
   <data name="Error.AdministratorRequired" xml:space="preserve"><value>This needs administrator rights (run as administrator).</value></data>
   <data name="Error.ServiceNotRunning" xml:space="preserve"><value>The UseControl service is not running or not installed.</value></data>
@@ -39,19 +40,17 @@
   <data name="Cli.MissingArgument" xml:space="preserve"><value>Missing: {0}.</value></data>
   <data name="Cli.Done" xml:space="preserve"><value>Done.</value></data>
   <data name="Cli.Ping" xml:space="preserve"><value>UseControl service {0} is running (process {1}).</value></data>
-  <data name="Cli.ConfirmSuspend" xml:space="preserve"><value>All restrictions will be removed until &quot;uc apply&quot;. Type YES to continue</value></data>
+  <data name="Cli.ConfirmSuspend" xml:space="preserve"><value>All restrictions will be removed until "uc apply". Type YES to continue</value></data>
   <data name="Cli.Cancelled" xml:space="preserve"><value>Cancelled.</value></data>
-  <data name="Cli.Suspended" xml:space="preserve"><value>Restrictions removed. They stay off until &quot;uc apply&quot;.</value></data>
+  <data name="Cli.Suspended" xml:space="preserve"><value>Restrictions removed. They stay off until "uc apply".</value></data>
   <data name="Cli.Exported" xml:space="preserve"><value>Configuration saved to {0}</value></data>
   <data name="Cli.Imported" xml:space="preserve"><value>Configuration imported.</value></data>
-  <data name="Cli.SavedNotApplied" xml:space="preserve"><value>Saved. Restrictions are suspended, so nothing was applied (&quot;uc apply&quot; turns them on).</value></data>
+  <data name="Cli.SavedNotApplied" xml:space="preserve"><value>Saved. Restrictions are suspended, so nothing was applied ("uc apply" turns them on).</value></data>
   <data name="Cli.AccountApplied" xml:space="preserve"><value>{0}: {1} blocked and {2} allowed folders, {3} blocked names, {4} blocked files</value></data>
   <data name="Cli.AccountSignedInHint" xml:space="preserve"><value>{0} is signed in: some changes take effect after it signs out and back in.</value></data>
   <data name="Cli.AccountFailed" xml:space="preserve"><value>{0}: {1}</value></data>
   <data name="Cli.AccountRemoved" xml:space="preserve"><value>{0}: restrictions removed</value></data>
   <data name="Cli.FileAccessFailed" xml:space="preserve"><value>File access {0} ({1}): {2}</value></data>
-  <data name="Cli.GamesAllowed" xml:space="preserve"><value>Games allowed until {0}.</value></data>
-  <data name="Cli.GamesLocked" xml:space="preserve"><value>Games are blocked.</value></data>
   <data name="Cli.UsersRestricted" xml:space="preserve"><value>Restricted accounts: {0}</value></data>
   <data name="Cli.UsersCandidates" xml:space="preserve"><value>Other standard accounts on this PC: {0}</value></data>
   <data name="Cli.None" xml:space="preserve"><value>(none)</value></data>
@@ -68,9 +67,7 @@
   <data name="Cli.AuditSummary" xml:space="preserve"><value>{0} checks: {1} failed, {2} warnings.</value></data>
   <data name="Cli.StatusService" xml:space="preserve"><value>Service: UseControl {0}</value></data>
   <data name="Cli.StatusEnabled" xml:space="preserve"><value>Restrictions: on</value></data>
-  <data name="Cli.StatusSuspended" xml:space="preserve"><value>Restrictions: SUSPENDED (&quot;uc apply&quot; turns them on)</value></data>
-  <data name="Cli.StatusGamesAllowed" xml:space="preserve"><value>Games: allowed until {0}</value></data>
-  <data name="Cli.StatusGamesBlocked" xml:space="preserve"><value>Games: blocked</value></data>
+  <data name="Cli.StatusSuspended" xml:space="preserve"><value>Restrictions: SUSPENDED ("uc apply" turns them on)</value></data>
   <data name="Cli.StatusLastApplied" xml:space="preserve"><value>Last applied: {0}</value></data>
   <data name="Cli.StatusNever" xml:space="preserve"><value>never</value></data>
   <data name="Cli.StatusStoreAdmins" xml:space="preserve"><value>Store installs: administrators only</value></data>
@@ -85,20 +82,18 @@
 
   uc status                         state of the service, of every restricted account and its games
   uc apply                          apply the configuration now (and turn restrictions back on)
-  uc suspend [--yes]                remove all restrictions until &quot;uc apply&quot;
+  uc suspend [--yes]                remove all restrictions until "uc apply"
   uc preview                        every rule that would be written, and why
   uc audit                          security check of this PC
 
-  uc users list | add &lt;name&gt; [--preset &lt;p&gt;] | move &lt;name&gt; &lt;preset&gt; | remove &lt;name&gt;
-  uc preset list | add &lt;name&gt; [--from &lt;preset&gt;] | rename &lt;name&gt; &lt;new name&gt; | remove &lt;name&gt;
+  uc users list | add &lt;name&gt; [--profile &lt;p&gt;] | move &lt;name&gt; &lt;profile&gt; | remove &lt;name&gt;
+  uc profile list | add &lt;name&gt; [--from &lt;profile&gt;] | rename &lt;name&gt; &lt;new name&gt; | remove &lt;name&gt;
 
   uc games [status]                 who may play now and how much was played today
-  uc games allow &lt;hours&gt; [--user &lt;name&gt;] [--now]
-                                    hours of play (counted while a game runs); --now: from now on
-  uc games lock [--user &lt;name&gt;]     block now (with a schedule: until the end of the day)
-  uc games mode manual|schedule     games only when allowed, or by the schedule
   uc games schedule [list] | add &lt;days&gt; &lt;from&gt;-&lt;to&gt; [--limit &lt;minutes&gt;] | remove &lt;number&gt;
-                                    days: mon-fri, sat,sun, weekdays, weekend, all
+                                    games run only in these hours; days: mon-fri, sat,sun, weekdays, weekend, all
+  uc games lock [--user &lt;name&gt;]     block games until the end of the day
+  uc games unlock [--user &lt;name&gt;]   take that back: the schedule applies again
   uc games close on|off             close games when games time is over
   uc games find [--add]             look for game folders that are not blocked yet
 
@@ -121,9 +116,9 @@
   uc uninstall [--keep-restrictions] [--purge] [--yes]
   uc ping | help
 
-Commands that change a preset (games, block, unblock, allow, ext, policy) take --preset &lt;name&gt;
-when there is more than one preset.
-Options: --json (status, preview, audit, games find), --lang en|uk</value></data>
+Commands that change a profile (games, block, unblock, allow, ext, policy) take --profile &lt;name&gt;
+when there is more than one profile.
+Options: --json (status, preview, audit, games find), --lang en|uk|de|pl|de|pl</value></data>
   <data name="Audit.account" xml:space="preserve"><value>Restricted account</value></data>
   <data name="Audit.services" xml:space="preserve"><value>Services</value></data>
   <data name="Audit.writableFolders" xml:space="preserve"><value>Writable program folders</value></data>
@@ -146,92 +141,50 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Ui.App.Title" xml:space="preserve"><value>UseControl</value></data>
   <data name="Ui.Busy" xml:space="preserve"><value>Working…</value></data>
   <data name="Ui.NotConnected" xml:space="preserve"><value>Not connected to the UseControl service.</value></data>
-  <data name="Ui.Retry" xml:space="preserve"><value>Connect again</value></data>
+  <data name="Ui.Retry" xml:space="preserve"><value>Reconnect</value></data>
   <data name="Ui.Close" xml:space="preserve"><value>Close</value></data>
   <data name="Ui.Saved" xml:space="preserve"><value>Saved and applied.</value></data>
-  <data name="Ui.SavedSignedIn" xml:space="preserve"><value>Saved and applied. {0}: some changes take effect after signing out and back in.</value></data>
+  <data name="Ui.SavedSignedIn" xml:space="preserve"><value>Saved and applied. {0}: some changes take effect after the next sign-in.</value></data>
   <data name="Ui.Remove" xml:space="preserve"><value>Remove</value></data>
   <data name="Ui.Add" xml:space="preserve"><value>Add</value></data>
   <data name="Ui.Refresh" xml:space="preserve"><value>Refresh</value></data>
   <data name="Ui.Edit" xml:space="preserve"><value>Edit</value></data>
-  <data name="Ui.Column.Path" xml:space="preserve"><value>Folder or file</value></data>
-  <data name="Ui.Column.Name" xml:space="preserve"><value>Name</value></data>
-  <data name="Ui.Column.Category" xml:space="preserve"><value>Category</value></data>
-  <data name="Ui.Column.Note" xml:space="preserve"><value>Note</value></data>
-  <data name="Ui.Column.Mode" xml:space="preserve"><value>Access</value></data>
-  <data name="Ui.Column.Rights" xml:space="preserve"><value>What</value></data>
-  <data name="Ui.Column.Users" xml:space="preserve"><value>Accounts</value></data>
   <data name="Ui.Column.Value" xml:space="preserve"><value>Value</value></data>
-  <data name="Ui.Column.Result" xml:space="preserve"><value>Result</value></data>
-  <data name="Ui.Column.Check" xml:space="preserve"><value>Check</value></data>
-  <data name="Ui.Column.Detail" xml:space="preserve"><value>Details</value></data>
-  <data name="Ui.Nav.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Ui.Nav.Status" xml:space="preserve"><value>Overview</value></data>
   <data name="Ui.Nav.Accounts" xml:space="preserve"><value>Accounts</value></data>
-  <data name="Ui.Nav.Games" xml:space="preserve"><value>Games</value></data>
-  <data name="Ui.Nav.Programs" xml:space="preserve"><value>Programs</value></data>
-  <data name="Ui.Nav.FileAccess" xml:space="preserve"><value>Files and folders</value></data>
+  <data name="Ui.Nav.FileAccess" xml:space="preserve"><value>File access</value></data>
   <data name="Ui.Nav.Browsers" xml:space="preserve"><value>Browsers</value></data>
   <data name="Ui.Nav.Audit" xml:space="preserve"><value>Security check</value></data>
   <data name="Ui.Nav.Settings" xml:space="preserve"><value>Settings</value></data>
   <data name="Ui.Status.Service" xml:space="preserve"><value>Service</value></data>
-  <data name="Ui.Status.Restrictions" xml:space="preserve"><value>Restrictions</value></data>
-  <data name="Ui.Status.On" xml:space="preserve"><value>on</value></data>
-  <data name="Ui.Status.Suspended" xml:space="preserve"><value>SUSPENDED</value></data>
-  <data name="Ui.Status.Games" xml:space="preserve"><value>Games</value></data>
-  <data name="Ui.Status.GamesUntil" xml:space="preserve"><value>allowed until {0}</value></data>
-  <data name="Ui.Status.GamesBlocked" xml:space="preserve"><value>blocked</value></data>
-  <data name="Ui.Status.LastApplied" xml:space="preserve"><value>Last applied</value></data>
-  <data name="Ui.Status.Store" xml:space="preserve"><value>Store installs</value></data>
-  <data name="Ui.Status.StoreAdmins" xml:space="preserve"><value>administrators only</value></data>
-  <data name="Ui.Status.StoreEveryone" xml:space="preserve"><value>everyone</value></data>
-  <data name="Ui.Status.Unreadable" xml:space="preserve"><value>cannot be read</value></data>
-  <data name="Ui.Status.NotApplied" xml:space="preserve"><value>restrictions NOT applied</value></data>
-  <data name="Ui.Status.AccountRules" xml:space="preserve"><value>{0} blocked and {1} allowed folders, {2} blocked files, {3} blocked names</value></data>
-  <data name="Ui.Status.Unlocked" xml:space="preserve"><value>policy keys NOT locked</value></data>
+  <data name="Ui.Status.On" xml:space="preserve"><value>Protection is on</value></data>
+  <data name="Ui.Status.Suspended" xml:space="preserve"><value>Restrictions are suspended</value></data>
+  <data name="Ui.Status.Unreadable" xml:space="preserve"><value>The settings of this account cannot be read</value></data>
+  <data name="Ui.Status.NotApplied" xml:space="preserve"><value>Restrictions are NOT applied</value></data>
+  <data name="Ui.Status.Unlocked" xml:space="preserve"><value>Applied, but the account could change them</value></data>
   <data name="Ui.Status.AccountsHeader" xml:space="preserve"><value>Restricted accounts</value></data>
   <data name="Ui.Status.ApplyNow" xml:space="preserve"><value>Apply now</value></data>
-  <data name="Ui.Status.SuspendAll" xml:space="preserve"><value>Suspend all restrictions</value></data>
-  <data name="Ui.Status.Resume" xml:space="preserve"><value>Turn restrictions on</value></data>
-  <data name="Ui.Status.ConfirmSuspend" xml:space="preserve"><value>Remove ALL restrictions until you turn them on again?</value></data>
+  <data name="Ui.Status.SuspendAll" xml:space="preserve"><value>Suspend</value></data>
+  <data name="Ui.Status.Resume" xml:space="preserve"><value>Turn on</value></data>
+  <data name="Ui.Status.ConfirmSuspend" xml:space="preserve"><value>Remove all restrictions until you turn them on again?</value></data>
   <data name="Ui.Accounts.Add" xml:space="preserve"><value>Restrict</value></data>
-  <data name="Ui.Accounts.Remove" xml:space="preserve"><value>Stop restricting</value></data>
-  <data name="Ui.Accounts.ConfirmRemove" xml:space="preserve"><value>Stop restricting {0} and remove its restrictions?</value></data>
-  <data name="Ui.Accounts.Help" xml:space="preserve"><value>Restrictions apply only to the accounts marked as restricted. Administrators are never listed and never restricted. An account appears here after it has signed in once.</value></data>
-  <data name="Ui.Games.AllowFor" xml:space="preserve"><value>&quot;Allow&quot; gives</value></data>
-  <data name="Ui.Games.Hours" xml:space="preserve"><value>h</value></data>
-  <data name="Ui.Games.Allow" xml:space="preserve"><value>Allow</value></data>
-  <data name="Ui.Games.Lock" xml:space="preserve"><value>Block</value></data>
-  <data name="Ui.Games.Now" xml:space="preserve"><value>Now</value></data>
-  <data name="Ui.Games.FindHeader" xml:space="preserve"><value>Installed games that are not blocked yet</value></data>
-  <data name="Ui.Games.Find" xml:space="preserve"><value>Search</value></data>
-  <data name="Ui.Games.BlockSelected" xml:space="preserve"><value>Block selected</value></data>
-  <data name="Ui.Games.FoundCount" xml:space="preserve"><value>{0} game folders found.</value></data>
-  <data name="Ui.Games.Help" xml:space="preserve"><value>Games are the programs, folders and names in the list below. While games are allowed they start; otherwise they are blocked. Five minutes before the end a message appears on the account&apos;s screen. Online games blocked by a DNS filter are not affected.</value></data>
-  <data name="Ui.Programs.BlockedFolders" xml:space="preserve"><value>Blocked folders</value></data>
-  <data name="Ui.Programs.AllowedFolders" xml:space="preserve"><value>Allowed folders (run even inside a blocked place)</value></data>
-  <data name="Ui.Programs.BlockedNames" xml:space="preserve"><value>Blocked program names</value></data>
-  <data name="Ui.Programs.BlockedFiles" xml:space="preserve"><value>Blocked programs by fingerprint (renaming does not help)</value></data>
-  <data name="Ui.Programs.Category" xml:space="preserve"><value>Category for new entries</value></data>
-  <data name="Ui.Programs.AddFolder" xml:space="preserve"><value>Block a folder…</value></data>
-  <data name="Ui.Programs.AddAllowed" xml:space="preserve"><value>Allow a folder…</value></data>
-  <data name="Ui.Programs.AddName" xml:space="preserve"><value>Block name</value></data>
-  <data name="Ui.Programs.AddFile" xml:space="preserve"><value>Block a program…</value></data>
-  <data name="Ui.Programs.PickBlockFolder" xml:space="preserve"><value>Programs in this folder will not start for restricted accounts</value></data>
-  <data name="Ui.Programs.PickAllowFolder" xml:space="preserve"><value>A program folder that should run although it is inside a blocked place</value></data>
-  <data name="Ui.Programs.PickBlockFile" xml:space="preserve"><value>Program to block by its fingerprint</value></data>
-  <data name="Ui.Programs.ProgramsFilter" xml:space="preserve"><value>Programs</value></data>
-  <data name="Ui.Programs.Help" xml:space="preserve"><value>Pick a program and it will not start for restricted accounts, even renamed, moved or updated. Games have their own page. Command prompt, PowerShell and similar tools are blocked by default (category &quot;system tools&quot;).</value></data>
+  <data name="Ui.Accounts.Remove" xml:space="preserve"><value>Remove restrictions</value></data>
+  <data name="Ui.Accounts.ConfirmRemove" xml:space="preserve"><value>Remove all restrictions from {0}?</value></data>
+  <data name="Ui.Accounts.Help" xml:space="preserve"><value>Restrictions apply only to restricted accounts. Administrators are not listed and are never restricted. An account appears here after its first sign-in.
+
+A profile is a set of rules: apps and games, Windows restrictions, browsers. Each account can have its own profile, or several accounts can share one.</value></data>
+  <data name="Ui.Games.Lock" xml:space="preserve"><value>Block for today</value></data>
+  <data name="Ui.Games.FindHeader" xml:space="preserve"><value>Game folders that are not in the list</value></data>
+  <data name="Ui.Games.Find" xml:space="preserve"><value>Find installed games</value></data>
+  <data name="Ui.Games.BlockSelected" xml:space="preserve"><value>Add selected as games</value></data>
+  <data name="Ui.Games.FoundCount" xml:space="preserve"><value>Game folders found: {0}.</value></data>
+  <data name="Ui.Games.Help" xml:space="preserve"><value>Games are the entries set to “Game” in the list below. They run only during the schedule and within the daily limit. Five minutes before the end, a warning appears on the account&apos;s screen. Online games blocked by a DNS filter are not affected.</value></data>
   <data name="Ui.Category.Writable" xml:space="preserve"><value>writable place</value></data>
   <data name="Ui.Category.Games" xml:space="preserve"><value>games</value></data>
-  <data name="Ui.Category.Vpn" xml:space="preserve"><value>VPN and proxies</value></data>
-  <data name="Ui.Category.Tools" xml:space="preserve"><value>system tools</value></data>
+  <data name="Ui.Category.Vpn" xml:space="preserve"><value>VPN and proxy</value></data>
+  <data name="Ui.Category.Tools" xml:space="preserve"><value>system tool</value></data>
   <data name="Ui.Category.Other" xml:space="preserve"><value>other</value></data>
-  <data name="Ui.Access.Header" xml:space="preserve"><value>Access rules</value></data>
-  <data name="Ui.Access.Path" xml:space="preserve"><value>File or folder</value></data>
-  <data name="Ui.Access.Folder" xml:space="preserve"><value>Folder…</value></data>
-  <data name="Ui.Access.File" xml:space="preserve"><value>File…</value></data>
-  <data name="Ui.Access.PickFolder" xml:space="preserve"><value>Folder to protect</value></data>
-  <data name="Ui.Access.PickFile" xml:space="preserve"><value>File to protect</value></data>
+  <data name="Ui.Access.Header" xml:space="preserve"><value>Rules</value></data>
   <data name="Ui.Access.Deny" xml:space="preserve"><value>Deny</value></data>
   <data name="Ui.Access.Allow" xml:space="preserve"><value>Allow</value></data>
   <data name="Ui.Access.Read" xml:space="preserve"><value>open and read</value></data>
@@ -239,46 +192,43 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Ui.Access.Execute" xml:space="preserve"><value>run programs</value></data>
   <data name="Ui.Access.Delete" xml:space="preserve"><value>delete</value></data>
   <data name="Ui.Access.Full" xml:space="preserve"><value>everything</value></data>
-  <data name="Ui.Access.Users" xml:space="preserve"><value>Accounts (comma-separated; empty = every restricted account)</value></data>
-  <data name="Ui.Access.AllAccounts" xml:space="preserve"><value>every restricted account</value></data>
-  <data name="Ui.Access.AddRule" xml:space="preserve"><value>Add rule</value></data>
-  <data name="Ui.Access.Help" xml:space="preserve"><value>UseControl remembers every permission it adds and removes exactly those; other permissions are never touched. Windows folders, drive roots, Program Files and the profiles folder cannot be used.</value></data>
-  <data name="Ui.Browsers.Browser" xml:space="preserve"><value>Browser</value></data>
-  <data name="Ui.Browsers.Extensions" xml:space="preserve"><value>Allowed extensions</value></data>
-  <data name="Ui.Browsers.BlockExtensions" xml:space="preserve"><value>Block every other extension</value></data>
+  <data name="Ui.Access.AllAccounts" xml:space="preserve"><value>all restricted accounts</value></data>
+  <data name="Ui.Access.Help" xml:space="preserve"><value>UseControl keeps track of every permission it adds and removes exactly those; other permissions are never touched. Windows folders, drive roots, Program Files and the Users folder cannot be used.
+
+To stop programs from starting in a folder, use Apps and games.</value></data>
+  <data name="Ui.Browsers.Extensions" xml:space="preserve"><value>Extensions</value></data>
+  <data name="Ui.Browsers.BlockExtensions" xml:space="preserve"><value>Block all other extensions</value></data>
   <data name="Ui.Browsers.ExtensionId" xml:space="preserve"><value>Extension ID</value></data>
   <data name="Ui.Browsers.Policies" xml:space="preserve"><value>Policies</value></data>
   <data name="Ui.Browsers.Set" xml:space="preserve"><value>Set</value></data>
-  <data name="Ui.Browsers.DisableDoh" xml:space="preserve"><value>Turn off DNS over HTTPS (so the DNS filter sees every site)</value></data>
+  <data name="Ui.Browsers.DisableDoh" xml:space="preserve"><value>Turn off DNS over HTTPS (lets a DNS filter see every site)</value></data>
   <data name="Ui.Browsers.DisablePrivate" xml:space="preserve"><value>Turn off private browsing</value></data>
-  <data name="Ui.Browsers.Help" xml:space="preserve"><value>Any policy can be set by its name: Chrome (chromeenterprise.google/policies), Edge (learn.microsoft.com/deployedge), Firefox (mozilla.github.io/policy-templates). Whole numbers and true/false become numbers, anything else text.</value></data>
-  <data name="Ui.Audit.Run" xml:space="preserve"><value>Run the check</value></data>
+  <data name="Ui.Browsers.Help" xml:space="preserve"><value>Any policy can be set by its name: Chrome (chromeenterprise.google/policies), Edge (learn.microsoft.com/deployedge), Firefox (mozilla.github.io/policy-templates). Whole numbers and true/false are stored as numbers, anything else as text.</value></data>
+  <data name="Ui.Audit.Run" xml:space="preserve"><value>Run check</value></data>
   <data name="Ui.Audit.NotRun" xml:space="preserve"><value>The check has not been run yet.</value></data>
   <data name="Ui.Settings.Language" xml:space="preserve"><value>Language</value></data>
-  <data name="Ui.Settings.AutoHeader" xml:space="preserve"><value>Blocked automatically</value></data>
-  <data name="Ui.Settings.Auto.SystemDriveRoot" xml:space="preserve"><value>Folders created in the root of the system drive (C:\anything)</value></data>
-  <data name="Ui.Settings.Auto.WritableDriveRoots" xml:space="preserve"><value>Other drives that ordinary users can write to</value></data>
-  <data name="Ui.Settings.Auto.OtherDriveLetters" xml:space="preserve"><value>USB, network and future drives</value></data>
-  <data name="Ui.Settings.Auto.RecycleBins" xml:space="preserve"><value>Recycle Bins</value></data>
-  <data name="Ui.Settings.Auto.SystemWritableFolders" xml:space="preserve"><value>Writable folders inside Windows, ProgramData, Users\Public</value></data>
-  <data name="Ui.Settings.Auto.WritableProgramFolders" xml:space="preserve"><value>Program folders that ordinary users can change</value></data>
-  <data name="Ui.Settings.Store" xml:space="preserve"><value>Only administrators may install Store apps (whole PC)</value></data>
-  <data name="Ui.Settings.AuditHeader" xml:space="preserve"><value>What the security check expects (one per line)</value></data>
+  <data name="Ui.Settings.AutoHeader" xml:space="preserve"><value>Block programs in places the account can write to</value></data>
+  <data name="Ui.Settings.Auto.SystemDriveRoot" xml:space="preserve"><value>Folders in the root of the system drive (C:\…)</value></data>
+  <data name="Ui.Settings.Auto.WritableDriveRoots" xml:space="preserve"><value>Other drives that standard users can write to</value></data>
+  <data name="Ui.Settings.Auto.OtherDriveLetters" xml:space="preserve"><value>USB, network and newly added drives</value></data>
+  <data name="Ui.Settings.Auto.RecycleBins" xml:space="preserve"><value>Recycle Bin</value></data>
+  <data name="Ui.Settings.Auto.SystemWritableFolders" xml:space="preserve"><value>Writable folders inside Windows, ProgramData and Users\Public</value></data>
+  <data name="Ui.Settings.Auto.WritableProgramFolders" xml:space="preserve"><value>Program folders that standard users can change</value></data>
+  <data name="Ui.Settings.Store" xml:space="preserve"><value>Only administrators can install Microsoft Store apps</value></data>
   <data name="Ui.Settings.Admins" xml:space="preserve"><value>Administrators</value></data>
   <data name="Ui.Settings.PrivateFolders" xml:space="preserve"><value>Private folders</value></data>
   <data name="Ui.Settings.HiddenAccounts" xml:space="preserve"><value>Accounts hidden from the sign-in screen</value></data>
-  <data name="Ui.Settings.KnownRemoteServices" xml:space="preserve"><value>Known remote-access services</value></data>
-  <data name="Ui.Settings.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Ui.Settings.KnownRemoteServices" xml:space="preserve"><value>Known remote access services</value></data>
   <data name="Ui.Settings.BackupHeader" xml:space="preserve"><value>Backup</value></data>
-  <data name="Ui.Settings.Export" xml:space="preserve"><value>Export configuration…</value></data>
-  <data name="Ui.Settings.Import" xml:space="preserve"><value>Import configuration…</value></data>
-  <data name="Ui.Settings.ConfirmImport" xml:space="preserve"><value>Replace the whole configuration with the file and apply it?</value></data>
+  <data name="Ui.Settings.Export" xml:space="preserve"><value>Export settings…</value></data>
+  <data name="Ui.Settings.Import" xml:space="preserve"><value>Import settings…</value></data>
+  <data name="Ui.Settings.ConfirmImport" xml:space="preserve"><value>Replace all settings with the contents of the file and apply them?</value></data>
   <data name="AuditDetail.AccountMissing" xml:space="preserve"><value>There is no local account &apos;{0}&apos;.</value></data>
   <data name="AuditDetail.AccountIsAdmin" xml:space="preserve"><value>{0} is an administrator and cannot be restricted.</value></data>
   <data name="AuditDetail.NoUsers" xml:space="preserve"><value>No accounts are restricted yet.</value></data>
   <data name="AuditDetail.ServicesWritable" xml:space="preserve"><value>Ordinary users can change these service programs (a way to get SYSTEM rights): {0}</value></data>
   <data name="AuditDetail.ServicesOk" xml:space="preserve"><value>No service program or folder can be changed by ordinary users ({0} checked).</value></data>
-  <data name="AuditDetail.WritableOff" xml:space="preserve"><value>Automatic blocking of writable places is switched off (Restrictions page).</value></data>
+  <data name="AuditDetail.WritableOff" xml:space="preserve"><value>Automatic blocking of writable places is switched off (Windows restrictions page).</value></data>
   <data name="AuditDetail.WritableBlocked" xml:space="preserve"><value>Ordinary users can write here, so programs cannot start from these places (blocked automatically): {0}</value></data>
   <data name="AuditDetail.WritableNone" xml:space="preserve"><value>No program folder that ordinary users can change was found.</value></data>
   <data name="AuditDetail.AllowedWritable" xml:space="preserve"><value>Allowed but writable by ordinary users (a copied program would run): {0}</value></data>
@@ -317,25 +267,21 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="AuditDetail.RestrictionsMissing" xml:space="preserve"><value>Restrictions are NOT in place.</value></data>
   <data name="AuditDetail.RestrictionsOk" xml:space="preserve"><value>In place: {0} blocked and {1} allowed folders, {2} blocked files, {3} blocked names; the account cannot change them.</value></data>
   <data name="AuditDetail.RestrictionsUnlocked" xml:space="preserve"><value>In place ({0} blocked and {1} allowed folders, {2} files, {3} names), but the account COULD change them.</value></data>
-  <data name="Ui.Nav.Restrictions" xml:space="preserve"><value>Restrictions</value></data>
-  <data name="Ui.Restrictions.ToolsHeader" xml:space="preserve"><value>Windows tools the restricted accounts cannot use</value></data>
+  <data name="Ui.Nav.Restrictions" xml:space="preserve"><value>Windows restrictions</value></data>
+  <data name="Ui.Restrictions.ToolsHeader" xml:space="preserve"><value>Block Windows tools</value></data>
   <data name="Ui.Restrictions.CommandPrompt" xml:space="preserve"><value>Command prompt and .bat/.cmd scripts</value></data>
-  <data name="Ui.Restrictions.RegistryEditor" xml:space="preserve"><value>Registry editor</value></data>
+  <data name="Ui.Restrictions.RegistryEditor" xml:space="preserve"><value>Registry Editor</value></data>
   <data name="Ui.Restrictions.TaskManager" xml:space="preserve"><value>Task Manager</value></data>
   <data name="Ui.Restrictions.ControlPanel" xml:space="preserve"><value>Control Panel and Settings</value></data>
-  <data name="Ui.Restrictions.RunDialog" xml:space="preserve"><value>The Run dialog (Win+R)</value></data>
-  <data name="Ui.Restrictions.Autorun" xml:space="preserve"><value>Autorun from USB sticks and discs</value></data>
-  <data name="Ui.Restrictions.PasswordChange" xml:space="preserve"><value>Changing the account password (useful for a shared account)</value></data>
-  <data name="Ui.Restrictions.ToolsHelp" xml:space="preserve"><value>Command prompt, registry editor and PowerShell can be used to undo restrictions, so they are blocked by default. PowerShell and other tools are blocked by name on the Programs page (category &quot;system tools&quot;).</value></data>
-  <data name="Ui.Restrictions.InstallHeader" xml:space="preserve"><value>Installing programs</value></data>
-  <data name="Ui.Restrictions.InstallHelp" xml:space="preserve"><value>Store apps install for the account without a password; with this on, only administrators can install them.</value></data>
-  <data name="Ui.Restrictions.Save" xml:space="preserve"><value>Save and apply</value></data>
-  <data name="Ui.Audit.ExpectHeader" xml:space="preserve"><value>What the check expects (one per line)</value></data>
+  <data name="Ui.Restrictions.RunDialog" xml:space="preserve"><value>Run dialog (Win+R)</value></data>
+  <data name="Ui.Restrictions.Autorun" xml:space="preserve"><value>AutoPlay from USB drives and discs</value></data>
+  <data name="Ui.Restrictions.PasswordChange" xml:space="preserve"><value>Changing the account password</value></data>
+  <data name="Ui.Restrictions.ToolsHelp" xml:space="preserve"><value>The command prompt, Registry Editor and PowerShell could be used to undo restrictions, so they are blocked by default. PowerShell and similar tools are blocked by name in Apps and games.</value></data>
+  <data name="Ui.Restrictions.InstallHelp" xml:space="preserve"><value>Store apps install without an administrator password. With this switch on, only administrators can install them. Applies to every account on this PC.</value></data>
+  <data name="Ui.Audit.ExpectHeader" xml:space="preserve"><value>Expected settings (one per line)</value></data>
   <data name="Ui.Audit.ExpectSave" xml:space="preserve"><value>Save</value></data>
-  <data name="Ui.Settings.AboutHeader" xml:space="preserve"><value>About</value></data>
-  <data name="Ui.Settings.Version" xml:space="preserve"><value>Version</value></data>
-  <data name="Ui.Settings.DataFolder" xml:space="preserve"><value>Settings are kept in</value></data>
-  <data name="Ui.Settings.LanguageHelp" xml:space="preserve"><value>Applies to this panel only; uc.exe follows the Windows language (or --lang).</value></data>
+  <data name="Ui.Settings.DataFolder" xml:space="preserve"><value>Settings folder</value></data>
+  <data name="Ui.Settings.LanguageHelp" xml:space="preserve"><value>Applies to this window only. uc.exe follows the Windows display language (or --lang).</value></data>
   <data name="Error.InstallSourceIncomplete" xml:space="preserve"><value>{0} does not contain {1}. Run uc install from the folder with the published programs.</value></data>
   <data name="Error.InstallFolderNotSafe" xml:space="preserve"><value>{0} can be changed by ordinary users ({1}); fix its permissions first.</value></data>
   <data name="Error.InstallFailed" xml:space="preserve"><value>Installation step failed: {0}</value></data>
@@ -343,7 +289,7 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Install.Copied" xml:space="preserve"><value>Programs copied to {0}.</value></data>
   <data name="Install.ServiceCreated" xml:space="preserve"><value>Service registered: starts with Windows, runs as SYSTEM, restarts by itself after a failure.</value></data>
   <data name="Install.ServiceUpdated" xml:space="preserve"><value>Service updated.</value></data>
-  <data name="Install.PathAdded" xml:space="preserve"><value>{0} added to PATH: &quot;uc&quot; works in every new console.</value></data>
+  <data name="Install.PathAdded" xml:space="preserve"><value>{0} added to PATH: "uc" works in every new console.</value></data>
   <data name="Install.Shortcuts" xml:space="preserve"><value>Shortcuts created in the Start menu and on the desktop.</value></data>
   <data name="Install.Started" xml:space="preserve"><value>Service started.</value></data>
   <data name="Install.ServiceRemoved" xml:space="preserve"><value>Service removed.</value></data>
@@ -355,51 +301,34 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Install.LegacyTaskRemoved" xml:space="preserve"><value>Scheduled task of the PowerShell version removed: {0}.</value></data>
   <data name="Install.LegacyFilesRemoved" xml:space="preserve"><value>Files of the PowerShell version removed.</value></data>
   <data name="Cli.InstallWaiting" xml:space="preserve"><value>Waiting for the service to answer…</value></data>
-  <data name="Cli.InstallDone" xml:space="preserve"><value>UseControl is installed and running. Open &quot;UseControl&quot; from the Start menu, or run: uc status</value></data>
-  <data name="Cli.InstallNoAnswer" xml:space="preserve"><value>The service started but does not answer yet. Check &quot;uc status&quot; in a minute, or the Windows event log (source UseControl).</value></data>
+  <data name="Cli.InstallDone" xml:space="preserve"><value>UseControl is installed and running. Open "UseControl" from the Start menu, or run: uc status</value></data>
+  <data name="Cli.InstallNoAnswer" xml:space="preserve"><value>The service started but does not answer yet. Check "uc status" in a minute, or the Windows event log (source UseControl).</value></data>
   <data name="Cli.ConfirmUninstall" xml:space="preserve"><value>Remove UseControl and lift all restrictions? Type YES to continue</value></data>
   <data name="Cli.ConfirmUninstallKeep" xml:space="preserve"><value>Remove UseControl but leave the restrictions in place? Type YES to continue</value></data>
   <data name="Cli.UninstallLiftFailed" xml:space="preserve"><value>Could not lift the restrictions through the service: {0}. Uninstall stopped; use --keep-restrictions to remove UseControl anyway.</value></data>
   <data name="Cli.UninstallDone" xml:space="preserve"><value>UseControl is removed.</value></data>
-  <data name="Ui.Accounts.IsRestricted" xml:space="preserve"><value>restricted</value></data>
-  <data name="Ui.Accounts.NotRestricted" xml:space="preserve"><value>not restricted</value></data>
-  <data name="Ui.Accounts.Missing" xml:space="preserve"><value>not found on this PC</value></data>
-  <data name="Ui.Accounts.Empty" xml:space="preserve"><value>There are no standard accounts on this PC yet. Create one in Windows Settings &gt; Accounts, sign in to it once, then come back here.</value></data>
-  <data name="Ui.Column.Kind" xml:space="preserve"><value>Blocked by</value></data>
-  <data name="Ui.Block.Kind.Program" xml:space="preserve"><value>file and name</value></data>
-  <data name="Ui.Block.Kind.Name" xml:space="preserve"><value>name</value></data>
-  <data name="Ui.Block.Kind.Folder" xml:space="preserve"><value>folder</value></data>
-  <data name="Ui.Block.AddProgram" xml:space="preserve"><value>Block a program…</value></data>
-  <data name="Ui.Block.AddFolder" xml:space="preserve"><value>Block a folder…</value></data>
-  <data name="Ui.Block.AddName" xml:space="preserve"><value>Block by name</value></data>
+  <data name="Ui.Accounts.IsRestricted" xml:space="preserve"><value>Restricted</value></data>
+  <data name="Ui.Accounts.NotRestricted" xml:space="preserve"><value>Not restricted</value></data>
+  <data name="Ui.Accounts.Missing" xml:space="preserve"><value>Not found on this PC</value></data>
+  <data name="Ui.Accounts.Empty" xml:space="preserve"><value>This PC has no standard accounts yet. Create one in Windows Settings › Accounts, sign in to it once, then return here.</value></data>
   <data name="Ui.Block.Empty" xml:space="preserve"><value>Nothing here yet.</value></data>
-  <data name="Ui.Programs.Header" xml:space="preserve"><value>Blocked programs</value></data>
-  <data name="Ui.Games.TimeHeader" xml:space="preserve"><value>Games time</value></data>
-  <data name="Ui.Games.ListHeader" xml:space="preserve"><value>Blocked games</value></data>
-  <data name="Ui.Games.AddGame" xml:space="preserve"><value>Add a game…</value></data>
-  <data name="Ui.Games.AddGameFolder" xml:space="preserve"><value>Add a games folder…</value></data>
-  <data name="Ui.Games.PickGame" xml:space="preserve"><value>The game&apos;s program (.exe)</value></data>
-  <data name="Ui.Games.PickFolder" xml:space="preserve"><value>A folder with games (everything inside is blocked)</value></data>
-  <data name="Ui.Restrictions.AllowedHeader" xml:space="preserve"><value>Exceptions: program folders that run inside blocked places</value></data>
-  <data name="Ui.Restrictions.AddAllowed" xml:space="preserve"><value>Add an exception…</value></data>
-  <data name="Ui.Restrictions.AllowedHelp" xml:space="preserve"><value>For example a school program installed in C:\Tools: without an exception it would not start, because the root of drive C: is blocked.</value></data>
-  <data name="Ui.Access.Intro" xml:space="preserve"><value>Keep restricted accounts out of private files and folders, or let them only look.</value></data>
+  <data name="Ui.Games.TimeHeader" xml:space="preserve"><value>Game time</value></data>
   <data name="Ui.Access.Preset" xml:space="preserve"><value>Access</value></data>
-  <data name="Ui.Access.Preset.NoAccess" xml:space="preserve"><value>No access at all</value></data>
-  <data name="Ui.Access.Preset.ReadOnly" xml:space="preserve"><value>Can open, cannot change or delete</value></data>
-  <data name="Ui.Access.Preset.NoRun" xml:space="preserve"><value>Cannot start programs from here</value></data>
+  <data name="Ui.Access.Preset.NoAccess" xml:space="preserve"><value>No access</value></data>
+  <data name="Ui.Access.Preset.ReadOnly" xml:space="preserve"><value>Read only</value></data>
+  <data name="Ui.Access.Preset.NoRun" xml:space="preserve"><value>No running programs</value></data>
   <data name="Ui.Access.Preset.FullAllow" xml:space="preserve"><value>Full access</value></data>
-  <data name="Ui.Access.ForAccounts" xml:space="preserve"><value>For</value></data>
-  <data name="Error.PresetNotFound" xml:space="preserve"><value>There is no preset &apos;{0}&apos;.</value></data>
-  <data name="Error.InvalidPresetName" xml:space="preserve"><value>&apos;{0}&apos; cannot be a preset name (1 to 40 characters).</value></data>
-  <data name="Error.PresetExists" xml:space="preserve"><value>A preset &apos;{0}&apos; already exists.</value></data>
-  <data name="Error.PresetRequired" xml:space="preserve"><value>Several presets exist ({0}); choose one with --preset &lt;name&gt;.</value></data>
-  <data name="Error.AccountInTwoPresets" xml:space="preserve"><value>{0} is in two presets; an account can be in one only.</value></data>
+  <data name="Ui.Access.ForAccounts" xml:space="preserve"><value>Accounts</value></data>
+  <data name="Error.PresetNotFound" xml:space="preserve"><value>There is no profile &apos;{0}&apos;.</value></data>
+  <data name="Error.InvalidPresetName" xml:space="preserve"><value>&apos;{0}&apos; cannot be a profile name (1 to 40 characters).</value></data>
+  <data name="Error.PresetExists" xml:space="preserve"><value>A profile &apos;{0}&apos; already exists.</value></data>
+  <data name="Error.PresetRequired" xml:space="preserve"><value>Several profiles exist ({0}); choose one with --profile &lt;name&gt;.</value></data>
+  <data name="Error.AccountInTwoPresets" xml:space="preserve"><value>{0} is in two profiles; an account can be in one only.</value></data>
   <data name="Error.InvalidTime" xml:space="preserve"><value>&apos;{0}&apos; is not a time (for example 16:00).</value></data>
   <data name="Error.WindowEndsBeforeStart" xml:space="preserve"><value>The time window {0}–{1} ends before it starts.</value></data>
   <data name="Error.NoDays" xml:space="preserve"><value>Choose at least one day.</value></data>
   <data name="Error.NotRestricted" xml:space="preserve"><value>{0} is not a restricted account.</value></data>
-  <data name="Error.NoPresets" xml:space="preserve"><value>There are no presets yet: restrict an account first (uc users add &lt;name&gt;).</value></data>
+  <data name="Error.NoPresets" xml:space="preserve"><value>There are no profiles yet: restrict an account first (uc users add &lt;name&gt;).</value></data>
   <data name="Notify.Title" xml:space="preserve"><value>UseControl</value></data>
   <data name="Notify.GamesEndSoon" xml:space="preserve"><value>Games time ends in {0} min. Save your game.</value></data>
   <data name="Notify.GamesOver" xml:space="preserve"><value>Games time is over.</value></data>
@@ -414,7 +343,7 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Games.State.LimitReached" xml:space="preserve"><value>today&apos;s limit is used up</value></data>
   <data name="Games.State.LimitReachedNext" xml:space="preserve"><value>today&apos;s limit is used up, next time {0}</value></data>
   <data name="Games.State.OutsideSchedule" xml:space="preserve"><value>blocked, next time {0}</value></data>
-  <data name="Games.State.NoWindows" xml:space="preserve"><value>blocked: the schedule has no time yet</value></data>
+  <data name="Games.State.NoWindows" xml:space="preserve"><value>blocked: the schedule is empty</value></data>
   <data name="Games.Minutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Games.Hours" xml:space="preserve"><value>{0} h</value></data>
   <data name="Games.HoursMinutes" xml:space="preserve"><value>{0} h {1} min</value></data>
@@ -423,52 +352,89 @@ Options: --json (status, preview, audit, games find), --lang en|uk</value></data
   <data name="Games.EveryDay" xml:space="preserve"><value>every day</value></data>
   <data name="Games.UpTo" xml:space="preserve"><value>up to {0}</value></data>
   <data name="Cli.UserInPreset" xml:space="preserve"><value>{0} ({1})</value></data>
-  <data name="Cli.PresetsNone" xml:space="preserve"><value>No presets yet: uc users add &lt;name&gt; creates one for the account.</value></data>
+  <data name="Cli.PresetsNone" xml:space="preserve"><value>No profiles yet: uc users add &lt;name&gt; creates one for the account.</value></data>
   <data name="Cli.PresetLine" xml:space="preserve"><value>{0}: accounts {1}; games: {2}</value></data>
-  <data name="Cli.GamesMode.Manual" xml:space="preserve"><value>when an administrator allows</value></data>
-  <data name="Cli.GamesMode.Schedule" xml:space="preserve"><value>by the schedule</value></data>
-  <data name="Cli.ScheduleHeader" xml:space="preserve"><value>Preset {0}, games {1}:</value></data>
+  <data name="Cli.ScheduleHeader" xml:space="preserve"><value>Games schedule of the profile {0}:</value></data>
   <data name="Cli.GamesAccount" xml:space="preserve"><value>[{0}] games {1}; played today {2} {3}</value></data>
   <data name="Cli.GamesPlaying" xml:space="preserve"><value>(playing now)</value></data>
   <data name="Ui.Ok" xml:space="preserve"><value>OK</value></data>
   <data name="Ui.Cancel" xml:space="preserve"><value>Cancel</value></data>
-  <data name="Ui.Preset.Label" xml:space="preserve"><value>Preset</value></data>
-  <data name="Ui.Preset.New" xml:space="preserve"><value>New preset…</value></data>
-  <data name="Ui.Preset.Rename" xml:space="preserve"><value>Rename</value></data>
-  <data name="Ui.Preset.Delete" xml:space="preserve"><value>Delete</value></data>
-  <data name="Ui.Preset.For" xml:space="preserve"><value>For: {0}</value></data>
-  <data name="Ui.Preset.NoAccounts" xml:space="preserve"><value>No account uses this preset yet: choose it on the Accounts page.</value></data>
-  <data name="Ui.Preset.NoneYet" xml:space="preserve"><value>There are no presets yet: restrict an account on the Accounts page first.</value></data>
-  <data name="Ui.Preset.NewPrompt" xml:space="preserve"><value>Name of the new preset (it starts as a copy of the one shown now):</value></data>
-  <data name="Ui.Preset.RenamePrompt" xml:space="preserve"><value>New name of the preset {0}:</value></data>
-  <data name="Ui.Preset.ConfirmDelete" xml:space="preserve"><value>Delete the preset {0}?</value></data>
-  <data name="Ui.Preset.ConfirmDeleteAccounts" xml:space="preserve"><value>Delete the preset {0}? {1} will no longer be restricted.</value></data>
-  <data name="Ui.Accounts.OwnPreset" xml:space="preserve"><value>Own: {0} (new)</value></data>
-  <data name="Ui.Accounts.PresetHelp" xml:space="preserve"><value>A preset is the set of rules an account gets: Windows tools, games and their time, programs, browsers. Each account can have its own preset, or several accounts can share one. Change a preset on the Restrictions, Games, Programs and Browsers pages.</value></data>
-  <data name="Ui.Accounts.WholePc" xml:space="preserve"><value>For the whole PC</value></data>
-  <data name="Ui.Restrictions.AutoHelp" xml:space="preserve"><value>Programs downloaded or copied by the account do not start from these places. Installers that need administrator rights ask for the password anyway.</value></data>
+  <data name="Ui.Preset.Label" xml:space="preserve"><value>Profile</value></data>
+  <data name="Ui.Preset.New" xml:space="preserve"><value>New profile</value></data>
+  <data name="Ui.Preset.Rename" xml:space="preserve"><value>Rename profile</value></data>
+  <data name="Ui.Preset.Delete" xml:space="preserve"><value>Delete profile</value></data>
+  <data name="Ui.Preset.For" xml:space="preserve"><value>Applies to: {0}</value></data>
+  <data name="Ui.Preset.NoAccounts" xml:space="preserve"><value>Not assigned to any account yet. Assign it on the Accounts page.</value></data>
+  <data name="Ui.Preset.NoneYet" xml:space="preserve"><value>No profiles yet: restrict an account on the Accounts page first.</value></data>
+  <data name="Ui.Preset.NewPrompt" xml:space="preserve"><value>Name of the new profile (it starts as a copy of the current one):</value></data>
+  <data name="Ui.Preset.RenamePrompt" xml:space="preserve"><value>New name for the profile {0}:</value></data>
+  <data name="Ui.Preset.ConfirmDelete" xml:space="preserve"><value>Delete the profile {0}?</value></data>
+  <data name="Ui.Preset.ConfirmDeleteAccounts" xml:space="preserve"><value>Delete the profile {0}? {1} will no longer be restricted.</value></data>
+  <data name="Ui.Accounts.OwnPreset" xml:space="preserve"><value>New profile: {0}</value></data>
+  <data name="Ui.Accounts.WholePc" xml:space="preserve"><value>Whole PC</value></data>
+  <data name="Ui.Restrictions.AutoHelp" xml:space="preserve"><value>Programs the account downloads or copies cannot start from these places. Installers that need administrator rights still ask for a password. Exceptions are set in Apps and games › Always allowed.</value></data>
   <data name="Ui.Settings.ThemeHeader" xml:space="preserve"><value>Theme</value></data>
-  <data name="Ui.Settings.Theme.System" xml:space="preserve"><value>Like Windows</value></data>
+  <data name="Ui.Settings.Theme.System" xml:space="preserve"><value>Use Windows setting</value></data>
   <data name="Ui.Settings.Theme.Light" xml:space="preserve"><value>Light</value></data>
   <data name="Ui.Settings.Theme.Dark" xml:space="preserve"><value>Dark</value></data>
-  <data name="Ui.Status.GamesHeader" xml:space="preserve"><value>Games now</value></data>
-  <data name="Ui.Games.NowHeader" xml:space="preserve"><value>Now</value></data>
   <data name="Ui.Games.Locked" xml:space="preserve"><value>{0}: games are blocked until the end of the day.</value></data>
-  <data name="Ui.Games.PlayedToday" xml:space="preserve"><value>played today: {0}</value></data>
-  <data name="Ui.Games.PlayingNow" xml:space="preserve"><value>playing now</value></data>
-  <data name="Ui.Games.CountPlay" xml:space="preserve"><value>of play (the timer runs only while a game runs)</value></data>
-  <data name="Ui.Games.CountClock" xml:space="preserve"><value>from now on</value></data>
-  <data name="Ui.Games.AllowHelp" xml:space="preserve"><value>&quot;Block&quot; takes back the given time and, with a schedule, blocks games until the end of the day.</value></data>
-  <data name="Ui.Games.WhenHeader" xml:space="preserve"><value>When games are allowed</value></data>
-  <data name="Ui.Games.ModeManual" xml:space="preserve"><value>Only when I allow them</value></data>
-  <data name="Ui.Games.ModeSchedule" xml:space="preserve"><value>By a schedule (and when I allow them)</value></data>
-  <data name="Ui.Games.NoWindows" xml:space="preserve"><value>No time yet: add days and hours below.</value></data>
-  <data name="Ui.Games.AddWindowHeader" xml:space="preserve"><value>Add time:</value></data>
-  <data name="Ui.Games.From" xml:space="preserve"><value>from</value></data>
-  <data name="Ui.Games.To" xml:space="preserve"><value>to</value></data>
-  <data name="Ui.Games.Limit" xml:space="preserve"><value>at most</value></data>
-  <data name="Ui.Games.NoLimit" xml:space="preserve"><value>the whole time</value></data>
-  <data name="Ui.Games.AddWindow" xml:space="preserve"><value>Add</value></data>
-  <data name="Ui.Games.ScheduleHelp" xml:space="preserve"><value>The limit counts only the time a game actually runs, over the whole day. For example: Mon–Fri 16:00–20:00, at most 1 h; Sat–Sun 10:00–21:00, at most 3 h.</value></data>
-  <data name="Ui.Games.CloseWhenOver" xml:space="preserve"><value>Close games when games time is over (after a warning, a minute later)</value></data>
+  <data name="Ui.Games.PlayedToday" xml:space="preserve"><value>Played today: {0}</value></data>
+  <data name="Ui.Games.PlayingNow" xml:space="preserve"><value>Playing now</value></data>
+  <data name="Ui.Games.WhenHeader" xml:space="preserve"><value>Schedule</value></data>
+  <data name="Ui.Games.NoWindows" xml:space="preserve"><value>The schedule is empty, so games are blocked.</value></data>
+  <data name="Ui.Games.Limit" xml:space="preserve"><value>Limit</value></data>
+  <data name="Ui.Games.NoLimit" xml:space="preserve"><value>No limit</value></data>
+  <data name="Ui.Games.AddWindow" xml:space="preserve"><value>+ Add time</value></data>
+  <data name="Ui.Games.ScheduleHelp" xml:space="preserve"><value>Games run only during these hours. The limit counts only the time a game is actually running, over the whole day. For example: Mon–Fri 16:00–20:00, limit 1 h; Sat–Sun 10:00–21:00, limit 3 h.</value></data>
+  <data name="Ui.Games.CloseWhenOver" xml:space="preserve"><value>Close games when time is up (one minute after the warning)</value></data>
+  <data name="Ui.Games.Unlock" xml:space="preserve"><value>Back to schedule</value></data>
+  <data name="Ui.Games.Unlocked" xml:space="preserve"><value>{0}: the schedule applies again.</value></data>
+  <data name="Ui.AdminOnly" xml:space="preserve"><value>Only administrators can use UseControl.
+
+Restart it as administrator? Windows will ask for an administrator password.</value></data>
+  <data name="Ui.Nav.Status.Subtitle" xml:space="preserve"><value>Protection status of this PC</value></data>
+  <data name="Ui.Nav.Accounts.Subtitle" xml:space="preserve"><value>Which accounts are restricted, and by which profile</value></data>
+  <data name="Ui.Nav.Apps" xml:space="preserve"><value>Apps and games</value></data>
+  <data name="Ui.Nav.FileAccess.Subtitle" xml:space="preserve"><value>Keep private files and folders away from restricted accounts</value></data>
+  <data name="Ui.Nav.Audit.Subtitle" xml:space="preserve"><value>Weak spots a restricted account could use to get around the restrictions</value></data>
+  <data name="Ui.Nav.ProfileSection" xml:space="preserve"><value>PROFILE</value></data>
+  <data name="Ui.Nav.ComputerSection" xml:space="preserve"><value>THIS PC</value></data>
+  <data name="Ui.Status.Details" xml:space="preserve"><value>Service {0} · last applied {1}</value></data>
+  <data name="Ui.Status.Applied" xml:space="preserve"><value>Restrictions are in place</value></data>
+  <data name="Ui.Status.NoAccounts" xml:space="preserve"><value>No accounts are restricted yet. Choose one on the Accounts page.</value></data>
+  <data name="Ui.Accounts.Header" xml:space="preserve"><value>Accounts on this PC</value></data>
+  <data name="Ui.Games.FindHelp" xml:space="preserve"><value>Looks for game folders (Steam, Epic, GOG and others) that are not in the list yet.</value></data>
+  <data name="Ui.Apps.ListHeader" xml:space="preserve"><value>Apps and games</value></data>
+  <data name="Ui.Apps.Help" xml:space="preserve"><value>Each entry is a program, a program name or a folder. “Game” entries run only during game time; “Always blocked” entries never run.
+
+A program is recognised by its content, so renaming, moving or copying it does not help, and its name blocks newer versions too. A folder covers every program inside it.</value></data>
+  <data name="Ui.Apps.AddAs" xml:space="preserve"><value>Add as</value></data>
+  <data name="Ui.Apps.AddPrograms" xml:space="preserve"><value>Programs…</value></data>
+  <data name="Ui.Apps.AddFolders" xml:space="preserve"><value>Folders…</value></data>
+  <data name="Ui.Apps.AddNames" xml:space="preserve"><value>By name…</value></data>
+  <data name="Ui.Apps.NamePrompt" xml:space="preserve"><value>Program file names, separated by commas (for example game.exe, launcher.exe):</value></data>
+  <data name="Ui.Apps.PickPrograms" xml:space="preserve"><value>Choose programs (you can select several)</value></data>
+  <data name="Ui.Apps.PickFolders" xml:space="preserve"><value>Choose folders: the rule applies to every program in them (you can select several)</value></data>
+  <data name="Ui.Apps.ProgramsFilter" xml:space="preserve"><value>Programs</value></data>
+  <data name="Ui.Apps.Rule.Game" xml:space="preserve"><value>Game, by schedule</value></data>
+  <data name="Ui.Apps.Rule.Blocked" xml:space="preserve"><value>Always blocked</value></data>
+  <data name="Ui.Apps.Filter.All" xml:space="preserve"><value>All</value></data>
+  <data name="Ui.Apps.Filter.Games" xml:space="preserve"><value>Games</value></data>
+  <data name="Ui.Apps.Filter.Blocked" xml:space="preserve"><value>Blocked</value></data>
+  <data name="Ui.Apps.Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Ui.Apps.Kind.Program" xml:space="preserve"><value>Program, by content and name</value></data>
+  <data name="Ui.Apps.Kind.Name" xml:space="preserve"><value>Program name</value></data>
+  <data name="Ui.Apps.Kind.Folder" xml:space="preserve"><value>Folder</value></data>
+  <data name="Ui.Apps.AllowedHeader" xml:space="preserve"><value>Always allowed</value></data>
+  <data name="Ui.Apps.AllowedHelp" xml:space="preserve"><value>Program folders that run even inside a blocked place. For example, a school program installed in C:\Tools would not start without this exception, because the root of drive C: is blocked.</value></data>
+  <data name="Ui.Apps.AddAllowed" xml:space="preserve"><value>Add folders…</value></data>
+  <data name="Ui.Apps.PickAllowFolders" xml:space="preserve"><value>Program folders that should always run (you can select several)</value></data>
+  <data name="Ui.Access.NewHeader" xml:space="preserve"><value>New rule</value></data>
+  <data name="Ui.Access.Folders" xml:space="preserve"><value>Add folders…</value></data>
+  <data name="Ui.Access.Files" xml:space="preserve"><value>Add files…</value></data>
+  <data name="Ui.Access.PickFolders" xml:space="preserve"><value>Folders to protect (you can select several)</value></data>
+  <data name="Ui.Access.PickFiles" xml:space="preserve"><value>Files to protect (you can select several)</value></data>
+  <data name="Ui.Access.ChooseAccounts" xml:space="preserve"><value>Tick at least one account.</value></data>
+  <data name="Ui.Browsers.ExtensionsHelp" xml:space="preserve"><value>When other extensions are blocked, only the extensions listed here can be installed. The ID is the 32-letter code at the end of the extension&apos;s store address.</value></data>
+  <data name="Ui.Browsers.PolicyName" xml:space="preserve"><value>Policy name</value></data>
 </root>

@@ -86,63 +86,86 @@ public sealed class ControllerTests : IDisposable
         Assert.Single(Engine.Applies);
     }
 
-    [Fact]
-    public async Task Games_allowed_from_now_end_by_themselves()
+    /// <summary>Restricts "kid" with a schedule: every day 12:30–14:00 (now is Friday 12:00), optionally with a limit.</summary>
+    private async Task<UcConfig> KidWithSchedule(int limit = 0, string from = "12:30", string to = "14:00")
     {
-        await WithUsers("kid");
-        var status = await C.AllowGamesAsync("kid", 1.5, countPlayOnly: false, default);
-        Assert.Equal(_env.Time.Now.AddHours(1.5), status.Games.Single().Until);
-        Assert.True(GamesAllowed("kid"));
-
-        await Minutes(89);
-        Assert.Single(Engine.Applies);   // still games time, nothing re-applied
-
-        await Minutes(1);
-        Assert.False(GamesAllowed("kid"));
-        Assert.Null(C.State.Games["kid"].AllowedUntil);
+        var c = await WithUsers("kid");
+        ConfigEditor.AddGamesWindow(c.Presets[0], Enum.GetValues<DayOfWeek>(), from, to, limit);
+        await C.SetConfigAsync(c, default);
+        return c;
     }
 
     [Fact]
-    public async Task Play_time_runs_only_while_a_game_runs_then_warns_blocks_and_closes()
+    public async Task Games_run_only_in_the_schedule_with_a_warning_before_the_end_and_closing_after_it()
     {
-        await WithUsers("kid");
-        await C.AllowGamesAsync("kid", 1, countPlayOnly: true, default);
+        await KidWithSchedule();
+        Assert.False(GamesAllowed("kid"));
+        await Minutes(30);   // 12:30
         Assert.True(GamesAllowed("kid"));
-
-        await Minutes(180);   // nobody plays: the hour is still there
-        Assert.True(GamesAllowed("kid"));
-        Assert.Equal(60, C.State.Games["kid"].PlayMinutesLeft);
 
         Engine.Running.Add(FakeEngine.Game("kid"));
-        await Minutes(54);
+        await Minutes(84);   // 13:54
         Assert.Empty(Engine.Messages);
-        await Minutes(1);   // 5 minutes left
+        await Minutes(1);    // 13:55: five minutes left
         Assert.Equal([("kid", "Notify.GamesEndSoon")], Engine.Messages);
         await Minutes(4);
         Assert.Single(Engine.Messages);   // warned once
 
-        await Minutes(1);   // the hour is used up
+        await Minutes(1);    // 14:00: over
         Assert.False(GamesAllowed("kid"));
         Assert.Equal(("kid", "Notify.GamesOverClosing"), Engine.Messages[^1]);
         Assert.Empty(Engine.Closed);
-
-        await Minutes(1);   // a minute later the game is closed
+        await Minutes(1);    // a minute later the game is closed
         Assert.Single(Engine.Closed);
-        Assert.Equal(61, C.State.Games["kid"].PlayedToday);   // the minute before closing was played too
+        Assert.Equal(91, C.State.Games["kid"].PlayedToday);   // 90 in the window and the minute before closing
     }
 
     [Fact]
-    public async Task Games_are_not_closed_when_the_preset_says_so()
+    public async Task Games_are_not_closed_when_the_profile_says_so()
     {
-        var c = await WithUsers("kid");
+        var c = await KidWithSchedule(from: "12:00", to: "12:10");
         c.Presets[0].Games.CloseGamesWhenOver = false;
         await C.SetConfigAsync(c, default);
-        await C.AllowGamesAsync("kid", 0.25, countPlayOnly: true, default);
         Engine.Running.Add(FakeEngine.Game("kid"));
-        await Minutes(20);
+        await Minutes(12);
         Assert.False(GamesAllowed("kid"));
         Assert.Equal(("kid", "Notify.GamesOver"), Engine.Messages[^1]);
         Assert.Empty(Engine.Closed);
+    }
+
+    [Fact]
+    public async Task Each_account_has_its_own_schedule_and_lock()
+    {
+        var c = await WithUsers("kid", "teen");
+        ConfigEditor.AddGamesWindow(c.GetPreset("teen"), Enum.GetValues<DayOfWeek>(), "11:00", "23:00", 0);
+        await C.SetConfigAsync(c, default);
+        Assert.True(GamesAllowed("teen"));
+        Assert.False(GamesAllowed("kid"));
+
+        await C.LockGamesAsync("teen", default);
+        Assert.False(GamesAllowed("teen"));
+        Assert.Equal(GamesReason.Locked, (await C.GetStatusAsync(default)).Games.Single(g => g.User == "teen").Reason);
+        await C.UnlockGamesAsync(null, default);
+        Assert.True(GamesAllowed("teen"));
+
+        var e = await Assert.ThrowsAsync<UcException>(() => C.LockGamesAsync("nobody", default));
+        Assert.Equal(ErrorCodes.NotRestricted, e.Code);
+    }
+
+    [Fact]
+    public async Task Played_time_and_a_lock_survive_a_restart()
+    {
+        await KidWithSchedule(limit: 60);
+        Engine.Running.Add(FakeEngine.Game("kid"));
+        await Minutes(40);   // 30 minutes of them in the window
+        await C.LockGamesAsync("kid", default);
+        var restarted = _env.Restart();
+        Engine.Applies.Clear();
+        await restarted.InitializeAsync(default);
+        Assert.True(restarted.State.Games["kid"].PlayedToday >= 40);
+        Assert.NotNull(restarted.State.Games["kid"].LockedUntil);
+        Assert.Empty(Engine.Applies.Single().Games);
+        Assert.Equal(["kid"], restarted.Config.Users);
     }
 
     [Fact]
@@ -166,26 +189,7 @@ public sealed class ControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task Each_account_has_its_own_games_time()
-    {
-        await WithUsers("kid", "teen");
-        await C.AllowGamesAsync("teen", 2, countPlayOnly: false, default);
-        Assert.True(GamesAllowed("teen"));
-        Assert.False(GamesAllowed("kid"));
-
-        await C.AllowGamesAsync(null, 1, countPlayOnly: false, default);   // everyone
-        Assert.True(GamesAllowed("kid"));
-
-        await C.LockGamesAsync("teen", default);
-        Assert.False(GamesAllowed("teen"));
-        Assert.True(GamesAllowed("kid"));
-
-        var e = await Assert.ThrowsAsync<UcException>(() => C.AllowGamesAsync("nobody", 1, true, default));
-        Assert.Equal(ErrorCodes.NotRestricted, e.Code);
-    }
-
-    [Fact]
-    public async Task Lock_inside_the_schedule_lasts_until_the_end_of_the_day()
+    public async Task Lock_lasts_until_the_end_of_the_day()
     {
         var c = await WithUsers("kid");
         ConfigEditor.AddGamesWindow(c.Presets[0], [DayOfWeek.Friday, DayOfWeek.Saturday], "10:00", "22:00", 0);
@@ -203,18 +207,6 @@ public sealed class ControllerTests : IDisposable
         _env.Time.Now = new DateTimeOffset(2026, 11, 7, 10, 0, 0, TimeSpan.Zero);   // Saturday
         await C.TickAsync(default);
         Assert.True(GamesAllowed("kid"));
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(0.1)]
-    [InlineData(25)]
-    [InlineData(double.NaN)]
-    public async Task Games_hours_out_of_range_are_refused(double hours)
-    {
-        await WithUsers("kid");
-        var e = await Assert.ThrowsAsync<UcException>(() => C.AllowGamesAsync(null, hours, true, default));
-        Assert.Equal(ErrorCodes.HoursOutOfRange, e.Code);
     }
 
     [Fact]
@@ -248,35 +240,6 @@ public sealed class ControllerTests : IDisposable
         _env.Time.Advance(TimeSpan.FromHours(6));
         await C.TickAsync(default);
         Assert.Single(Engine.Applies);
-    }
-
-    [Fact]
-    public async Task State_survives_a_restart_and_expired_games_time_is_dropped()
-    {
-        await WithUsers("kid");
-        await C.AllowGamesAsync("kid", 1, countPlayOnly: false, default);
-        await C.SuspendAsync(default);
-        await C.ApplyAsync(default);
-        await C.AllowGamesAsync("kid", 1, countPlayOnly: false, default);
-
-        _env.Time.Advance(TimeSpan.FromHours(2));
-        var restarted = _env.Restart();
-        Engine.Applies.Clear();
-        await restarted.InitializeAsync(default);
-        Assert.Null(restarted.State.Games["kid"].AllowedUntil);
-        Assert.Empty(Engine.Applies.Single().Games);
-        Assert.Equal(["kid"], restarted.Config.Users);
-    }
-
-    [Fact]
-    public async Task Given_play_time_survives_a_restart()
-    {
-        await WithUsers("kid");
-        await C.AllowGamesAsync("kid", 2, countPlayOnly: true, default);
-        var restarted = _env.Restart();
-        await restarted.InitializeAsync(default);
-        Assert.Equal(120, restarted.State.Games["kid"].PlayMinutesLeft);
-        Assert.True(GamesAllowed("kid"));
     }
 
     [Fact]

@@ -3,11 +3,9 @@ using System.Globalization;
 namespace UseControl.Core.Games;
 
 /// <summary>
-/// Decides whether an account may play now, and counts play time. Pure logic: the service passes the
-/// time and the time zone, so every rule is tested without waiting.
-/// <para>Order: an administrator's "allow until" wins; then the schedule (unless locked for the day);
-/// then minutes of play an administrator gave. Play is counted against the schedule's daily limit
-/// first and against given minutes only outside the schedule.</para>
+/// Decides whether an account may play now, and counts play time. Games are allowed only in the time
+/// windows of the schedule, up to the daily limit; an administrator can block them for the rest of the
+/// day. Pure logic: the service passes the time and the time zone, so every rule is tested without waiting.
 /// </summary>
 public static class GamesClock
 {
@@ -17,50 +15,31 @@ public static class GamesClock
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(zone);
 
-        if (state.AllowedUntil is { } until && until > now) return new(true, GamesReason.Allowed, until, null, null);
-
         var local = TimeZoneInfo.ConvertTime(now, zone);
         var played = state.Day == DayKey(local) ? state.PlayedToday : 0;
-        var locked = state.LockedUntil is { } lu && lu > now;
-        var schedule = settings.Mode == GamesMode.Schedule;
+        if (state.LockedUntil is { } lu && lu > now)
+            return new(false, GamesReason.Locked, null, null, NextStart(settings, local, zone, skipToday: true));
 
-        var limitReached = false;
-        if (schedule && !locked)
-        {
-            var open = OpenWindows(settings, local).ToList();
-            if (open.Count > 0)
-            {
-                // Several windows open at once: the most generous one counts (0 = no limit).
-                var limit = open.Any(w => w.LimitMinutes == 0) ? 0 : open.Max(w => w.LimitMinutes);
-                var end = open.Max(w => GamesWindow.ParseTime(w.To)!.Value);
-                if (limit == 0 || played < limit)
-                    return new(true, GamesReason.Schedule, At(local, end, zone), limit == 0 ? null : limit - played, null);
-                limitReached = true;
-            }
-        }
+        var open = OpenWindows(settings, local).ToList();
+        if (open.Count == 0) return new(false, GamesReason.OutsideSchedule, null, null, NextStart(settings, local, zone, skipToday: false));
 
-        if (state.PlayMinutesLeft > 0) return new(true, GamesReason.PlayTime, null, state.PlayMinutesLeft, null);
-
-        if (!schedule) return new(false, GamesReason.Blocked, null, null, null);
-        var reason = locked ? GamesReason.Locked : limitReached ? GamesReason.LimitReached : GamesReason.OutsideSchedule;
-        return new(false, reason, null, null, NextStart(settings, local, zone, skipToday: locked || limitReached));
+        // Several windows open at once: the most generous one counts (0 = no limit).
+        var limit = open.Any(w => w.LimitMinutes == 0) ? 0 : open.Max(w => w.LimitMinutes);
+        var end = open.Max(w => GamesWindow.ParseTime(w.To)!.Value);
+        if (limit > 0 && played >= limit) return new(false, GamesReason.LimitReached, null, null, NextStart(settings, local, zone, skipToday: true));
+        return new(true, GamesReason.Schedule, At(local, end, zone), limit == 0 ? null : limit - played, null);
     }
 
-    /// <summary>
-    /// Adds minutes during which a game ran. Call it before the decision changes (the minutes belong to
-    /// the decision that allowed the game).
-    /// </summary>
-    public static void RecordPlay(GamesSettings settings, GamesState state, DateTimeOffset now, TimeZoneInfo zone, double minutes)
+    /// <summary>Adds minutes during which a game ran.</summary>
+    public static void RecordPlay(GamesState state, DateTimeOffset now, TimeZoneInfo zone, double minutes)
     {
         ArgumentNullException.ThrowIfNull(state);
         if (minutes <= 0) return;
-        var d = Evaluate(settings, state, now, zone);
         StartDay(state, now, zone);
         state.PlayedToday += minutes;
-        if (d.Reason == GamesReason.PlayTime) state.PlayMinutesLeft = Math.Max(0, state.PlayMinutesLeft - minutes);
     }
 
-    /// <summary>Starts a new day's count and forgets what has ended. Returns true when something changed.</summary>
+    /// <summary>Starts a new day's count and forgets a lock that has ended. Returns true when something changed.</summary>
     public static bool StartDay(GamesState state, DateTimeOffset now, TimeZoneInfo zone)
     {
         ArgumentNullException.ThrowIfNull(state);
@@ -72,11 +51,6 @@ public static class GamesClock
             state.PlayedToday = 0;
             changed = true;
         }
-        if (state.AllowedUntil is { } u && u <= now)
-        {
-            state.AllowedUntil = null;
-            changed = true;
-        }
         if (state.LockedUntil is { } l && l <= now)
         {
             state.LockedUntil = null;
@@ -85,31 +59,19 @@ public static class GamesClock
         return changed;
     }
 
-    /// <summary>An administrator allows games: for some time from now, or for some minutes of play.</summary>
-    public static void Allow(GamesState state, DateTimeOffset now, double hours, bool countPlayOnly)
-    {
-        ArgumentNullException.ThrowIfNull(state);
-        state.LockedUntil = null;
-        if (countPlayOnly)
-        {
-            state.PlayMinutesLeft = hours * 60;
-            state.AllowedUntil = null;
-        }
-        else
-        {
-            state.AllowedUntil = now.AddHours(hours);
-            state.PlayMinutesLeft = 0;
-        }
-    }
-
-    /// <summary>An administrator blocks games now: given time is taken back and the schedule is off until the end of the day.</summary>
+    /// <summary>An administrator blocks games now, until the end of the day.</summary>
     public static void Lock(GamesState state, DateTimeOffset now, TimeZoneInfo zone)
     {
         ArgumentNullException.ThrowIfNull(state);
-        state.AllowedUntil = null;
-        state.PlayMinutesLeft = 0;
         var local = TimeZoneInfo.ConvertTime(now, zone);
         state.LockedUntil = At(local, 24 * 60, zone);
+    }
+
+    /// <summary>An administrator takes the block back: the schedule applies again.</summary>
+    public static void Unlock(GamesState state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        state.LockedUntil = null;
     }
 
     private static IEnumerable<GamesWindow> OpenWindows(GamesSettings s, DateTimeOffset local)

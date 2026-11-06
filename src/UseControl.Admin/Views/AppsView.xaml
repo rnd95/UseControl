@@ -1,0 +1,256 @@
+<!-- Programs and games of a profile in one place: games time, every program with its rule, folders that always run. -->
+<UserControl x:Class="UseControl.Admin.Views.AppsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:UseControl.Admin.Infrastructure">
+  <StackPanel>
+
+    <!-- ============ Games time ============ -->
+    <Border Style="{StaticResource Card}" DataContext="{Binding GameTime}">
+      <StackPanel>
+        <StackPanel Style="{StaticResource CardHeader}">
+          <TextBlock Text="&#xE916;" FontFamily="{StaticResource IconFont}" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource AccentText}" />
+          <TextBlock Text="{l:Tr Ui.Games.TimeHeader}" Style="{StaticResource CardTitle}" />
+          <ToggleButton Style="{StaticResource HelpTip}" Tag="{l:Tr Ui.Games.Help}" />
+        </StackPanel>
+
+        <!-- Who may play now -->
+        <TextBlock Text="{l:Tr Ui.Preset.NoAccounts}" Style="{StaticResource Help}" Margin="0,0,0,8"
+                   Visibility="{Binding Now.Count, Converter={StaticResource ZeroToVisibility}}" />
+        <ItemsControl ItemsSource="{Binding Now}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid Margin="0,4,0,8">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Avatar}" Width="36" Height="36" Margin="0,0,12,0">
+                  <TextBlock Text="&#xE7FC;" FontFamily="{StaticResource IconFont}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Foreground="{Binding Allowed, Converter={StaticResource OkBrush}}" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                  <TextBlock FontWeight="SemiBold">
+                    <Run Text="{Binding User, Mode=OneWay}" />
+                    <Run Text=" · " Foreground="{DynamicResource TextMuted}" />
+                    <Run Text="{Binding State, Mode=OneWay}" Foreground="{Binding Allowed, Converter={StaticResource OkBrush}}" />
+                  </TextBlock>
+                  <TextBlock Text="{Binding Played}" Foreground="{DynamicResource TextMuted}" FontSize="12" Margin="0,2,0,0" />
+                </StackPanel>
+                <Grid Grid.Column="2" VerticalAlignment="Center">
+                  <Button Content="{l:Tr Ui.Games.Lock}" Margin="0"
+                          Command="{Binding DataContext.GameTime.LockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                          Visibility="{Binding Locked, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+                  <Button Content="{l:Tr Ui.Games.Unlock}" Style="{StaticResource PrimaryButton}" Margin="0"
+                          Command="{Binding DataContext.GameTime.UnlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                          Visibility="{Binding Locked, Converter={StaticResource BoolToVisibility}}" />
+                </Grid>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- The schedule -->
+        <Border BorderBrush="{DynamicResource Border}" BorderThickness="0,1,0,0" Padding="0,12,0,0" Margin="0,4,0,0">
+          <StackPanel>
+            <DockPanel Margin="0,0,0,8">
+              <Button DockPanel.Dock="Right" Content="{l:Tr Ui.Games.AddWindow}" Style="{StaticResource LinkButton}" Command="{Binding StartAddingCommand}"
+                      Visibility="{Binding IsAdding, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{l:Tr Ui.Games.WhenHeader}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <ToggleButton Style="{StaticResource HelpTip}" Tag="{l:Tr Ui.Games.ScheduleHelp}" />
+              </StackPanel>
+            </DockPanel>
+            <TextBlock Text="{l:Tr Ui.Games.NoWindows}" Foreground="{DynamicResource Warning}" Margin="0,0,0,8"
+                       Visibility="{Binding Schedule.Count, Converter={StaticResource ZeroToVisibility}}" />
+            <ItemsControl ItemsSource="{Binding Schedule}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Background="{DynamicResource Subtle}" CornerRadius="6" Padding="12,6,6,6" Margin="0,0,0,6">
+                    <DockPanel>
+                      <Button DockPanel.Dock="Right" Content="&#xE74D;" Style="{StaticResource DangerIconButton}" Width="28" Height="28" ToolTip="{l:Tr Ui.Remove}"
+                              Command="{Binding DataContext.GameTime.RemoveWindowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Days}" FontWeight="SemiBold" MinWidth="120" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Hours}" MinWidth="110" VerticalAlignment="Center" />
+                        <Border Style="{StaticResource Chip}" Background="{DynamicResource AccentLight}"
+                                Visibility="{Binding Limit, Converter={StaticResource TextToVisibility}}">
+                          <TextBlock FontSize="12" Foreground="{DynamicResource AccentText}">
+                            <Run Text="{l:Tr Ui.Games.Limit}" />
+                            <Run Text="{Binding Limit, Mode=OneWay}" />
+                          </TextBlock>
+                        </Border>
+                      </StackPanel>
+                    </DockPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- New time window: opened by "Add time" -->
+            <Border BorderBrush="{DynamicResource Accent}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,4,0,6"
+                    Visibility="{Binding IsAdding, Converter={StaticResource BoolToVisibility}}">
+              <StackPanel>
+                <ItemsControl ItemsSource="{Binding Days}" Margin="0,0,0,8">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <ToggleButton Content="{Binding Text}" IsChecked="{Binding IsSelected}" Style="{StaticResource DayToggle}" Margin="0,0,6,6" />
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <WrapPanel>
+                  <ComboBox ItemsSource="{Binding Times}" SelectedItem="{Binding From}" DisplayMemberPath="Text" Width="92" Margin="0,0,6,6" />
+                  <TextBlock Text="–" Style="{StaticResource Label}" Margin="0,0,6,6" />
+                  <ComboBox ItemsSource="{Binding Times}" SelectedItem="{Binding To}" DisplayMemberPath="Text" Width="92" Margin="0,0,16,6" />
+                  <TextBlock Text="{l:Tr Ui.Games.Limit}" Style="{StaticResource Label}" Margin="0,0,8,6" />
+                  <ComboBox ItemsSource="{Binding Limits}" SelectedItem="{Binding Limit}" DisplayMemberPath="Text" Width="130" Margin="0,0,16,6" />
+                  <Button Content="{l:Tr Ui.Add}" Style="{StaticResource PrimaryButton}" Command="{Binding AddWindowCommand}" Margin="0,0,8,6" />
+                  <Button Content="{l:Tr Ui.Cancel}" Command="{Binding CancelAddingCommand}" Margin="0,0,0,6" />
+                </WrapPanel>
+              </StackPanel>
+            </Border>
+
+            <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding CloseGamesWhenOver}" BorderThickness="0" Margin="0,4,0,0">
+              <TextBlock Text="{l:Tr Ui.Games.CloseWhenOver}" />
+            </CheckBox>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Border>
+
+    <!-- ============ Programs and games ============ -->
+    <Border Style="{StaticResource Card}" DataContext="{Binding Apps}">
+      <StackPanel>
+        <DockPanel Margin="0,0,0,10">
+          <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" Content="{l:Tr Ui.Games.Find}" Command="{Binding FindCommand}" ToolTip="{l:Tr Ui.Games.FindHelp}" />
+          <StackPanel Style="{StaticResource CardHeader}" Margin="0">
+            <TextBlock Text="&#xE71D;" FontFamily="{StaticResource IconFont}" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource AccentText}" />
+            <TextBlock Text="{l:Tr Ui.Apps.ListHeader}" Style="{StaticResource CardTitle}" />
+            <ToggleButton Style="{StaticResource HelpTip}" Tag="{l:Tr Ui.Apps.Help}" />
+          </StackPanel>
+        </DockPanel>
+
+        <!-- Adding -->
+        <WrapPanel Margin="0,0,0,10">
+          <TextBlock Text="{l:Tr Ui.Apps.AddAs}" Style="{StaticResource Label}" Margin="0,0,8,6" />
+          <ComboBox ItemsSource="{Binding Rules}" SelectedItem="{Binding NewRule}" DisplayMemberPath="Text" MinWidth="170" Margin="0,0,10,6" />
+          <Button Style="{StaticResource PrimaryButton}" Command="{Binding AddProgramsCommand}" Margin="0,0,8,6">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="&#xE710;" FontFamily="{StaticResource IconFont}" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <TextBlock Text="{l:Tr Ui.Apps.AddPrograms}" />
+            </StackPanel>
+          </Button>
+          <Button Content="{l:Tr Ui.Apps.AddFolders}" Command="{Binding AddFoldersCommand}" Margin="0,0,8,6" />
+          <Button Content="{l:Tr Ui.Apps.AddNames}" Command="{Binding AddNamesCommand}" Margin="0,0,0,6" />
+        </WrapPanel>
+
+        <!-- Games found on the PC, not in the list yet -->
+        <Border Background="{DynamicResource Subtle}" CornerRadius="6" Padding="12,10" Margin="0,0,0,10"
+                Visibility="{Binding HasFound, Converter={StaticResource BoolToVisibility}}">
+          <StackPanel>
+            <TextBlock Text="{l:Tr Ui.Games.FindHeader}" FontWeight="SemiBold" Margin="0,0,0,6" />
+            <ItemsControl ItemsSource="{Binding Found}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Text}" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+              <Button Content="{l:Tr Ui.Games.BlockSelected}" Style="{StaticResource PrimaryButton}" Command="{Binding AddFoundCommand}" />
+              <Button Content="{l:Tr Ui.Close}" Command="{Binding CloseFoundCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Filter and search -->
+        <DockPanel Margin="0,0,0,6" Visibility="{Binding HasEntries, Converter={StaticResource BoolToVisibility}}">
+          <TextBox DockPanel.Dock="Right" Style="{StaticResource SearchBox}" Width="220" Tag="{l:Tr Ui.Apps.Search}"
+                   Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" />
+          <ListBox Style="{StaticResource Segmented}" ItemsSource="{Binding Filters}" SelectedItem="{Binding Filter}" HorizontalAlignment="Left">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="{Binding Text}" />
+                  <TextBlock Text="{Binding Count}" Margin="6,0,0,0" Opacity="0.6" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </DockPanel>
+
+        <TextBlock Text="{l:Tr Ui.Block.Empty}" Style="{StaticResource Help}" Margin="0,0,0,4"
+                   Visibility="{Binding Rows.Count, Converter={StaticResource ZeroToVisibility}}" />
+        <ItemsControl ItemsSource="{Binding Rows}" Margin="0,4,0,0">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Style="{StaticResource ListRow}">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="36" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource IconFont}" FontSize="16" VerticalAlignment="Center">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsGame}" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource AccentText}" />
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <TextBlock Text="{Binding Text}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text}" />
+                    <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource TextMuted}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <ComboBox Grid.Column="2" ItemsSource="{Binding Rules}" SelectedItem="{Binding Rule}" DisplayMemberPath="Text" Width="190" VerticalAlignment="Center" />
+                  <Button Grid.Column="3" Content="&#xE74D;" Style="{StaticResource DangerIconButton}" Margin="6,0,0,0" ToolTip="{l:Tr Ui.Remove}"
+                          Command="{Binding DataContext.Apps.RemoveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+
+    <!-- ============ Always allowed ============ -->
+    <Border Style="{StaticResource Card}">
+      <StackPanel>
+        <DockPanel Margin="0,0,0,10">
+          <Button DockPanel.Dock="Right" Content="{l:Tr Ui.Apps.AddAllowed}" Command="{Binding AllowFoldersCommand}" Margin="0" />
+          <StackPanel Style="{StaticResource CardHeader}" Margin="0">
+            <TextBlock Text="&#xE73E;" FontFamily="{StaticResource IconFont}" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource Ok}" />
+            <TextBlock Text="{l:Tr Ui.Apps.AllowedHeader}" Style="{StaticResource CardTitle}" />
+            <ToggleButton Style="{StaticResource HelpTip}" Tag="{l:Tr Ui.Apps.AllowedHelp}" />
+          </StackPanel>
+        </DockPanel>
+        <TextBlock Text="{l:Tr Ui.Block.Empty}" Style="{StaticResource Help}" Margin="0"
+                   Visibility="{Binding AllowedFolders.Count, Converter={StaticResource ZeroToVisibility}}" />
+        <ItemsControl ItemsSource="{Binding AllowedFolders}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Style="{StaticResource ListRow}">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Content="&#xE74D;" Style="{StaticResource DangerIconButton}" ToolTip="{l:Tr Ui.Remove}"
+                          Command="{Binding DataContext.RemoveAllowedFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                  <TextBlock Text="&#xED25;" FontFamily="{StaticResource IconFont}" FontSize="16" Width="36" VerticalAlignment="Center" Foreground="{DynamicResource TextMuted}" />
+                  <TextBlock Text="{Binding Path}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                </DockPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+  </StackPanel>
+</UserControl>

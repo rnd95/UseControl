@@ -57,10 +57,9 @@ internal sealed class FakeService : IServiceClient
         return Task.FromResult(new ApplyResult([.. Config.Users.Select(u => new AccountResult(u, true, null, 0, 0, 0, 0, false))], []));
     }
 
-    public Task<ServiceStatus> AllowGamesAsync(string? user, double hours, bool countPlayOnly, CancellationToken ct = default)
+    public Task<ServiceStatus> UnlockGamesAsync(string? user, CancellationToken ct = default)
     {
-        if (hours < 0.25 || hours > 24) throw new Core.UcException(Core.ErrorCodes.HoursOutOfRange, 0.25, 24);
-        foreach (var u in Targets(user)) GamesClock.Allow(GamesOf(u), DateTimeOffset.Now, hours, countPlayOnly);
+        foreach (var u in Targets(user)) GamesClock.Unlock(GamesOf(u));
         return Task.FromResult(Status());
     }
 

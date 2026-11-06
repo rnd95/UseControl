@@ -64,7 +64,9 @@ public partial class LocalizationTests
     [InlineData("uk-UA", "uk")]
     [InlineData("uk", "uk")]
     [InlineData("en-GB", "en")]
-    [InlineData("de-DE", "en")]
+    [InlineData("de-DE", "de")]
+    [InlineData("pl", "pl")]
+    [InlineData("fr-FR", "en")]
     [InlineData("", "en")]
     [InlineData("not a culture", "en")]
     public void The_closest_available_language_is_picked(string requested, string expected) =>

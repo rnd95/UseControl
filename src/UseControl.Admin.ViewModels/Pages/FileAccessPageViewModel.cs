@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using UseControl.Admin.ViewModels.Infrastructure;
+using UseControl.Core;
 using UseControl.Core.Configuration;
 using UseControl.Localization;
 
@@ -23,14 +24,21 @@ public sealed partial class AccountChoice(string name, bool isSelected) : Observ
     private bool _isSelected = isSelected;
 }
 
+/// <summary>
+/// Access of restricted accounts to private files and folders (Windows permissions). Whether programs
+/// may start from a folder is decided on the "Apps and games" page, not here.
+/// </summary>
 public sealed partial class FileAccessPageViewModel : PageViewModel
 {
-    public FileAccessPageViewModel(PanelSession session) : base(session, "Ui.Nav.FileAccess", "")
+    public FileAccessPageViewModel(PanelSession session) : base(session, "Ui.Nav.FileAccess", "")
     {
-        _preset = Presets[0];
+        _access = Choices[0];
     }
 
-    public static IReadOnlyList<AccessPreset> Presets { get; } =
+    public override NavSection Section => NavSection.Computer;
+
+    /// <summary>Every kind of access a rule can have (for the texts of existing rules).</summary>
+    private static readonly AccessPreset[] All =
     [
         new("NoAccess", FileAccessMode.Deny, FileAccessRights.Full),
         new("ReadOnly", FileAccessMode.Deny, FileAccessRights.Write | FileAccessRights.Delete),
@@ -38,41 +46,40 @@ public sealed partial class FileAccessPageViewModel : PageViewModel
         new("FullAllow", FileAccessMode.Allow, FileAccessRights.Full),
     ];
 
+    /// <summary>The kinds of access offered for new rules. Blocking programs is done by the profile, so "no run" is not offered.</summary>
+    public static IReadOnlyList<AccessPreset> Choices { get; } = [.. All.Where(p => p.Key != "NoRun")];
+
     public ObservableCollection<AccessRow> Rules { get; } = [];
 
     /// <summary>The restricted accounts; all ticked means "every restricted account" (also future ones).</summary>
     public ObservableCollection<AccountChoice> Accounts { get; } = [];
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(AddCommand))]
-    private string _path = "";
-
-    [ObservableProperty]
-    private AccessPreset _preset;
-
-    private bool HasPath() => !string.IsNullOrWhiteSpace(Path);
+    private AccessPreset _access;
 
     [RelayCommand]
-    private void PickFolder()
-    {
-        if (Session.Dialogs.PickFolder(Loc.T("Ui.Access.PickFolder")) is { } p) Path = p;
-    }
+    private Task AddFolders() => Add(Session.Dialogs.PickFolders(Loc.T("Ui.Access.PickFolders")));
 
     [RelayCommand]
-    private void PickFile()
-    {
-        if (Session.Dialogs.PickFile(Loc.T("Ui.Access.PickFile"), "*.*|*.*") is { } p) Path = p;
-    }
+    private Task AddFiles() => Add(Session.Dialogs.PickFiles(Loc.T("Ui.Access.PickFiles"), "*.*|*.*"));
 
-    [RelayCommand(CanExecute = nameof(HasPath))]
-    private async Task Add()
+    /// <summary>One rule per chosen file or folder, with the chosen access, for the ticked accounts.</summary>
+    private Task Add(IReadOnlyList<string> paths)
     {
-        var path = Path;
-        var preset = Preset;
+        if (paths.Count == 0) return Task.CompletedTask;
+        var access = Access;
         var chosen = Accounts.Where(a => a.IsSelected).Select(a => a.Name).ToList();
+        if (chosen.Count == 0)
+        {
+            Session.ShowMessage(MessageKind.Info, Loc.T("Ui.Access.ChooseAccounts"));
+            return Task.CompletedTask;
+        }
         // Every account ticked = the rule follows the list of restricted accounts.
         var users = chosen.Count == Accounts.Count ? [] : chosen;
-        if (await Session.EditAsync(c => ConfigEditor.SetFileAccess(c, path, preset.Mode, preset.Rights, users, Session.Paths)).ConfigureAwait(true)) Path = "";
+        return Session.EditAsync(c =>
+        {
+            foreach (var p in paths) ConfigEditor.SetFileAccess(c, p, access.Mode, access.Rights, users, Session.Paths);
+        });
     }
 
     [RelayCommand]
@@ -80,7 +87,7 @@ public sealed partial class FileAccessPageViewModel : PageViewModel
 
     public static string RightsText(FileAccessMode mode, FileAccessRights r)
     {
-        var preset = Presets.FirstOrDefault(p => p.Mode == mode && p.Rights == r);
+        var preset = All.FirstOrDefault(p => p.Mode == mode && p.Rights == r);
         if (preset is not null) return preset.Text;
         if (r == FileAccessRights.Full) return Loc.T("Ui.Access.Full");
         var parts = new List<string>();
@@ -95,7 +102,7 @@ public sealed partial class FileAccessPageViewModel : PageViewModel
     {
         var c = Session.Config;
         if (c is null) return;
-        OnPropertyChanged(nameof(Presets));
+        OnPropertyChanged(nameof(Choices));
         Replace(Accounts, c.Users.Select(u => new AccountChoice(u, true)));
         Replace(Rules, c.FileAccess.Select(r => new AccessRow(
             r.Path,

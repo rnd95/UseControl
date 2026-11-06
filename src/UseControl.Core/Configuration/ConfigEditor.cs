@@ -91,14 +91,7 @@ public static class ConfigEditor
 
     // ---------------------------------------------------------------- games time
 
-    public static void SetGamesMode(Preset p, GamesMode mode)
-    {
-        ArgumentNullException.ThrowIfNull(p);
-        if (!Enum.IsDefined(mode)) throw new UcException(ErrorCodes.InvalidArgument, mode, "mode");
-        p.Games.Mode = mode;
-    }
-
-    /// <summary>Adds a time window to the schedule (and switches the preset to the schedule).</summary>
+    /// <summary>Adds a time window to the schedule of a profile.</summary>
     public static GamesWindow AddGamesWindow(Preset p, IEnumerable<DayOfWeek> days, string from, string to, int limitMinutes)
     {
         ArgumentNullException.ThrowIfNull(p);
@@ -111,7 +104,6 @@ public static class ConfigEditor
         };
         w.EnsureValid();
         p.Games.Schedule.Add(w);
-        p.Games.Mode = GamesMode.Schedule;
         return w;
     }
 
@@ -194,6 +186,37 @@ public static class ConfigEditor
         ArgumentNullException.ThrowIfNull(c);
         if (c.BlockedFiles.RemoveAll(e => e.Sha256.Equals(sha256?.Trim(), StringComparison.OrdinalIgnoreCase)) == 0)
             throw new UcException(ErrorCodes.NotInList, sha256 ?? "");
+    }
+
+    /// <summary>
+    /// Moves a blocked folder, program name or program file (by SHA-256; its name moves with it) to another
+    /// category, for example from "always blocked" to games, which follow the schedule.
+    /// </summary>
+    public static void SetBlockedCategory(Preset c, string key, RuleCategory category)
+    {
+        ArgumentNullException.ThrowIfNull(c);
+        var k = (key ?? "").Trim().Trim('"');
+        var found = false;
+        if (PathRules.TryNormalize(k, out var path))
+        {
+            foreach (var e in c.BlockedPaths.Where(e => SamePath(e.Path, path)))
+            {
+                e.Category = category;
+                found = true;
+            }
+        }
+        foreach (var f in c.BlockedFiles.Where(e => e.Sha256.Equals(k, StringComparison.OrdinalIgnoreCase)))
+        {
+            f.Category = category;
+            found = true;
+            foreach (var n in c.BlockedNames.Where(n => n.Name.Equals(f.FileName, StringComparison.OrdinalIgnoreCase))) n.Category = category;
+        }
+        foreach (var n in c.BlockedNames.Where(n => n.Name.Equals(k, StringComparison.OrdinalIgnoreCase)))
+        {
+            n.Category = category;
+            found = true;
+        }
+        if (!found) throw new UcException(ErrorCodes.NotInList, k);
     }
 
     /// <summary>Adds or replaces the access rule for a path (one rule per path and mode).</summary>

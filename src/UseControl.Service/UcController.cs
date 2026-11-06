@@ -11,14 +11,11 @@ namespace UseControl.Service;
 
 /// <summary>
 /// The service's brain: owns the configuration and the state, applies them through the engine, keeps
-/// games time (schedules, time an administrator gave, play counted while a game runs) and puts the
+/// games time (each profile's schedule and daily limits, play counted while a game runs) and puts the
 /// restrictions back when something removed them. One operation at a time.
 /// </summary>
 public sealed partial class UcController : IDisposable
 {
-    public const double MinGamesHours = 0.25;
-    public const double MaxGamesHours = 24;
-
     private static readonly TimeSpan DriftCheckInterval = TimeSpan.FromMinutes(5);
     private static readonly TimeSpan FullApplyInterval = TimeSpan.FromHours(6);
 
@@ -80,7 +77,7 @@ public sealed partial class UcController : IDisposable
 
     private GamesDecision Decide(string user) => Config.PresetOf(user) is { } p
         ? GamesClock.Evaluate(p.Games, GamesOf(user), Now, Zone)
-        : new GamesDecision(false, GamesReason.Blocked, null, null, null);
+        : new GamesDecision(false, GamesReason.OutsideSchedule, null, null, null);
 
     private HashSet<string> GamesAllowedNow() => new(Config.Users.Where(u => Decide(u).Allowed), StringComparer.OrdinalIgnoreCase);
 
@@ -149,12 +146,6 @@ public sealed partial class UcController : IDisposable
     public Task<ApplyResult> SuspendAsync(CancellationToken ct) => Locked(() =>
     {
         State.Enabled = false;
-        foreach (var g in State.Games.Values)
-        {
-            // Time an administrator gave does not survive a suspend; what was played today stays counted.
-            g.AllowedUntil = null;
-            g.PlayMinutesLeft = 0;
-        }
         var r = _engine.RemoveAll(Config);
         State.LastResults = [.. r.Accounts];
         State.Save(_statePath);
@@ -162,21 +153,7 @@ public sealed partial class UcController : IDisposable
         return r;
     }, ct);
 
-    /// <summary>Allows games for one account or every one: for some hours from now, or for some hours of play.</summary>
-    public Task<ServiceStatus> AllowGamesAsync(string? user, double hours, bool countPlayOnly, CancellationToken ct) => Locked(() =>
-    {
-        if (double.IsNaN(hours) || hours < MinGamesHours || hours > MaxGamesHours)
-            throw new UcException(ErrorCodes.HoursOutOfRange, MinGamesHours, MaxGamesHours);
-        foreach (var u in Targets(user))
-        {
-            GamesClock.Allow(GamesOf(u), Now, hours, countPlayOnly);
-            _closeAt.Remove(u);
-        }
-        ApplyLocked(countPlayOnly ? $"{hours} h of play allowed" : $"games allowed for {hours} h");
-        return Status([]);
-    }, ct);
-
-    /// <summary>Blocks games now (inside a schedule: until the end of the day) and closes running games.</summary>
+    /// <summary>Blocks games until the end of the day and closes running games.</summary>
     public Task<ServiceStatus> LockGamesAsync(string? user, CancellationToken ct) => Locked(() =>
     {
         var targets = Targets(user);
@@ -184,6 +161,18 @@ public sealed partial class UcController : IDisposable
         var before = _gamesApplied;
         ApplyLocked("games blocked");
         foreach (var u in targets.Where(before.Contains)) GamesEnded(u);
+        return Status([]);
+    }, ct);
+
+    /// <summary>Takes a block back: the schedule applies again.</summary>
+    public Task<ServiceStatus> UnlockGamesAsync(string? user, CancellationToken ct) => Locked(() =>
+    {
+        foreach (var u in Targets(user))
+        {
+            GamesClock.Unlock(GamesOf(u));
+            _closeAt.Remove(u);
+        }
+        ApplyLocked("games block taken back");
         return Status([]);
     }, ct);
 
@@ -241,7 +230,7 @@ public sealed partial class UcController : IDisposable
         var playing = _running.Select(g => g.User).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         foreach (var u in playing)
         {
-            if (Config.PresetOf(u) is { } p) GamesClock.RecordPlay(p.Games, GamesOf(u), Now, Zone, minutes);
+            if (Config.PresetOf(u) is not null) GamesClock.RecordPlay(GamesOf(u), Now, Zone, minutes);
         }
 
         foreach (var u in Config.Users)

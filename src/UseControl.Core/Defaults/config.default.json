@@ -295,7 +295,6 @@
         "disablePasswordChange": false
       },
       "games": {
-        "mode": "manual",
         "schedule": [],
         "closeGamesWhenOver": true
       },

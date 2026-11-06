@@ -7,13 +7,18 @@ UseControl restricts standard Windows accounts on a shared or family PC. The res
 - get only the browser extensions and settings you allow;
 - cannot open folders you keep private.
 
-Every restricted account gets a **preset**: its own set of rules, or one it shares with other accounts.
+Every restricted account gets a **profile**: its own set of rules, or one it shares with other accounts.
 
-Games time is set per preset and counted per account:
+Games run only in the time of the profile's weekly schedule, with a daily limit counted while a game
+actually runs (for example Mon–Fri 16:00–20:00, at most 1 hour of play). Five minutes before the end a
+warning appears on the account's screen; a minute after the end running games are closed. An
+administrator can block games for the rest of the day.
 
-- a weekly schedule with a daily limit (for example Mon–Fri 16:00–20:00, at most 1 hour of play);
-- hours you give by hand, counted only while a game runs, or from now on;
-- a warning on the account's screen five minutes before the end, and games closed a minute after it.
+The panel groups everything a profile allows the way family safety tools do: **Apps and games** holds one
+list of programs, program names and folders, each either a game (runs only in game time) or always blocked,
+together with the games schedule and the folders that always run. Several programs or folders can be added
+at once. **File access** is only about private files and folders; whether programs may start from a folder
+is decided in Apps and games.
 
 UseControl is local: no cloud and no telemetry. It works with ordinary local accounts, and no Microsoft account is needed.
 
@@ -26,7 +31,7 @@ UseControl is local: no cloud and no telemetry. It works with ordinary local acc
 | 1. Foundation | Windows service, admin panel (WPF), `uc.exe` command line. Everything the PowerShel version does, plus file and folder acces control and blocking programs by file fingerprint |
 | 2. Screen time | Daily limits for the whole PC and per app, a tray agent, requests for extra time (games schedules and limits are done) |
 | 3. Browsers | A catalogue of Chrome, Edge and Firefox policies, site block and allow lists |
-| 4. Release | Reports, MSI installer, code signing, winget, more languages |
+| 4. Release | Reports, MSI installer, code signing, winget, updates |
 
 ## Repository
 
@@ -88,22 +93,24 @@ The panel is split so that its look can change without touching its behaviour:
 To see every page filled in without installing the service, run the panel with sample data:
 
 ```
-UseControl.exe --demo [--page 0-8] [--lang en|uk] [--theme light|dark|system]
+UseControl.exe --demo [--page 0-7] [--lang en|uk|de|pl] [--theme light|dark|system]
 ```
 
-Pages are numbered from 0: 0 Status, 1 Accounts, 2 Restrictions, 3 Games, 4 Programs, 5 Files and folders, 6 Browsers, 7 Security check, 8 Settings.
+Pages are numbered from 0: 0 Overview, 1 Accounts, 2 Apps and games, 3 Windows restrictions, 4 Browsers, 5 File access, 6 Security check, 7 Settings.
+
+Longer explanations are not on the pages: they open from the small "?" next to a heading (`HelpTip` style in `Theme.xaml`, text in `Tag`).
 
 ## Languages
 
-English and Ukrainian. Windows' display language is used when available, otherwise English; `uc --lang uk` or the `UC_LANG` environment variable overrides it.
+English, Ukrainian, German and Polish. Windows' display language is used when available, otherwise English; `uc --lang de` or the `UC_LANG` environment variable overrides it.
 
 To add a language:
 
-1. Copy `src/UseControl.Localization/Resources/Strings.resx` to `Strings.<code>.resx` (for example `Strings.pl.resx`) and translate the values. Keep the `{0}`-style placeholders.
+1. Copy `src/UseControl.Localization/Resources/Strings.resx` to `Strings.<code>.resx` (for example `Strings.fr.resx`) and translate the values. Keep the `{0}`-style placeholders.
 2. Add the code to `Loc.Available` and to `SatelliteResourceLanguages` in the projects.
 
 The tests check that every language has every text, with the same placeholders.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). Copyright © 2026 Rate Software.

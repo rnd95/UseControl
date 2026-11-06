@@ -6,11 +6,14 @@ public interface IDialogService
     /// <summary>Yes/No question; true for Yes.</summary>
     bool Confirm(string message);
 
-    /// <summary>A folder chosen by the user, or null.</summary>
-    string? PickFolder(string title);
+    /// <summary>Folders chosen by the user (several at once); empty when cancelled.</summary>
+    IReadOnlyList<string> PickFolders(string title);
 
     /// <summary>An existing file chosen by the user, or null. Filter like "Programs|*.exe".</summary>
     string? PickFile(string title, string filter);
+
+    /// <summary>Existing files chosen by the user (several at once); empty when cancelled.</summary>
+    IReadOnlyList<string> PickFiles(string title, string filter);
 
     /// <summary>A file name to save to, or null.</summary>
     string? PickSaveFile(string title, string filter, string defaultName);

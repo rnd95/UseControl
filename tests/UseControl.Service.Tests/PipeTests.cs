@@ -57,16 +57,16 @@ public sealed class PipeTests : IAsyncLifetime, IDisposable
         Assert.Equal(@"C:\Tools", again.Presets.Single().AllowedPaths.Single().Path);
         Assert.Equal("10:00", again.Presets.Single().Games.Schedule.Single().From);
 
-        var s = await _client.AllowGamesAsync("kid", 1, countPlayOnly: true);
-        Assert.Equal(60, s.Games.Single().MinutesLeft);
+        var s = await _client.LockGamesAsync("kid");
+        Assert.Equal(Core.Games.GamesReason.Locked, s.Games.Single().Reason);
     }
 
     [Fact]
     public async Task Errors_arrive_with_their_code()
     {
-        var e = await Assert.ThrowsAsync<UcException>(() => _client.AllowGamesAsync(null, 99, true));
-        Assert.Equal(ErrorCodes.HoursOutOfRange, e.Code);
-        Assert.Contains("24", e.Message, StringComparison.Ordinal);
+        var e = await Assert.ThrowsAsync<UcException>(() => _client.LockGamesAsync("nobody"));
+        Assert.Equal(ErrorCodes.NotRestricted, e.Code);
+        Assert.Contains("nobody", e.Message, StringComparison.Ordinal);
 
         e = await Assert.ThrowsAsync<UcException>(() => _client.SendAsync<object>("noSuchCommand", null));
         Assert.Equal(ErrorCodes.UnknownCommand, e.Code);

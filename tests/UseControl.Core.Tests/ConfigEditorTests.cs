@@ -31,6 +31,25 @@ public class ConfigEditorTests
     }
 
     [Fact]
+    public void Category_of_a_folder_name_or_program_can_be_changed()
+    {
+        var c = NewPreset();
+        ConfigEditor.AddBlockedPath(c, @"F:\Games", RuleCategory.Other, Sp);
+        ConfigEditor.SetBlockedCategory(c, @"f:\games\", RuleCategory.Games);
+        Assert.Equal(RuleCategory.Games, c.BlockedPaths.Single(e => e.Path == @"F:\Games").Category);
+
+        ConfigEditor.AddBlockedFile(c, new FileHashEntry { FileName = "x.exe", Sha256 = new string('A', 64), Md5 = new string('B', 32), Size = 1 });
+        ConfigEditor.AddBlockedName(c, "x.exe", RuleCategory.Other);
+        ConfigEditor.SetBlockedCategory(c, new string('a', 64), RuleCategory.Games);
+        Assert.Equal(RuleCategory.Games, c.BlockedFiles.Single().Category);
+        Assert.Equal(RuleCategory.Games, c.BlockedNames.Single(n => n.Name == "x.exe").Category);   // the name goes with its file
+
+        ConfigEditor.SetBlockedCategory(c, "X.EXE", RuleCategory.Vpn);
+        Assert.Equal(RuleCategory.Vpn, c.BlockedNames.Single(n => n.Name == "x.exe").Category);
+        Assert.Equal(ErrorCodes.NotInList, Code(() => ConfigEditor.SetBlockedCategory(c, "none.exe", RuleCategory.Games)));
+    }
+
+    [Fact]
     public void Blocked_folder_refuses_duplicates_protected_places_and_unknown_entries()
     {
         var c = NewPreset();
@@ -208,14 +227,13 @@ public class ConfigEditorTests
     }
 
     [Fact]
-    public void Schedule_windows_are_checked_and_switch_to_the_schedule()
+    public void Schedule_windows_are_checked()
     {
         var p = NewPreset();
-        Assert.Equal(Games.GamesMode.Manual, p.Games.Mode);
+        Assert.Empty(p.Games.Schedule);
         var w = ConfigEditor.AddGamesWindow(p, [DayOfWeek.Friday, DayOfWeek.Monday], "9:30", "24:00", 90);
         Assert.Equal([DayOfWeek.Monday, DayOfWeek.Friday], w.Days);
         Assert.Equal("09:30", w.From);
-        Assert.Equal(Games.GamesMode.Schedule, p.Games.Mode);
         Assert.Equal(ErrorCodes.WindowEndsBeforeStart, Code(() => ConfigEditor.AddGamesWindow(p, [DayOfWeek.Monday], "20:00", "16:00", 0)));
         Assert.Equal(ErrorCodes.InvalidTime, Code(() => ConfigEditor.AddGamesWindow(p, [DayOfWeek.Monday], "25:00", "26:00", 0)));
         Assert.Equal(ErrorCodes.InvalidTime, Code(() => ConfigEditor.AddGamesWindow(p, [DayOfWeek.Monday], "16:7", "18:00", 0)));

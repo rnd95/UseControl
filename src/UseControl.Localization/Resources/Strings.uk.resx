@@ -3,7 +3,8 @@
   <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>  <data name="Error.Unknown" xml:space="preserve"><value>Невідома помилка.</value></data>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Error.Unknown" xml:space="preserve"><value>Невідома помилка.</value></data>
   <data name="Error.ConfigNotFound" xml:space="preserve"><value>Налаштування не знайдено: {0}</value></data>
   <data name="Error.ConfigInvalid" xml:space="preserve"><value>Налаштування {0} містять помилку: {1}</value></data>
   <data name="Error.ConfigTooNew" xml:space="preserve"><value>Налаштування {0} записані новішою версією UseControl (схема {1}); ця версія розуміє до {2}.</value></data>
@@ -23,7 +24,7 @@
   <data name="Error.InvalidPolicyValue" xml:space="preserve"><value>Політика {0}: підтримуються лише числа, true/false, текст або null.</value></data>
   <data name="Error.AccountNotFound" xml:space="preserve"><value>Локального облікового запису «{0}» немає.</value></data>
   <data name="Error.AccountIsAdministrator" xml:space="preserve"><value>{0} — адміністратор; обмежувати можна лише звичайні облікові записи.</value></data>
-  <data name="Error.ProfileMissing" xml:space="preserve"><value>Профілю {0} ще немає: увійдіть як {0} один раз, потім вийдіть.</value></data>
+  <data name="Error.ProfileMissing" xml:space="preserve"><value>Обліковий запис {0} ще не входив у Windows: увійдіть як {0} один раз, потім вийдіть.</value></data>
   <data name="Error.HiveLoadFailed" xml:space="preserve"><value>Не вдалося відкрити налаштування {0} (помилка Windows {1}). Якщо обліковий запис зараз у системі, спробуйте після виходу з нього.</value></data>
   <data name="Error.AdministratorRequired" xml:space="preserve"><value>Потрібні права адміністратора (запустіть від імені адміністратора).</value></data>
   <data name="Error.ServiceNotRunning" xml:space="preserve"><value>Служба UseControl не запущена або не встановлена.</value></data>
@@ -50,8 +51,6 @@
   <data name="Cli.AccountFailed" xml:space="preserve"><value>{0}: {1}</value></data>
   <data name="Cli.AccountRemoved" xml:space="preserve"><value>{0}: обмеження знято</value></data>
   <data name="Cli.FileAccessFailed" xml:space="preserve"><value>Доступ до {0} ({1}): {2}</value></data>
-  <data name="Cli.GamesAllowed" xml:space="preserve"><value>Ігри дозволено до {0}.</value></data>
-  <data name="Cli.GamesLocked" xml:space="preserve"><value>Ігри заблоковано.</value></data>
   <data name="Cli.UsersRestricted" xml:space="preserve"><value>Обмежені облікові записи: {0}</value></data>
   <data name="Cli.UsersCandidates" xml:space="preserve"><value>Інші звичайні облікові записи на цьому ПК: {0}</value></data>
   <data name="Cli.None" xml:space="preserve"><value>(немає)</value></data>
@@ -69,8 +68,6 @@
   <data name="Cli.StatusService" xml:space="preserve"><value>Служба: UseControl {0}</value></data>
   <data name="Cli.StatusEnabled" xml:space="preserve"><value>Обмеження: увімкнено</value></data>
   <data name="Cli.StatusSuspended" xml:space="preserve"><value>Обмеження: ПРИЗУПИНЕНО («uc apply» вмикає їх)</value></data>
-  <data name="Cli.StatusGamesAllowed" xml:space="preserve"><value>Ігри: дозволено до {0}</value></data>
-  <data name="Cli.StatusGamesBlocked" xml:space="preserve"><value>Ігри: заблоковано</value></data>
   <data name="Cli.StatusLastApplied" xml:space="preserve"><value>Останнє застосування: {0}</value></data>
   <data name="Cli.StatusNever" xml:space="preserve"><value>ще не було</value></data>
   <data name="Cli.StatusStoreAdmins" xml:space="preserve"><value>Встановлення з Store: лише адміністратори</value></data>
@@ -89,16 +86,14 @@
   uc preview                        усі правила, які буде записано, і чому
   uc audit                          перевірка безпеки цього ПК
 
-  uc users list | add &lt;назва&gt; [--preset &lt;п&gt;] | move &lt;назва&gt; &lt;пресет&gt; | remove &lt;назва&gt;
-  uc preset list | add &lt;назва&gt; [--from &lt;пресет&gt;] | rename &lt;назва&gt; &lt;нова назва&gt; | remove &lt;назва&gt;
+  uc users list | add &lt;назва&gt; [--profile &lt;п&gt;] | move &lt;назва&gt; &lt;профіль&gt; | remove &lt;назва&gt;
+  uc profile list | add &lt;назва&gt; [--from &lt;профіль&gt;] | rename &lt;назва&gt; &lt;нова назва&gt; | remove &lt;назва&gt;
 
   uc games [status]                 хто може грати зараз і скільки зіграно сьогодні
-  uc games allow &lt;години&gt; [--user &lt;назва&gt;] [--now]
-                                    години гри (рахуються, лише коли гра запущена); --now: від цієї миті
-  uc games lock [--user &lt;назва&gt;]    заблокувати зараз (з розкладом: до кінця дня)
-  uc games mode manual|schedule     ігри лише з дозволу або за розкладом
   uc games schedule [list] | add &lt;дні&gt; &lt;з&gt;-&lt;до&gt; [--limit &lt;хвилини&gt;] | remove &lt;номер&gt;
-                                    дні: mon-fri, sat,sun, weekdays, weekend, all
+                                    ігри працюють лише в ці години; дні: mon-fri, sat,sun, weekdays, weekend, all
+  uc games lock [--user &lt;назва&gt;]    заблокувати ігри до кінця дня
+  uc games unlock [--user &lt;назва&gt;]  скасувати це: знову діє розклад
   uc games close on|off             закривати ігри, коли час вийшов
   uc games find [--add]             знайти папки з іграми, які ще не заблоковано
 
@@ -121,9 +116,9 @@
   uc uninstall [--keep-restrictions] [--purge] [--yes]
   uc ping | help
 
-Команди, що змінюють пресет (games, block, unblock, allow, ext, policy), приймають --preset &lt;назва&gt;,
-коли пресетів більше одного.
-Параметри: --json (status, preview, audit, games find), --lang en|uk</value></data>
+Команди, що змінюють профіль (games, block, unblock, allow, ext, policy), приймають --profile &lt;назва&gt;,
+коли профілів більше одного.
+Параметри: --json (status, preview, audit, games find), --lang en|uk|de|pl|de|pl</value></data>
   <data name="Audit.account" xml:space="preserve"><value>Обмежений обліковий запис</value></data>
   <data name="Audit.services" xml:space="preserve"><value>Служби</value></data>
   <data name="Audit.writableFolders" xml:space="preserve"><value>Папки програм із записом</value></data>
@@ -145,93 +140,51 @@
   <data name="Audit.Fail" xml:space="preserve"><value>ПОМИЛКА</value></data>
   <data name="Ui.App.Title" xml:space="preserve"><value>UseControl</value></data>
   <data name="Ui.Busy" xml:space="preserve"><value>Виконується…</value></data>
-  <data name="Ui.NotConnected" xml:space="preserve"><value>Немає зв&apos;язку зі службою UseControl.</value></data>
+  <data name="Ui.NotConnected" xml:space="preserve"><value>Немає з&apos;єднання зі службою UseControl.</value></data>
   <data name="Ui.Retry" xml:space="preserve"><value>Підключитися знову</value></data>
   <data name="Ui.Close" xml:space="preserve"><value>Закрити</value></data>
   <data name="Ui.Saved" xml:space="preserve"><value>Збережено й застосовано.</value></data>
-  <data name="Ui.SavedSignedIn" xml:space="preserve"><value>Збережено й застосовано. {0}: частина змін подіє після виходу й повторного входу.</value></data>
-  <data name="Ui.Remove" xml:space="preserve"><value>Прибрати</value></data>
+  <data name="Ui.SavedSignedIn" xml:space="preserve"><value>Збережено й застосовано. {0}: частина змін почне діяти після наступного входу.</value></data>
+  <data name="Ui.Remove" xml:space="preserve"><value>Видалити</value></data>
   <data name="Ui.Add" xml:space="preserve"><value>Додати</value></data>
   <data name="Ui.Refresh" xml:space="preserve"><value>Оновити</value></data>
   <data name="Ui.Edit" xml:space="preserve"><value>Змінити</value></data>
-  <data name="Ui.Column.Path" xml:space="preserve"><value>Папка або файл</value></data>
-  <data name="Ui.Column.Name" xml:space="preserve"><value>Назва</value></data>
-  <data name="Ui.Column.Category" xml:space="preserve"><value>Категорія</value></data>
-  <data name="Ui.Column.Note" xml:space="preserve"><value>Примітка</value></data>
-  <data name="Ui.Column.Mode" xml:space="preserve"><value>Доступ</value></data>
-  <data name="Ui.Column.Rights" xml:space="preserve"><value>Що саме</value></data>
-  <data name="Ui.Column.Users" xml:space="preserve"><value>Облікові записи</value></data>
   <data name="Ui.Column.Value" xml:space="preserve"><value>Значення</value></data>
-  <data name="Ui.Column.Result" xml:space="preserve"><value>Результат</value></data>
-  <data name="Ui.Column.Check" xml:space="preserve"><value>Перевірка</value></data>
-  <data name="Ui.Column.Detail" xml:space="preserve"><value>Подробиці</value></data>
-  <data name="Ui.Nav.Status" xml:space="preserve"><value>Стан</value></data>
+  <data name="Ui.Nav.Status" xml:space="preserve"><value>Огляд</value></data>
   <data name="Ui.Nav.Accounts" xml:space="preserve"><value>Облікові записи</value></data>
-  <data name="Ui.Nav.Games" xml:space="preserve"><value>Ігри</value></data>
-  <data name="Ui.Nav.Programs" xml:space="preserve"><value>Програми</value></data>
-  <data name="Ui.Nav.FileAccess" xml:space="preserve"><value>Файли й папки</value></data>
+  <data name="Ui.Nav.FileAccess" xml:space="preserve"><value>Доступ до файлів</value></data>
   <data name="Ui.Nav.Browsers" xml:space="preserve"><value>Браузери</value></data>
   <data name="Ui.Nav.Audit" xml:space="preserve"><value>Перевірка безпеки</value></data>
   <data name="Ui.Nav.Settings" xml:space="preserve"><value>Налаштування</value></data>
   <data name="Ui.Status.Service" xml:space="preserve"><value>Служба</value></data>
-  <data name="Ui.Status.Restrictions" xml:space="preserve"><value>Обмеження</value></data>
-  <data name="Ui.Status.On" xml:space="preserve"><value>увімкнено</value></data>
-  <data name="Ui.Status.Suspended" xml:space="preserve"><value>ПРИЗУПИНЕНО</value></data>
-  <data name="Ui.Status.Games" xml:space="preserve"><value>Ігри</value></data>
-  <data name="Ui.Status.GamesUntil" xml:space="preserve"><value>дозволено до {0}</value></data>
-  <data name="Ui.Status.GamesBlocked" xml:space="preserve"><value>заблоковано</value></data>
-  <data name="Ui.Status.LastApplied" xml:space="preserve"><value>Останнє застосування</value></data>
-  <data name="Ui.Status.Store" xml:space="preserve"><value>Встановлення з Store</value></data>
-  <data name="Ui.Status.StoreAdmins" xml:space="preserve"><value>лише адміністратори</value></data>
-  <data name="Ui.Status.StoreEveryone" xml:space="preserve"><value>усі</value></data>
-  <data name="Ui.Status.Unreadable" xml:space="preserve"><value>не вдалося прочитати</value></data>
-  <data name="Ui.Status.NotApplied" xml:space="preserve"><value>обмеження НЕ застосовано</value></data>
-  <data name="Ui.Status.AccountRules" xml:space="preserve"><value>заблоковано папок {0}, дозволено {1}, файлів {2}, назв {3}</value></data>
-  <data name="Ui.Status.Unlocked" xml:space="preserve"><value>ключі політик НЕ закрито</value></data>
+  <data name="Ui.Status.On" xml:space="preserve"><value>Захист увімкнено</value></data>
+  <data name="Ui.Status.Suspended" xml:space="preserve"><value>Обмеження призупинено</value></data>
+  <data name="Ui.Status.Unreadable" xml:space="preserve"><value>Не вдалося прочитати налаштування облікового запису</value></data>
+  <data name="Ui.Status.NotApplied" xml:space="preserve"><value>Обмеження НЕ застосовано</value></data>
+  <data name="Ui.Status.Unlocked" xml:space="preserve"><value>Застосовано, але обліковий запис може їх змінити</value></data>
   <data name="Ui.Status.AccountsHeader" xml:space="preserve"><value>Обмежені облікові записи</value></data>
   <data name="Ui.Status.ApplyNow" xml:space="preserve"><value>Застосувати зараз</value></data>
-  <data name="Ui.Status.SuspendAll" xml:space="preserve"><value>Призупинити всі обмеження</value></data>
-  <data name="Ui.Status.Resume" xml:space="preserve"><value>Увімкнути обмеження</value></data>
-  <data name="Ui.Status.ConfirmSuspend" xml:space="preserve"><value>Зняти ВСІ обмеження, доки ви їх знову не ввімкнете?</value></data>
+  <data name="Ui.Status.SuspendAll" xml:space="preserve"><value>Призупинити</value></data>
+  <data name="Ui.Status.Resume" xml:space="preserve"><value>Увімкнути</value></data>
+  <data name="Ui.Status.ConfirmSuspend" xml:space="preserve"><value>Зняти всі обмеження, доки ви не ввімкнете їх знову?</value></data>
   <data name="Ui.Accounts.Add" xml:space="preserve"><value>Обмежити</value></data>
   <data name="Ui.Accounts.Remove" xml:space="preserve"><value>Зняти обмеження</value></data>
-  <data name="Ui.Accounts.ConfirmRemove" xml:space="preserve"><value>Перестати обмежувати {0} і зняти його обмеження?</value></data>
-  <data name="Ui.Accounts.Help" xml:space="preserve"><value>Обмеження діють лише на облікові записи, позначені як обмежені. Адміністратори тут не показуються й ніколи не обмежуються. Обліковий запис з&apos;являється тут після першого входу в систему.</value></data>
-  <data name="Ui.Games.AllowFor" xml:space="preserve"><value>«Дозволити» дає</value></data>
-  <data name="Ui.Games.Hours" xml:space="preserve"><value>год</value></data>
-  <data name="Ui.Games.Allow" xml:space="preserve"><value>Дозволити</value></data>
-  <data name="Ui.Games.Lock" xml:space="preserve"><value>Заблокувати</value></data>
-  <data name="Ui.Games.Now" xml:space="preserve"><value>Зараз</value></data>
-  <data name="Ui.Games.FindHeader" xml:space="preserve"><value>Встановлені ігри, які ще не заблоковано</value></data>
-  <data name="Ui.Games.Find" xml:space="preserve"><value>Шукати</value></data>
-  <data name="Ui.Games.BlockSelected" xml:space="preserve"><value>Заблокувати вибрані</value></data>
+  <data name="Ui.Accounts.ConfirmRemove" xml:space="preserve"><value>Зняти всі обмеження з {0}?</value></data>
+  <data name="Ui.Accounts.Help" xml:space="preserve"><value>Обмеження діють лише на обмежені облікові записи. Адміністратори тут не показуються й ніколи не обмежуються. Обліковий запис з&apos;являється тут після першого входу.
+
+Профіль — це набір правил: програми та ігри, обмеження Windows, браузери. Кожен обліковий запис може мати власний профіль, або кілька облікових записів можуть мати спільний.</value></data>
+  <data name="Ui.Games.Lock" xml:space="preserve"><value>Заблокувати на сьогодні</value></data>
+  <data name="Ui.Games.FindHeader" xml:space="preserve"><value>Папки з іграми, яких немає в списку</value></data>
+  <data name="Ui.Games.Find" xml:space="preserve"><value>Знайти встановлені ігри</value></data>
+  <data name="Ui.Games.BlockSelected" xml:space="preserve"><value>Додати вибрані як ігри</value></data>
   <data name="Ui.Games.FoundCount" xml:space="preserve"><value>Знайдено папок з іграми: {0}.</value></data>
-  <data name="Ui.Games.Help" xml:space="preserve"><value>Ігри — це програми, папки й назви зі списку нижче. Коли ігри дозволено, вони запускаються; в інший час — заблоковані. За п&apos;ять хвилин до кінця на екрані облікового запису з&apos;являється повідомлення. Онлайн-ігри, заблоковані DNS-фільтром, це не зачіпає.</value></data>
-  <data name="Ui.Programs.BlockedFolders" xml:space="preserve"><value>Заблоковані папки</value></data>
-  <data name="Ui.Programs.AllowedFolders" xml:space="preserve"><value>Дозволені папки (працюють навіть усередині заблокованого місця)</value></data>
-  <data name="Ui.Programs.BlockedNames" xml:space="preserve"><value>Заблоковані назви програм</value></data>
-  <data name="Ui.Programs.BlockedFiles" xml:space="preserve"><value>Програми, заблоковані за відбитком (перейменування не допоможе)</value></data>
-  <data name="Ui.Programs.Category" xml:space="preserve"><value>Категорія для нових записів</value></data>
-  <data name="Ui.Programs.AddFolder" xml:space="preserve"><value>Заблокувати папку…</value></data>
-  <data name="Ui.Programs.AddAllowed" xml:space="preserve"><value>Дозволити папку…</value></data>
-  <data name="Ui.Programs.AddName" xml:space="preserve"><value>Заблокувати назву</value></data>
-  <data name="Ui.Programs.AddFile" xml:space="preserve"><value>Заблокувати програму…</value></data>
-  <data name="Ui.Programs.PickBlockFolder" xml:space="preserve"><value>Програми з цієї папки не запускатимуться для обмежених облікових записів</value></data>
-  <data name="Ui.Programs.PickAllowFolder" xml:space="preserve"><value>Папка з програмою, яка має працювати, хоч і знаходиться в заблокованому місці</value></data>
-  <data name="Ui.Programs.PickBlockFile" xml:space="preserve"><value>Програма, яку треба заблокувати за відбитком</value></data>
-  <data name="Ui.Programs.ProgramsFilter" xml:space="preserve"><value>Програми</value></data>
-  <data name="Ui.Programs.Help" xml:space="preserve"><value>Виберіть програму, і вона не запуститься для обмежених облікових записів, навіть перейменована, перенесена чи оновлена. Для ігор є окрема сторінка. Командний рядок, PowerShell та подібні засоби заблоковано за замовчуванням (категорія «системні засоби»).</value></data>
-  <data name="Ui.Category.Writable" xml:space="preserve"><value>місце з записом</value></data>
+  <data name="Ui.Games.Help" xml:space="preserve"><value>Ігри — це записи з правилом «Гра» у списку нижче. Вони запускаються лише за розкладом і в межах денного ліміту. За п&apos;ять хвилин до кінця на екрані облікового запису з&apos;являється попередження. Онлайн-ігор, заблокованих DNS-фільтром, це не стосується.</value></data>
+  <data name="Ui.Category.Writable" xml:space="preserve"><value>місце з правом запису</value></data>
   <data name="Ui.Category.Games" xml:space="preserve"><value>ігри</value></data>
   <data name="Ui.Category.Vpn" xml:space="preserve"><value>VPN і проксі</value></data>
-  <data name="Ui.Category.Tools" xml:space="preserve"><value>системні засоби</value></data>
+  <data name="Ui.Category.Tools" xml:space="preserve"><value>системний засіб</value></data>
   <data name="Ui.Category.Other" xml:space="preserve"><value>інше</value></data>
-  <data name="Ui.Access.Header" xml:space="preserve"><value>Правила доступу</value></data>
-  <data name="Ui.Access.Path" xml:space="preserve"><value>Файл або папка</value></data>
-  <data name="Ui.Access.Folder" xml:space="preserve"><value>Папка…</value></data>
-  <data name="Ui.Access.File" xml:space="preserve"><value>Файл…</value></data>
-  <data name="Ui.Access.PickFolder" xml:space="preserve"><value>Папка, яку треба захистити</value></data>
-  <data name="Ui.Access.PickFile" xml:space="preserve"><value>Файл, який треба захистити</value></data>
+  <data name="Ui.Access.Header" xml:space="preserve"><value>Правила</value></data>
   <data name="Ui.Access.Deny" xml:space="preserve"><value>Заборонити</value></data>
   <data name="Ui.Access.Allow" xml:space="preserve"><value>Дозволити</value></data>
   <data name="Ui.Access.Read" xml:space="preserve"><value>відкривати й читати</value></data>
@@ -239,36 +192,33 @@
   <data name="Ui.Access.Execute" xml:space="preserve"><value>запускати програми</value></data>
   <data name="Ui.Access.Delete" xml:space="preserve"><value>видаляти</value></data>
   <data name="Ui.Access.Full" xml:space="preserve"><value>усе</value></data>
-  <data name="Ui.Access.Users" xml:space="preserve"><value>Облікові записи (через кому; порожньо = усі обмежені)</value></data>
-  <data name="Ui.Access.AllAccounts" xml:space="preserve"><value>усі обмежені</value></data>
-  <data name="Ui.Access.AddRule" xml:space="preserve"><value>Додати правило</value></data>
-  <data name="Ui.Access.Help" xml:space="preserve"><value>UseControl запам&apos;ятовує кожен доданий ним дозвіл і прибирає саме його; інших прав не чіпає. Папки Windows, корені дисків, Program Files і папку профілів використати не можна.</value></data>
-  <data name="Ui.Browsers.Browser" xml:space="preserve"><value>Браузер</value></data>
-  <data name="Ui.Browsers.Extensions" xml:space="preserve"><value>Дозволені розширення</value></data>
+  <data name="Ui.Access.AllAccounts" xml:space="preserve"><value>усі обмежені облікові записи</value></data>
+  <data name="Ui.Access.Help" xml:space="preserve"><value>UseControl запам&apos;ятовує кожен дозвіл, який додає, і прибирає саме його; інших прав не чіпає. Папки Windows, корені дисків, Program Files і папку Users використати не можна.
+
+Щоб програми не запускалися з папки, скористайтеся розділом «Програми та ігри».</value></data>
+  <data name="Ui.Browsers.Extensions" xml:space="preserve"><value>Розширення</value></data>
   <data name="Ui.Browsers.BlockExtensions" xml:space="preserve"><value>Блокувати всі інші розширення</value></data>
   <data name="Ui.Browsers.ExtensionId" xml:space="preserve"><value>ID розширення</value></data>
   <data name="Ui.Browsers.Policies" xml:space="preserve"><value>Політики</value></data>
   <data name="Ui.Browsers.Set" xml:space="preserve"><value>Задати</value></data>
   <data name="Ui.Browsers.DisableDoh" xml:space="preserve"><value>Вимкнути DNS over HTTPS (щоб DNS-фільтр бачив усі сайти)</value></data>
   <data name="Ui.Browsers.DisablePrivate" xml:space="preserve"><value>Вимкнути приватний перегляд</value></data>
-  <data name="Ui.Browsers.Help" xml:space="preserve"><value>Будь-яку політику можна задати за назвою: Chrome (chromeenterprise.google/policies), Edge (learn.microsoft.com/deployedge), Firefox (mozilla.github.io/policy-templates). Цілі числа й true/false записуються як числа, решта як текст.</value></data>
+  <data name="Ui.Browsers.Help" xml:space="preserve"><value>Будь-яку політику можна задати за назвою: Chrome (chromeenterprise.google/policies), Edge (learn.microsoft.com/deployedge), Firefox (mozilla.github.io/policy-templates). Цілі числа й true/false записуються як числа, решта — як текст.</value></data>
   <data name="Ui.Audit.Run" xml:space="preserve"><value>Запустити перевірку</value></data>
   <data name="Ui.Audit.NotRun" xml:space="preserve"><value>Перевірку ще не запускали.</value></data>
   <data name="Ui.Settings.Language" xml:space="preserve"><value>Мова</value></data>
-  <data name="Ui.Settings.AutoHeader" xml:space="preserve"><value>Блокується автоматично</value></data>
-  <data name="Ui.Settings.Auto.SystemDriveRoot" xml:space="preserve"><value>Папки, створені в корені системного диска (C:\будь-що)</value></data>
+  <data name="Ui.Settings.AutoHeader" xml:space="preserve"><value>Блокувати програми в місцях, куди обліковий запис може записувати</value></data>
+  <data name="Ui.Settings.Auto.SystemDriveRoot" xml:space="preserve"><value>Папки в корені системного диска (C:\…)</value></data>
   <data name="Ui.Settings.Auto.WritableDriveRoots" xml:space="preserve"><value>Інші диски, куди можуть записувати звичайні користувачі</value></data>
-  <data name="Ui.Settings.Auto.OtherDriveLetters" xml:space="preserve"><value>USB-, мережеві й майбутні диски</value></data>
-  <data name="Ui.Settings.Auto.RecycleBins" xml:space="preserve"><value>Кошики</value></data>
-  <data name="Ui.Settings.Auto.SystemWritableFolders" xml:space="preserve"><value>Папки з записом усередині Windows, ProgramData, Users\Public</value></data>
+  <data name="Ui.Settings.Auto.OtherDriveLetters" xml:space="preserve"><value>USB-, мережеві та нові диски</value></data>
+  <data name="Ui.Settings.Auto.RecycleBins" xml:space="preserve"><value>Кошик</value></data>
+  <data name="Ui.Settings.Auto.SystemWritableFolders" xml:space="preserve"><value>Папки з правом запису в Windows, ProgramData і Users\Public</value></data>
   <data name="Ui.Settings.Auto.WritableProgramFolders" xml:space="preserve"><value>Папки програм, які можуть змінювати звичайні користувачі</value></data>
-  <data name="Ui.Settings.Store" xml:space="preserve"><value>Встановлювати програми зі Store можуть лише адміністратори (для всього ПК)</value></data>
-  <data name="Ui.Settings.AuditHeader" xml:space="preserve"><value>Що очікує перевірка безпеки (по одному в рядку)</value></data>
+  <data name="Ui.Settings.Store" xml:space="preserve"><value>Встановлювати програми з Microsoft Store можуть лише адміністратори</value></data>
   <data name="Ui.Settings.Admins" xml:space="preserve"><value>Адміністратори</value></data>
   <data name="Ui.Settings.PrivateFolders" xml:space="preserve"><value>Приватні папки</value></data>
-  <data name="Ui.Settings.HiddenAccounts" xml:space="preserve"><value>Облікові записи, приховані з екрана входу</value></data>
+  <data name="Ui.Settings.HiddenAccounts" xml:space="preserve"><value>Облікові записи, приховані на екрані входу</value></data>
   <data name="Ui.Settings.KnownRemoteServices" xml:space="preserve"><value>Відомі служби віддаленого доступу</value></data>
-  <data name="Ui.Settings.Save" xml:space="preserve"><value>Зберегти</value></data>
   <data name="Ui.Settings.BackupHeader" xml:space="preserve"><value>Резервна копія</value></data>
   <data name="Ui.Settings.Export" xml:space="preserve"><value>Експортувати налаштування…</value></data>
   <data name="Ui.Settings.Import" xml:space="preserve"><value>Імпортувати налаштування…</value></data>
@@ -278,7 +228,7 @@
   <data name="AuditDetail.NoUsers" xml:space="preserve"><value>Обмежених облікових записів ще немає.</value></data>
   <data name="AuditDetail.ServicesWritable" xml:space="preserve"><value>Звичайні користувачі можуть змінити програми цих служб (шлях до прав SYSTEM): {0}</value></data>
   <data name="AuditDetail.ServicesOk" xml:space="preserve"><value>Жодну програму чи папку служб звичайні користувачі змінити не можуть (перевірено {0}).</value></data>
-  <data name="AuditDetail.WritableOff" xml:space="preserve"><value>Автоматичне блокування місць із записом вимкнено (сторінка «Обмеження»).</value></data>
+  <data name="AuditDetail.WritableOff" xml:space="preserve"><value>Автоматичне блокування місць з правом запису вимкнено (сторінка «Обмеження Windows»).</value></data>
   <data name="AuditDetail.WritableBlocked" xml:space="preserve"><value>Сюди звичайні користувачі можуть записувати, тому програми звідси не запускаються (блокується автоматично): {0}</value></data>
   <data name="AuditDetail.WritableNone" xml:space="preserve"><value>Папок програм, які можуть змінювати звичайні користувачі, не знайдено.</value></data>
   <data name="AuditDetail.AllowedWritable" xml:space="preserve"><value>Дозволені, але звичайні користувачі можуть сюди записувати (скопійована програма запуститься): {0}</value></data>
@@ -317,25 +267,21 @@
   <data name="AuditDetail.RestrictionsMissing" xml:space="preserve"><value>Обмеження НЕ застосовано.</value></data>
   <data name="AuditDetail.RestrictionsOk" xml:space="preserve"><value>Застосовано: заблоковано папок {0}, дозволено {1}, файлів {2}, назв {3}; обліковий запис не може їх змінити.</value></data>
   <data name="AuditDetail.RestrictionsUnlocked" xml:space="preserve"><value>Застосовано (заблоковано папок {0}, дозволено {1}, файлів {2}, назв {3}), але обліковий запис МОЖЕ їх змінити.</value></data>
-  <data name="Ui.Nav.Restrictions" xml:space="preserve"><value>Обмеження</value></data>
-  <data name="Ui.Restrictions.ToolsHeader" xml:space="preserve"><value>Засоби Windows, недоступні обмеженим обліковим записам</value></data>
+  <data name="Ui.Nav.Restrictions" xml:space="preserve"><value>Обмеження Windows</value></data>
+  <data name="Ui.Restrictions.ToolsHeader" xml:space="preserve"><value>Заблокувати засоби Windows</value></data>
   <data name="Ui.Restrictions.CommandPrompt" xml:space="preserve"><value>Командний рядок і скрипти .bat/.cmd</value></data>
   <data name="Ui.Restrictions.RegistryEditor" xml:space="preserve"><value>Редактор реєстру</value></data>
-  <data name="Ui.Restrictions.TaskManager" xml:space="preserve"><value>Диспетчер задач</value></data>
-  <data name="Ui.Restrictions.ControlPanel" xml:space="preserve"><value>Панель керування й Параметри</value></data>
+  <data name="Ui.Restrictions.TaskManager" xml:space="preserve"><value>Диспетчер завдань</value></data>
+  <data name="Ui.Restrictions.ControlPanel" xml:space="preserve"><value>Панель керування та Параметри</value></data>
   <data name="Ui.Restrictions.RunDialog" xml:space="preserve"><value>Вікно «Виконати» (Win+R)</value></data>
-  <data name="Ui.Restrictions.Autorun" xml:space="preserve"><value>Автозапуск із флешок і дисків</value></data>
-  <data name="Ui.Restrictions.PasswordChange" xml:space="preserve"><value>Зміна пароля облікового запису (корисно для спільного облікового запису)</value></data>
-  <data name="Ui.Restrictions.ToolsHelp" xml:space="preserve"><value>Командним рядком, редактором реєстру й PowerShell можна зняти обмеження, тому вони заблоковані за замовчуванням. PowerShell та інші засоби блокуються за назвою на сторінці «Програми» (категорія «системні засоби»).</value></data>
-  <data name="Ui.Restrictions.InstallHeader" xml:space="preserve"><value>Встановлення програм</value></data>
-  <data name="Ui.Restrictions.InstallHelp" xml:space="preserve"><value>Програми зі Store встановлюються для облікового запису без пароля; з цим параметром їх можуть встановлювати лише адміністратори.</value></data>
-  <data name="Ui.Restrictions.Save" xml:space="preserve"><value>Зберегти й застосувати</value></data>
-  <data name="Ui.Audit.ExpectHeader" xml:space="preserve"><value>Що очікує перевірка (по одному в рядку)</value></data>
+  <data name="Ui.Restrictions.Autorun" xml:space="preserve"><value>Автозапуск з USB-накопичувачів і дисків</value></data>
+  <data name="Ui.Restrictions.PasswordChange" xml:space="preserve"><value>Зміна пароля облікового запису</value></data>
+  <data name="Ui.Restrictions.ToolsHelp" xml:space="preserve"><value>Командним рядком, редактором реєстру й PowerShell можна зняти обмеження, тому вони заблоковані за замовчуванням. PowerShell і подібні засоби блокуються за назвою в розділі «Програми та ігри».</value></data>
+  <data name="Ui.Restrictions.InstallHelp" xml:space="preserve"><value>Програми зі Store встановлюються без пароля адміністратора. Коли перемикач увімкнено, встановлювати їх можуть лише адміністратори. Діє для всіх облікових записів цього ПК.</value></data>
+  <data name="Ui.Audit.ExpectHeader" xml:space="preserve"><value>Очікувані налаштування (по одному в рядку)</value></data>
   <data name="Ui.Audit.ExpectSave" xml:space="preserve"><value>Зберегти</value></data>
-  <data name="Ui.Settings.AboutHeader" xml:space="preserve"><value>Про програму</value></data>
-  <data name="Ui.Settings.Version" xml:space="preserve"><value>Версія</value></data>
-  <data name="Ui.Settings.DataFolder" xml:space="preserve"><value>Налаштування зберігаються в</value></data>
-  <data name="Ui.Settings.LanguageHelp" xml:space="preserve"><value>Діє лише для цієї панелі; uc.exe бере мову Windows (або --lang).</value></data>
+  <data name="Ui.Settings.DataFolder" xml:space="preserve"><value>Папка налаштувань</value></data>
+  <data name="Ui.Settings.LanguageHelp" xml:space="preserve"><value>Діє лише для цього вікна. uc.exe використовує мову Windows (або --lang).</value></data>
   <data name="Error.InstallSourceIncomplete" xml:space="preserve"><value>{0} не містить {1}. Запускайте uc install з папки з опублікованими програмами.</value></data>
   <data name="Error.InstallFolderNotSafe" xml:space="preserve"><value>{0} можуть змінювати звичайні користувачі ({1}); спершу виправте права на неї.</value></data>
   <data name="Error.InstallFailed" xml:space="preserve"><value>Крок встановлення не вдався: {0}</value></data>
@@ -361,45 +307,28 @@
   <data name="Cli.ConfirmUninstallKeep" xml:space="preserve"><value>Видалити UseControl, але залишити обмеження як є? Введіть YES, щоб продовжити</value></data>
   <data name="Cli.UninstallLiftFailed" xml:space="preserve"><value>Не вдалося зняти обмеження через службу: {0}. Видалення зупинено; --keep-restrictions видалить UseControl попри це.</value></data>
   <data name="Cli.UninstallDone" xml:space="preserve"><value>UseControl видалено.</value></data>
-  <data name="Ui.Accounts.IsRestricted" xml:space="preserve"><value>обмежено</value></data>
-  <data name="Ui.Accounts.NotRestricted" xml:space="preserve"><value>без обмежень</value></data>
-  <data name="Ui.Accounts.Missing" xml:space="preserve"><value>немає на цьому ПК</value></data>
-  <data name="Ui.Accounts.Empty" xml:space="preserve"><value>На цьому ПК ще немає звичайних облікових записів. Створіть його в Параметрах Windows &gt; Облікові записи, увійдіть у нього один раз і поверніться сюди.</value></data>
-  <data name="Ui.Column.Kind" xml:space="preserve"><value>Як заблоковано</value></data>
-  <data name="Ui.Block.Kind.Program" xml:space="preserve"><value>файл і назва</value></data>
-  <data name="Ui.Block.Kind.Name" xml:space="preserve"><value>назва</value></data>
-  <data name="Ui.Block.Kind.Folder" xml:space="preserve"><value>папка</value></data>
-  <data name="Ui.Block.AddProgram" xml:space="preserve"><value>Заблокувати програму…</value></data>
-  <data name="Ui.Block.AddFolder" xml:space="preserve"><value>Заблокувати папку…</value></data>
-  <data name="Ui.Block.AddName" xml:space="preserve"><value>Заблокувати за назвою</value></data>
-  <data name="Ui.Block.Empty" xml:space="preserve"><value>Тут поки нічого немає.</value></data>
-  <data name="Ui.Programs.Header" xml:space="preserve"><value>Заблоковані програми</value></data>
+  <data name="Ui.Accounts.IsRestricted" xml:space="preserve"><value>Обмежено</value></data>
+  <data name="Ui.Accounts.NotRestricted" xml:space="preserve"><value>Без обмежень</value></data>
+  <data name="Ui.Accounts.Missing" xml:space="preserve"><value>Немає на цьому ПК</value></data>
+  <data name="Ui.Accounts.Empty" xml:space="preserve"><value>На цьому ПК ще немає звичайних облікових записів. Створіть його в Параметрах Windows › Облікові записи, увійдіть у нього один раз і поверніться сюди.</value></data>
+  <data name="Ui.Block.Empty" xml:space="preserve"><value>Тут поки порожньо.</value></data>
   <data name="Ui.Games.TimeHeader" xml:space="preserve"><value>Час для ігор</value></data>
-  <data name="Ui.Games.ListHeader" xml:space="preserve"><value>Заблоковані ігри</value></data>
-  <data name="Ui.Games.AddGame" xml:space="preserve"><value>Додати гру…</value></data>
-  <data name="Ui.Games.AddGameFolder" xml:space="preserve"><value>Додати папку з іграми…</value></data>
-  <data name="Ui.Games.PickGame" xml:space="preserve"><value>Програма гри (.exe)</value></data>
-  <data name="Ui.Games.PickFolder" xml:space="preserve"><value>Папка з іграми (блокується все всередині)</value></data>
-  <data name="Ui.Restrictions.AllowedHeader" xml:space="preserve"><value>Винятки: папки з програмами, що працюють усередині заблокованих місць</value></data>
-  <data name="Ui.Restrictions.AddAllowed" xml:space="preserve"><value>Додати виняток…</value></data>
-  <data name="Ui.Restrictions.AllowedHelp" xml:space="preserve"><value>Наприклад, шкільна програма, встановлена в C:\Tools: без винятку вона не запуститься, бо корінь диска C: заблоковано.</value></data>
-  <data name="Ui.Access.Intro" xml:space="preserve"><value>Закрийте приватні файли й папки від обмежених облікових записів або дозвольте лише переглядати їх.</value></data>
   <data name="Ui.Access.Preset" xml:space="preserve"><value>Доступ</value></data>
-  <data name="Ui.Access.Preset.NoAccess" xml:space="preserve"><value>Жодного доступу</value></data>
-  <data name="Ui.Access.Preset.ReadOnly" xml:space="preserve"><value>Можна відкривати, не можна змінювати й видаляти</value></data>
-  <data name="Ui.Access.Preset.NoRun" xml:space="preserve"><value>Не можна запускати звідси програми</value></data>
+  <data name="Ui.Access.Preset.NoAccess" xml:space="preserve"><value>Без доступу</value></data>
+  <data name="Ui.Access.Preset.ReadOnly" xml:space="preserve"><value>Лише перегляд</value></data>
+  <data name="Ui.Access.Preset.NoRun" xml:space="preserve"><value>Без запуску програм</value></data>
   <data name="Ui.Access.Preset.FullAllow" xml:space="preserve"><value>Повний доступ</value></data>
-  <data name="Ui.Access.ForAccounts" xml:space="preserve"><value>Для кого</value></data>
-  <data name="Error.PresetNotFound" xml:space="preserve"><value>Пресету «{0}» немає.</value></data>
-  <data name="Error.InvalidPresetName" xml:space="preserve"><value>«{0}» не може бути назвою пресету (від 1 до 40 символів).</value></data>
-  <data name="Error.PresetExists" xml:space="preserve"><value>Пресет «{0}» уже є.</value></data>
-  <data name="Error.PresetRequired" xml:space="preserve"><value>Пресетів кілька ({0}); виберіть один через --preset &lt;назва&gt;.</value></data>
-  <data name="Error.AccountInTwoPresets" xml:space="preserve"><value>{0} є у двох пресетах; обліковий запис може бути лише в одному.</value></data>
+  <data name="Ui.Access.ForAccounts" xml:space="preserve"><value>Облікові записи</value></data>
+  <data name="Error.PresetNotFound" xml:space="preserve"><value>Профілю «{0}» немає.</value></data>
+  <data name="Error.InvalidPresetName" xml:space="preserve"><value>«{0}» не може бути назвою профілю (від 1 до 40 символів).</value></data>
+  <data name="Error.PresetExists" xml:space="preserve"><value>Профіль «{0}» уже є.</value></data>
+  <data name="Error.PresetRequired" xml:space="preserve"><value>Профілів кілька ({0}); виберіть один через --profile &lt;назва&gt;.</value></data>
+  <data name="Error.AccountInTwoPresets" xml:space="preserve"><value>{0} є у двох профілях; обліковий запис може бути лише в одному.</value></data>
   <data name="Error.InvalidTime" xml:space="preserve"><value>«{0}» — не час (наприклад, 16:00).</value></data>
   <data name="Error.WindowEndsBeforeStart" xml:space="preserve"><value>Проміжок {0}–{1} закінчується раніше, ніж починається.</value></data>
   <data name="Error.NoDays" xml:space="preserve"><value>Виберіть хоча б один день.</value></data>
   <data name="Error.NotRestricted" xml:space="preserve"><value>{0} — не обмежений обліковий запис.</value></data>
-  <data name="Error.NoPresets" xml:space="preserve"><value>Пресетів ще немає: спершу обмежте обліковий запис (uc users add &lt;назва&gt;).</value></data>
+  <data name="Error.NoPresets" xml:space="preserve"><value>Профілів ще немає: спершу обмежте обліковий запис (uc users add &lt;назва&gt;).</value></data>
   <data name="Notify.Title" xml:space="preserve"><value>UseControl</value></data>
   <data name="Notify.GamesEndSoon" xml:space="preserve"><value>Час для ігор закінчується через {0} хв. Збережіть гру.</value></data>
   <data name="Notify.GamesOver" xml:space="preserve"><value>Час для ігор закінчився.</value></data>
@@ -414,7 +343,7 @@
   <data name="Games.State.LimitReached" xml:space="preserve"><value>сьогоднішній ліміт вичерпано</value></data>
   <data name="Games.State.LimitReachedNext" xml:space="preserve"><value>сьогоднішній ліміт вичерпано, наступного разу {0}</value></data>
   <data name="Games.State.OutsideSchedule" xml:space="preserve"><value>заблоковано, наступного разу {0}</value></data>
-  <data name="Games.State.NoWindows" xml:space="preserve"><value>заблоковано: у розкладі ще немає часу</value></data>
+  <data name="Games.State.NoWindows" xml:space="preserve"><value>заблоковано: розклад порожній</value></data>
   <data name="Games.Minutes" xml:space="preserve"><value>{0} хв</value></data>
   <data name="Games.Hours" xml:space="preserve"><value>{0} год</value></data>
   <data name="Games.HoursMinutes" xml:space="preserve"><value>{0} год {1} хв</value></data>
@@ -423,52 +352,89 @@
   <data name="Games.EveryDay" xml:space="preserve"><value>щодня</value></data>
   <data name="Games.UpTo" xml:space="preserve"><value>до {0} гри</value></data>
   <data name="Cli.UserInPreset" xml:space="preserve"><value>{0} ({1})</value></data>
-  <data name="Cli.PresetsNone" xml:space="preserve"><value>Пресетів ще немає: uc users add &lt;назва&gt; створить пресет для облікового запису.</value></data>
+  <data name="Cli.PresetsNone" xml:space="preserve"><value>Профілів ще немає: uc users add &lt;назва&gt; створить профіль для облікового запису.</value></data>
   <data name="Cli.PresetLine" xml:space="preserve"><value>{0}: облікові записи {1}; ігри: {2}</value></data>
-  <data name="Cli.GamesMode.Manual" xml:space="preserve"><value>коли дозволить адміністратор</value></data>
-  <data name="Cli.GamesMode.Schedule" xml:space="preserve"><value>за розкладом</value></data>
-  <data name="Cli.ScheduleHeader" xml:space="preserve"><value>Пресет {0}, ігри {1}:</value></data>
+  <data name="Cli.ScheduleHeader" xml:space="preserve"><value>Розклад ігор профілю {0}:</value></data>
   <data name="Cli.GamesAccount" xml:space="preserve"><value>[{0}] ігри: {1}; сьогодні зіграно {2} {3}</value></data>
   <data name="Cli.GamesPlaying" xml:space="preserve"><value>(грає зараз)</value></data>
   <data name="Ui.Ok" xml:space="preserve"><value>OK</value></data>
   <data name="Ui.Cancel" xml:space="preserve"><value>Скасувати</value></data>
-  <data name="Ui.Preset.Label" xml:space="preserve"><value>Пресет</value></data>
-  <data name="Ui.Preset.New" xml:space="preserve"><value>Новий пресет…</value></data>
-  <data name="Ui.Preset.Rename" xml:space="preserve"><value>Перейменувати</value></data>
-  <data name="Ui.Preset.Delete" xml:space="preserve"><value>Видалити</value></data>
-  <data name="Ui.Preset.For" xml:space="preserve"><value>Для: {0}</value></data>
-  <data name="Ui.Preset.NoAccounts" xml:space="preserve"><value>Цей пресет ще не призначено жодному обліковому запису: виберіть його на сторінці «Облікові записи».</value></data>
-  <data name="Ui.Preset.NoneYet" xml:space="preserve"><value>Пресетів ще немає: спершу обмежте обліковий запис на сторінці «Облікові записи».</value></data>
-  <data name="Ui.Preset.NewPrompt" xml:space="preserve"><value>Назва нового пресету (він буде копією того, що відкрито зараз):</value></data>
-  <data name="Ui.Preset.RenamePrompt" xml:space="preserve"><value>Нова назва пресету {0}:</value></data>
-  <data name="Ui.Preset.ConfirmDelete" xml:space="preserve"><value>Видалити пресет {0}?</value></data>
-  <data name="Ui.Preset.ConfirmDeleteAccounts" xml:space="preserve"><value>Видалити пресет {0}? {1} більше не буде обмежено.</value></data>
-  <data name="Ui.Accounts.OwnPreset" xml:space="preserve"><value>Власний: {0} (новий)</value></data>
-  <data name="Ui.Accounts.PresetHelp" xml:space="preserve"><value>Пресет — це набір правил для облікового запису: засоби Windows, ігри та час для них, програми, браузери. Кожен обліковий запис може мати власний пресет, або кілька можуть мати спільний. Пресет змінюється на сторінках «Обмеження», «Ігри», «Програми» й «Браузери».</value></data>
-  <data name="Ui.Accounts.WholePc" xml:space="preserve"><value>Для всього ПК</value></data>
-  <data name="Ui.Restrictions.AutoHelp" xml:space="preserve"><value>Програми, які обліковий запис завантажив чи скопіював, не запускаються з цих місць. Інсталятори, яким потрібні права адміністратора, і так просять пароль.</value></data>
+  <data name="Ui.Preset.Label" xml:space="preserve"><value>Профіль</value></data>
+  <data name="Ui.Preset.New" xml:space="preserve"><value>Новий профіль</value></data>
+  <data name="Ui.Preset.Rename" xml:space="preserve"><value>Перейменувати профіль</value></data>
+  <data name="Ui.Preset.Delete" xml:space="preserve"><value>Видалити профіль</value></data>
+  <data name="Ui.Preset.For" xml:space="preserve"><value>Діє для: {0}</value></data>
+  <data name="Ui.Preset.NoAccounts" xml:space="preserve"><value>Ще не призначено жодному обліковому запису. Призначте його на сторінці «Облікові записи».</value></data>
+  <data name="Ui.Preset.NoneYet" xml:space="preserve"><value>Профілів ще немає: спершу обмежте обліковий запис на сторінці «Облікові записи».</value></data>
+  <data name="Ui.Preset.NewPrompt" xml:space="preserve"><value>Назва нового профілю (спочатку це копія поточного):</value></data>
+  <data name="Ui.Preset.RenamePrompt" xml:space="preserve"><value>Нова назва профілю {0}:</value></data>
+  <data name="Ui.Preset.ConfirmDelete" xml:space="preserve"><value>Видалити профіль {0}?</value></data>
+  <data name="Ui.Preset.ConfirmDeleteAccounts" xml:space="preserve"><value>Видалити профіль {0}? {1} більше не буде обмежено.</value></data>
+  <data name="Ui.Accounts.OwnPreset" xml:space="preserve"><value>Новий профіль: {0}</value></data>
+  <data name="Ui.Accounts.WholePc" xml:space="preserve"><value>Весь ПК</value></data>
+  <data name="Ui.Restrictions.AutoHelp" xml:space="preserve"><value>Програми, які обліковий запис завантажив чи скопіював, не запускаються з цих місць. Інсталятори, яким потрібні права адміністратора, і так просять пароль. Винятки задаються в розділі «Програми та ігри» › «Завжди дозволено».</value></data>
   <data name="Ui.Settings.ThemeHeader" xml:space="preserve"><value>Тема</value></data>
   <data name="Ui.Settings.Theme.System" xml:space="preserve"><value>Як у Windows</value></data>
   <data name="Ui.Settings.Theme.Light" xml:space="preserve"><value>Світла</value></data>
   <data name="Ui.Settings.Theme.Dark" xml:space="preserve"><value>Темна</value></data>
-  <data name="Ui.Status.GamesHeader" xml:space="preserve"><value>Ігри зараз</value></data>
-  <data name="Ui.Games.NowHeader" xml:space="preserve"><value>Зараз</value></data>
   <data name="Ui.Games.Locked" xml:space="preserve"><value>{0}: ігри заблоковано до кінця дня.</value></data>
-  <data name="Ui.Games.PlayedToday" xml:space="preserve"><value>сьогодні зіграно: {0}</value></data>
-  <data name="Ui.Games.PlayingNow" xml:space="preserve"><value>грає зараз</value></data>
-  <data name="Ui.Games.CountPlay" xml:space="preserve"><value>гри (таймер іде, лише коли гра запущена)</value></data>
-  <data name="Ui.Games.CountClock" xml:space="preserve"><value>від цієї миті</value></data>
-  <data name="Ui.Games.AllowHelp" xml:space="preserve"><value>«Заблокувати» забирає даний час, а з розкладом — блокує ігри до кінця дня.</value></data>
-  <data name="Ui.Games.WhenHeader" xml:space="preserve"><value>Коли можна грати</value></data>
-  <data name="Ui.Games.ModeManual" xml:space="preserve"><value>Лише коли я дозволю</value></data>
-  <data name="Ui.Games.ModeSchedule" xml:space="preserve"><value>За розкладом (і коли я дозволю)</value></data>
-  <data name="Ui.Games.NoWindows" xml:space="preserve"><value>Часу ще немає: додайте дні й години нижче.</value></data>
-  <data name="Ui.Games.AddWindowHeader" xml:space="preserve"><value>Додати час:</value></data>
-  <data name="Ui.Games.From" xml:space="preserve"><value>з</value></data>
-  <data name="Ui.Games.To" xml:space="preserve"><value>до</value></data>
-  <data name="Ui.Games.Limit" xml:space="preserve"><value>не більше</value></data>
-  <data name="Ui.Games.NoLimit" xml:space="preserve"><value>увесь час</value></data>
-  <data name="Ui.Games.AddWindow" xml:space="preserve"><value>Додати</value></data>
-  <data name="Ui.Games.ScheduleHelp" xml:space="preserve"><value>Ліміт рахує лише час, коли гра справді запущена, за весь день. Наприклад: Пн–Пт 16:00–20:00, не більше 1 год; Сб–Нд 10:00–21:00, не більше 3 год.</value></data>
+  <data name="Ui.Games.PlayedToday" xml:space="preserve"><value>Сьогодні зіграно: {0}</value></data>
+  <data name="Ui.Games.PlayingNow" xml:space="preserve"><value>Грає зараз</value></data>
+  <data name="Ui.Games.WhenHeader" xml:space="preserve"><value>Розклад</value></data>
+  <data name="Ui.Games.NoWindows" xml:space="preserve"><value>Розклад порожній, тому ігри заблоковано.</value></data>
+  <data name="Ui.Games.Limit" xml:space="preserve"><value>Ліміт</value></data>
+  <data name="Ui.Games.NoLimit" xml:space="preserve"><value>Без ліміту</value></data>
+  <data name="Ui.Games.AddWindow" xml:space="preserve"><value>+ Додати час</value></data>
+  <data name="Ui.Games.ScheduleHelp" xml:space="preserve"><value>Ігри запускаються лише в ці години. Ліміт рахує лише час, коли гра справді запущена, за весь день. Наприклад: Пн–Пт 16:00–20:00, ліміт 1 год; Сб–Нд 10:00–21:00, ліміт 3 год.</value></data>
   <data name="Ui.Games.CloseWhenOver" xml:space="preserve"><value>Закривати ігри, коли час вийшов (через хвилину після попередження)</value></data>
+  <data name="Ui.Games.Unlock" xml:space="preserve"><value>Повернути розклад</value></data>
+  <data name="Ui.Games.Unlocked" xml:space="preserve"><value>{0}: знову діє розклад.</value></data>
+  <data name="Ui.AdminOnly" xml:space="preserve"><value>Користуватися UseControl можуть лише адміністратори.
+
+Перезапустити від імені адміністратора? Windows попросить пароль адміністратора.</value></data>
+  <data name="Ui.Nav.Status.Subtitle" xml:space="preserve"><value>Стан захисту цього ПК</value></data>
+  <data name="Ui.Nav.Accounts.Subtitle" xml:space="preserve"><value>Які облікові записи обмежено і яким профілем</value></data>
+  <data name="Ui.Nav.Apps" xml:space="preserve"><value>Програми та ігри</value></data>
+  <data name="Ui.Nav.FileAccess.Subtitle" xml:space="preserve"><value>Захистіть приватні файли й папки від обмежених облікових записів</value></data>
+  <data name="Ui.Nav.Audit.Subtitle" xml:space="preserve"><value>Слабкі місця, якими обмежений обліковий запис міг би обійти обмеження</value></data>
+  <data name="Ui.Nav.ProfileSection" xml:space="preserve"><value>ПРОФІЛЬ</value></data>
+  <data name="Ui.Nav.ComputerSection" xml:space="preserve"><value>ЦЕЙ ПК</value></data>
+  <data name="Ui.Status.Details" xml:space="preserve"><value>Служба {0} · застосовано {1}</value></data>
+  <data name="Ui.Status.Applied" xml:space="preserve"><value>Обмеження діють</value></data>
+  <data name="Ui.Status.NoAccounts" xml:space="preserve"><value>Обмежених облікових записів ще немає. Виберіть їх на сторінці «Облікові записи».</value></data>
+  <data name="Ui.Accounts.Header" xml:space="preserve"><value>Облікові записи цього ПК</value></data>
+  <data name="Ui.Games.FindHelp" xml:space="preserve"><value>Шукає папки з іграми (Steam, Epic, GOG та інші), яких ще немає в списку.</value></data>
+  <data name="Ui.Apps.ListHeader" xml:space="preserve"><value>Програми та ігри</value></data>
+  <data name="Ui.Apps.Help" xml:space="preserve"><value>Кожен запис — це програма, назва програми або папка. Записи з правилом «Гра» запускаються лише в час для ігор; «Завжди заблоковано» не запускаються ніколи.
+
+Програма розпізнається за вмістом, тож перейменування, перенесення чи копіювання не допоможе, а її назва блокує й новіші версії. Папка охоплює всі програми в ній.</value></data>
+  <data name="Ui.Apps.AddAs" xml:space="preserve"><value>Додати як</value></data>
+  <data name="Ui.Apps.AddPrograms" xml:space="preserve"><value>Програми…</value></data>
+  <data name="Ui.Apps.AddFolders" xml:space="preserve"><value>Папки…</value></data>
+  <data name="Ui.Apps.AddNames" xml:space="preserve"><value>За назвою…</value></data>
+  <data name="Ui.Apps.NamePrompt" xml:space="preserve"><value>Назви файлів програм через кому (наприклад, game.exe, launcher.exe):</value></data>
+  <data name="Ui.Apps.PickPrograms" xml:space="preserve"><value>Виберіть програми (можна кілька)</value></data>
+  <data name="Ui.Apps.PickFolders" xml:space="preserve"><value>Виберіть папки: правило діятиме для всіх програм у них (можна кілька)</value></data>
+  <data name="Ui.Apps.ProgramsFilter" xml:space="preserve"><value>Програми</value></data>
+  <data name="Ui.Apps.Rule.Game" xml:space="preserve"><value>Гра, за розкладом</value></data>
+  <data name="Ui.Apps.Rule.Blocked" xml:space="preserve"><value>Завжди заблоковано</value></data>
+  <data name="Ui.Apps.Filter.All" xml:space="preserve"><value>Усі</value></data>
+  <data name="Ui.Apps.Filter.Games" xml:space="preserve"><value>Ігри</value></data>
+  <data name="Ui.Apps.Filter.Blocked" xml:space="preserve"><value>Заблоковані</value></data>
+  <data name="Ui.Apps.Search" xml:space="preserve"><value>Пошук</value></data>
+  <data name="Ui.Apps.Kind.Program" xml:space="preserve"><value>Програма, за вмістом і назвою</value></data>
+  <data name="Ui.Apps.Kind.Name" xml:space="preserve"><value>Назва програми</value></data>
+  <data name="Ui.Apps.Kind.Folder" xml:space="preserve"><value>Папка</value></data>
+  <data name="Ui.Apps.AllowedHeader" xml:space="preserve"><value>Завжди дозволено</value></data>
+  <data name="Ui.Apps.AllowedHelp" xml:space="preserve"><value>Папки з програмами, що запускаються навіть усередині заблокованого місця. Наприклад, шкільна програма в C:\Tools без такого винятку не запуститься, бо корінь диска C: заблоковано.</value></data>
+  <data name="Ui.Apps.AddAllowed" xml:space="preserve"><value>Додати папки…</value></data>
+  <data name="Ui.Apps.PickAllowFolders" xml:space="preserve"><value>Папки з програмами, які мають запускатися завжди (можна кілька)</value></data>
+  <data name="Ui.Access.NewHeader" xml:space="preserve"><value>Нове правило</value></data>
+  <data name="Ui.Access.Folders" xml:space="preserve"><value>Додати папки…</value></data>
+  <data name="Ui.Access.Files" xml:space="preserve"><value>Додати файли…</value></data>
+  <data name="Ui.Access.PickFolders" xml:space="preserve"><value>Папки, які треба захистити (можна кілька)</value></data>
+  <data name="Ui.Access.PickFiles" xml:space="preserve"><value>Файли, які треба захистити (можна кілька)</value></data>
+  <data name="Ui.Access.ChooseAccounts" xml:space="preserve"><value>Позначте хоча б один обліковий запис.</value></data>
+  <data name="Ui.Browsers.ExtensionsHelp" xml:space="preserve"><value>Коли інші розширення заблоковано, встановити можна лише розширення з цього списку. ID — це код із 32 літер у кінці адреси сторінки розширення в магазині.</value></data>
+  <data name="Ui.Browsers.PolicyName" xml:space="preserve"><value>Назва політики</value></data>
 </root>

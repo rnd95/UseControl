@@ -1,0 +1,440 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Error.Unknown" xml:space="preserve"><value>Unbekannter Fehler.</value></data>
+  <data name="Error.ConfigNotFound" xml:space="preserve"><value>Konfiguration nicht gefunden: {0}</value></data>
+  <data name="Error.ConfigInvalid" xml:space="preserve"><value>Die Konfiguration {0} ist ungültig: {1}</value></data>
+  <data name="Error.ConfigTooNew" xml:space="preserve"><value>Die Konfiguration {0} wurde von einer neueren UseControl-Version geschrieben (Schema {1}); diese Version unterstützt bis {2}.</value></data>
+  <data name="Error.PathNotAbsolute" xml:space="preserve"><value>Kein absoluter lokaler Pfad: „{0}“.</value></data>
+  <data name="Error.PathInvalidCharacters" xml:space="preserve"><value>Der Pfad enthält unzulässige Zeichen: „{0}“.</value></data>
+  <data name="Error.PathProtected" xml:space="preserve"><value>{0} wird von Windows oder allen Programmen benötigt und kann hier nicht verwendet werden.</value></data>
+  <data name="Error.PathContainsProtected" xml:space="preserve"><value>{0} enthält {1}, das Windows benötigt.</value></data>
+  <data name="Error.PathInsideWindows" xml:space="preserve"><value>{0} liegt im Windows-Ordner; Zugriffsänderungen dort können Windows beschädigen.</value></data>
+  <data name="Error.WholeDriveNotAllowed" xml:space="preserve"><value>Ein ganzes Laufwerk ({0}) kann hier nicht verwendet werden.</value></data>
+  <data name="Error.AlreadyInList" xml:space="preserve"><value>{0} ist bereits in der Liste.</value></data>
+  <data name="Error.NotInList" xml:space="preserve"><value>{0} ist nicht in der Liste.</value></data>
+  <data name="Error.InvalidProgramName" xml:space="preserve"><value>„{0}“ ist kein Programmdateiname (zum Beispiel game.exe).</value></data>
+  <data name="Error.InvalidUserName" xml:space="preserve"><value>„{0}“ ist kein gültiger lokaler Kontoname.</value></data>
+  <data name="Error.InvalidExtensionId" xml:space="preserve"><value>„{0}“ ist keine gültige Erweiterungs-ID für {1}.</value></data>
+  <data name="Error.InvalidFileHash" xml:space="preserve"><value>Der Dateifingerabdruck von „{0}“ ist ungültig.</value></data>
+  <data name="Error.NoRights" xml:space="preserve"><value>Wählen Sie mindestens eine Zugriffsart.</value></data>
+  <data name="Error.InvalidPolicyValue" xml:space="preserve"><value>Richtlinie {0}: Nur Zahlen, true/false, Text oder null werden unterstützt.</value></data>
+  <data name="Error.AccountNotFound" xml:space="preserve"><value>Es gibt kein lokales Konto „{0}“.</value></data>
+  <data name="Error.AccountIsAdministrator" xml:space="preserve"><value>{0} ist ein Administrator; nur Standardkonten können eingeschränkt werden.</value></data>
+  <data name="Error.ProfileMissing" xml:space="preserve"><value>Das Konto {0} hat sich noch nie bei Windows angemeldet: Melden Sie sich einmal als {0} an und wieder ab.</value></data>
+  <data name="Error.HiveLoadFailed" xml:space="preserve"><value>Die Einstellungen von {0} können nicht geöffnet werden (Windows-Fehler {1}). Ist das Konto angemeldet, versuchen Sie es nach der Abmeldung erneut.</value></data>
+  <data name="Error.AdministratorRequired" xml:space="preserve"><value>Dafür sind Administratorrechte erforderlich (als Administrator ausführen).</value></data>
+  <data name="Error.ServiceNotRunning" xml:space="preserve"><value>Der UseControl-Dienst läuft nicht oder ist nicht installiert.</value></data>
+  <data name="Error.ServiceNotTrusted" xml:space="preserve"><value>Das Programm, das als UseControl-Dienst antwortet, ist nicht der Dienst. Es wurde nichts gesendet.</value></data>
+  <data name="Error.ServiceFailed" xml:space="preserve"><value>Der UseControl-Dienst hat einen Fehler gemeldet: {0}</value></data>
+  <data name="Error.UnknownCommand" xml:space="preserve"><value>Unbekannter Befehl „{0}“.</value></data>
+  <data name="Error.InvalidRequest" xml:space="preserve"><value>Die Anfrage ist ungültig: {0}</value></data>
+  <data name="Error.HoursOutOfRange" xml:space="preserve"><value>Wählen Sie zwischen {0} und {1} Stunden.</value></data>
+  <data name="Error.InvalidPolicyName" xml:space="preserve"><value>„{0}“ ist kein Richtlinienname (Buchstaben und Ziffern, zum Beispiel IncognitoModeAvailability).</value></data>
+  <data name="Error.InvalidArgument" xml:space="preserve"><value>„{0}“ ist kein gültiger Wert für {1}.</value></data>
+  <data name="Cli.ErrorPrefix" xml:space="preserve"><value>Fehler: {0}</value></data>
+  <data name="Cli.UnknownCommand" xml:space="preserve"><value>Unbekannter Befehl „{0}“. Hilfe: uc help</value></data>
+  <data name="Cli.MissingArgument" xml:space="preserve"><value>Fehlt: {0}.</value></data>
+  <data name="Cli.Done" xml:space="preserve"><value>Fertig.</value></data>
+  <data name="Cli.Ping" xml:space="preserve"><value>UseControl-Dienst {0} läuft (Prozess {1}).</value></data>
+  <data name="Cli.ConfirmSuspend" xml:space="preserve"><value>Alle Einschränkungen werden bis „uc apply“ aufgehoben. Geben Sie YES ein, um fortzufahren</value></data>
+  <data name="Cli.Cancelled" xml:space="preserve"><value>Abgebrochen.</value></data>
+  <data name="Cli.Suspended" xml:space="preserve"><value>Einschränkungen aufgehoben. Sie bleiben bis „uc apply“ ausgeschaltet.</value></data>
+  <data name="Cli.Exported" xml:space="preserve"><value>Konfiguration gespeichert in {0}</value></data>
+  <data name="Cli.Imported" xml:space="preserve"><value>Konfiguration importiert.</value></data>
+  <data name="Cli.SavedNotApplied" xml:space="preserve"><value>Gespeichert. Die Einschränkungen sind ausgesetzt, daher wurde nichts angewendet („uc apply“ schaltet sie ein).</value></data>
+  <data name="Cli.AccountApplied" xml:space="preserve"><value>{0}: {1} gesperrte und {2} erlaubte Ordner, {3} gesperrte Namen, {4} gesperrte Dateien</value></data>
+  <data name="Cli.AccountSignedInHint" xml:space="preserve"><value>{0} ist angemeldet: Einige Änderungen werden erst nach Ab- und erneuter Anmeldung wirksam.</value></data>
+  <data name="Cli.AccountFailed" xml:space="preserve"><value>{0}: {1}</value></data>
+  <data name="Cli.AccountRemoved" xml:space="preserve"><value>{0}: Einschränkungen aufgehoben</value></data>
+  <data name="Cli.FileAccessFailed" xml:space="preserve"><value>Dateizugriff {0} ({1}): {2}</value></data>
+  <data name="Cli.UsersRestricted" xml:space="preserve"><value>Eingeschränkte Konten: {0}</value></data>
+  <data name="Cli.UsersCandidates" xml:space="preserve"><value>Andere Standardkonten auf diesem PC: {0}</value></data>
+  <data name="Cli.None" xml:space="preserve"><value>(keine)</value></data>
+  <data name="Cli.GamesFoundNone" xml:space="preserve"><value>Keine neuen Spieleordner gefunden.</value></data>
+  <data name="Cli.GamesFound" xml:space="preserve"><value>Noch nicht gesperrte Spieleordner:</value></data>
+  <data name="Cli.GamesFoundHint" xml:space="preserve"><value>Alle sperren: uc games find --add</value></data>
+  <data name="Cli.FileBlocked" xml:space="preserve"><value>{0} ist anhand seines Fingerabdrucks gesperrt (Umbenennen oder Verschieben hilft nicht).</value></data>
+  <data name="Cli.PreviewAccount" xml:space="preserve"><value>=== {0} ===</value></data>
+  <data name="Cli.PreviewBlocked" xml:space="preserve"><value>Programme dürfen NICHT starten aus:</value></data>
+  <data name="Cli.PreviewAllowed" xml:space="preserve"><value>Darin wieder erlaubt:</value></data>
+  <data name="Cli.PreviewNames" xml:space="preserve"><value>Gesperrte Programmnamen: {0}</value></data>
+  <data name="Cli.PreviewFiles" xml:space="preserve"><value>Gesperrte Dateien: {0}</value></data>
+  <data name="Cli.PreviewAuto" xml:space="preserve"><value>Automatisch auf diesem PC gefunden:</value></data>
+  <data name="Cli.AuditSummary" xml:space="preserve"><value>{0} Prüfungen: {1} fehlgeschlagen, {2} Warnungen.</value></data>
+  <data name="Cli.StatusService" xml:space="preserve"><value>Dienst: UseControl {0}</value></data>
+  <data name="Cli.StatusEnabled" xml:space="preserve"><value>Einschränkungen: aktiv</value></data>
+  <data name="Cli.StatusSuspended" xml:space="preserve"><value>Einschränkungen: AUSGESETZT („uc apply“ schaltet sie ein)</value></data>
+  <data name="Cli.StatusLastApplied" xml:space="preserve"><value>Zuletzt angewendet: {0}</value></data>
+  <data name="Cli.StatusNever" xml:space="preserve"><value>nie</value></data>
+  <data name="Cli.StatusStoreAdmins" xml:space="preserve"><value>Store-Installationen: nur Administratoren</value></data>
+  <data name="Cli.StatusStoreEveryone" xml:space="preserve"><value>Store-Installationen: alle</value></data>
+  <data name="Cli.StatusNoAccounts" xml:space="preserve"><value>Noch keine eingeschränkten Konten: uc users add &lt;Name&gt;</value></data>
+  <data name="Cli.StatusAccountUnreadable" xml:space="preserve"><value>[{0}] kann nicht gelesen werden</value></data>
+  <data name="Cli.StatusAccountNotApplied" xml:space="preserve"><value>[{0}] Einschränkungen NICHT angewendet</value></data>
+  <data name="Cli.StatusAccount" xml:space="preserve"><value>[{0}] {1} gesperrte und {2} erlaubte Ordner, {3} gesperrte Dateien, {4} Namen; gesperrt: {5}</value></data>
+  <data name="Cli.Yes" xml:space="preserve"><value>ja</value></data>
+  <data name="Cli.No" xml:space="preserve"><value>nein</value></data>
+  <data name="Cli.Help" xml:space="preserve"><value>UseControl: Einschränkungen für Windows-Standardkonten. Als Administrator ausführen.
+
+  uc status                         Zustand des Dienstes, jedes eingeschränkten Kontos und seiner Spiele
+  uc apply                          Konfiguration jetzt anwenden (und Einschränkungen wieder einschalten)
+  uc suspend [--yes]                alle Einschränkungen bis „uc apply“ aufheben
+  uc preview                        jede Regel, die geschrieben würde, und warum
+  uc audit                          Sicherheitsprüfung dieses PCs
+
+  uc users list | add &lt;Name&gt; [--profile &lt;P&gt;] | move &lt;Name&gt; &lt;Profil&gt; | remove &lt;Name&gt;
+  uc profile list | add &lt;Name&gt; [--from &lt;Profil&gt;] | rename &lt;Name&gt; &lt;neuer Name&gt; | remove &lt;Name&gt;
+
+  uc games [status]                 wer jetzt spielen darf und wie lange heute gespielt wurde
+  uc games schedule [list] | add &lt;Tage&gt; &lt;von&gt;-&lt;bis&gt; [--limit &lt;Minuten&gt;] | remove &lt;Nummer&gt;
+                                    Spiele laufen nur zu diesen Zeiten; Tage: mon-fri, sat,sun, weekdays, weekend, all
+  uc games lock [--user &lt;Name&gt;]     Spiele bis zum Ende des Tages sperren
+  uc games unlock [--user &lt;Name&gt;]   das zurücknehmen: Der Zeitplan gilt wieder
+  uc games close on|off             Spiele beenden, wenn die Spielzeit vorbei ist
+  uc games find [--add]             Spieleordner suchen, die noch nicht gesperrt sind
+
+  uc block folder &lt;Pfad&gt; [--category games|vpn|tools|other]
+  uc block name &lt;Datei.exe&gt; [--category ...]
+  uc block file &lt;Pfad zur .exe&gt; [--category ...]     nach Fingerabdruck: Umbenennen hilft nicht
+  uc unblock folder &lt;Pfad&gt; | name &lt;Datei.exe&gt; | file &lt;Pfad oder SHA-256&gt;
+  uc allow folder &lt;Pfad&gt;            ein Programmordner, der an einem gesperrten Ort läuft
+  uc allow remove &lt;Pfad&gt;
+
+  uc access deny|allow &lt;Pfad&gt; [--rights read,write,execute,delete|full] [--users a,b]
+  uc access remove &lt;Pfad&gt;
+
+  uc ext allow|remove chrome|edge|firefox &lt;Erweiterungs-ID&gt;
+  uc policy set chrome|edge|firefox &lt;Name&gt; &lt;Wert&gt;
+  uc policy remove chrome|edge|firefox &lt;Name&gt;
+
+  uc config export &lt;Datei&gt; | import &lt;Datei&gt;
+  uc install [--from &lt;Ordner&gt;]      installieren oder aktualisieren (aus dem Ordner mit den veröffentlichten Programmen)
+  uc uninstall [--keep-restrictions] [--purge] [--yes]
+  uc ping | help
+
+Befehle, die ein Profil ändern (games, block, unblock, allow, ext, policy), benötigen --profile &lt;Name&gt;,
+wenn es mehr als ein Profil gibt.
+Optionen: --json (status, preview, audit, games find), --lang en|uk|de|pl</value></data>
+  <data name="Audit.account" xml:space="preserve"><value>Eingeschränktes Konto</value></data>
+  <data name="Audit.services" xml:space="preserve"><value>Dienste</value></data>
+  <data name="Audit.writableFolders" xml:space="preserve"><value>Beschreibbare Programmordner</value></data>
+  <data name="Audit.allowedFolders" xml:space="preserve"><value>Erlaubte Ordner</value></data>
+  <data name="Audit.privateFolder" xml:space="preserve"><value>Privater Ordner</value></data>
+  <data name="Audit.administrators" xml:space="preserve"><value>Gruppe Administratoren</value></data>
+  <data name="Audit.builtinAdministrator" xml:space="preserve"><value>Integrierter Administrator</value></data>
+  <data name="Audit.emptyPasswords" xml:space="preserve"><value>Leere Kennwörter</value></data>
+  <data name="Audit.hiddenAccounts" xml:space="preserve"><value>Ausgeblendete Konten</value></data>
+  <data name="Audit.uac" xml:space="preserve"><value>UAC</value></data>
+  <data name="Audit.alwaysInstallElevated" xml:space="preserve"><value>AlwaysInstallElevated</value></data>
+  <data name="Audit.rdp" xml:space="preserve"><value>Remotedesktop</value></data>
+  <data name="Audit.remoteTools" xml:space="preserve"><value>Fernzugriffsdienste</value></data>
+  <data name="Audit.defender" xml:space="preserve"><value>Microsoft Defender</value></data>
+  <data name="Audit.firewall" xml:space="preserve"><value>Firewall</value></data>
+  <data name="Audit.restrictions" xml:space="preserve"><value>Einschränkungen</value></data>
+  <data name="Audit.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Audit.Warning" xml:space="preserve"><value>WARNUNG</value></data>
+  <data name="Audit.Fail" xml:space="preserve"><value>FEHLER</value></data>
+  <data name="Ui.App.Title" xml:space="preserve"><value>UseControl</value></data>
+  <data name="Ui.Busy" xml:space="preserve"><value>Wird ausgeführt…</value></data>
+  <data name="Ui.NotConnected" xml:space="preserve"><value>Keine Verbindung zum UseControl-Dienst.</value></data>
+  <data name="Ui.Retry" xml:space="preserve"><value>Erneut verbinden</value></data>
+  <data name="Ui.Close" xml:space="preserve"><value>Schließen</value></data>
+  <data name="Ui.Saved" xml:space="preserve"><value>Gespeichert und angewendet.</value></data>
+  <data name="Ui.SavedSignedIn" xml:space="preserve"><value>Gespeichert und angewendet. {0}: Einige Änderungen werden erst nach der nächsten Anmeldung wirksam.</value></data>
+  <data name="Ui.Remove" xml:space="preserve"><value>Entfernen</value></data>
+  <data name="Ui.Add" xml:space="preserve"><value>Hinzufügen</value></data>
+  <data name="Ui.Refresh" xml:space="preserve"><value>Aktualisieren</value></data>
+  <data name="Ui.Edit" xml:space="preserve"><value>Bearbeiten</value></data>
+  <data name="Ui.Column.Value" xml:space="preserve"><value>Wert</value></data>
+  <data name="Ui.Nav.Status" xml:space="preserve"><value>Übersicht</value></data>
+  <data name="Ui.Nav.Accounts" xml:space="preserve"><value>Konten</value></data>
+  <data name="Ui.Nav.FileAccess" xml:space="preserve"><value>Dateizugriff</value></data>
+  <data name="Ui.Nav.Browsers" xml:space="preserve"><value>Browser</value></data>
+  <data name="Ui.Nav.Audit" xml:space="preserve"><value>Sicherheitsprüfung</value></data>
+  <data name="Ui.Nav.Settings" xml:space="preserve"><value>Einstellungen</value></data>
+  <data name="Ui.Status.Service" xml:space="preserve"><value>Dienst</value></data>
+  <data name="Ui.Status.On" xml:space="preserve"><value>Schutz ist aktiv</value></data>
+  <data name="Ui.Status.Suspended" xml:space="preserve"><value>Einschränkungen sind ausgesetzt</value></data>
+  <data name="Ui.Status.Unreadable" xml:space="preserve"><value>Die Einstellungen dieses Kontos können nicht gelesen werden</value></data>
+  <data name="Ui.Status.NotApplied" xml:space="preserve"><value>Einschränkungen sind NICHT angewendet</value></data>
+  <data name="Ui.Status.Unlocked" xml:space="preserve"><value>Angewendet, aber das Konto könnte sie ändern</value></data>
+  <data name="Ui.Status.AccountsHeader" xml:space="preserve"><value>Eingeschränkte Konten</value></data>
+  <data name="Ui.Status.ApplyNow" xml:space="preserve"><value>Jetzt anwenden</value></data>
+  <data name="Ui.Status.SuspendAll" xml:space="preserve"><value>Aussetzen</value></data>
+  <data name="Ui.Status.Resume" xml:space="preserve"><value>Einschalten</value></data>
+  <data name="Ui.Status.ConfirmSuspend" xml:space="preserve"><value>Alle Einschränkungen aufheben, bis Sie sie wieder einschalten?</value></data>
+  <data name="Ui.Accounts.Add" xml:space="preserve"><value>Einschränken</value></data>
+  <data name="Ui.Accounts.Remove" xml:space="preserve"><value>Einschränkungen aufheben</value></data>
+  <data name="Ui.Accounts.ConfirmRemove" xml:space="preserve"><value>Alle Einschränkungen für {0} aufheben?</value></data>
+  <data name="Ui.Accounts.Help" xml:space="preserve"><value>Einschränkungen gelten nur für eingeschränkte Konten. Administratoren werden nicht angezeigt und nie eingeschränkt. Ein Konto erscheint hier nach der ersten Anmeldung.
+
+Ein Profil ist ein Satz von Regeln: Apps und Spiele, Windows-Einschränkungen, Browser. Jedes Konto kann ein eigenes Profil haben, oder mehrere Konten teilen sich eines.</value></data>
+  <data name="Ui.Games.Lock" xml:space="preserve"><value>Für heute sperren</value></data>
+  <data name="Ui.Games.FindHeader" xml:space="preserve"><value>Spieleordner, die nicht in der Liste sind</value></data>
+  <data name="Ui.Games.Find" xml:space="preserve"><value>Installierte Spiele suchen</value></data>
+  <data name="Ui.Games.BlockSelected" xml:space="preserve"><value>Ausgewählte als Spiele hinzufügen</value></data>
+  <data name="Ui.Games.FoundCount" xml:space="preserve"><value>Gefundene Spieleordner: {0}.</value></data>
+  <data name="Ui.Games.Help" xml:space="preserve"><value>Spiele sind die Einträge mit der Regel „Spiel“ in der Liste unten. Sie laufen nur gemäß Zeitplan und innerhalb des Tageslimits. Fünf Minuten vor Ende erscheint eine Warnung auf dem Bildschirm des Kontos. Onlinespiele, die ein DNS-Filter sperrt, sind davon nicht betroffen.</value></data>
+  <data name="Ui.Category.Writable" xml:space="preserve"><value>beschreibbarer Ort</value></data>
+  <data name="Ui.Category.Games" xml:space="preserve"><value>Spiele</value></data>
+  <data name="Ui.Category.Vpn" xml:space="preserve"><value>VPN und Proxy</value></data>
+  <data name="Ui.Category.Tools" xml:space="preserve"><value>Systemwerkzeug</value></data>
+  <data name="Ui.Category.Other" xml:space="preserve"><value>Sonstiges</value></data>
+  <data name="Ui.Access.Header" xml:space="preserve"><value>Regeln</value></data>
+  <data name="Ui.Access.Deny" xml:space="preserve"><value>Verweigern</value></data>
+  <data name="Ui.Access.Allow" xml:space="preserve"><value>Zulassen</value></data>
+  <data name="Ui.Access.Read" xml:space="preserve"><value>öffnen und lesen</value></data>
+  <data name="Ui.Access.Write" xml:space="preserve"><value>ändern</value></data>
+  <data name="Ui.Access.Execute" xml:space="preserve"><value>Programme ausführen</value></data>
+  <data name="Ui.Access.Delete" xml:space="preserve"><value>löschen</value></data>
+  <data name="Ui.Access.Full" xml:space="preserve"><value>alles</value></data>
+  <data name="Ui.Access.AllAccounts" xml:space="preserve"><value>alle eingeschränkten Konten</value></data>
+  <data name="Ui.Access.Help" xml:space="preserve"><value>UseControl merkt sich jede Berechtigung, die es hinzufügt, und entfernt genau diese; andere Berechtigungen bleiben unberührt. Windows-Ordner, Laufwerksstammverzeichnisse, Program Files und der Ordner Users können nicht verwendet werden.
+
+Um den Start von Programmen aus einem Ordner zu verhindern, verwenden Sie „Apps und Spiele“.</value></data>
+  <data name="Ui.Browsers.Extensions" xml:space="preserve"><value>Erweiterungen</value></data>
+  <data name="Ui.Browsers.BlockExtensions" xml:space="preserve"><value>Alle anderen Erweiterungen sperren</value></data>
+  <data name="Ui.Browsers.ExtensionId" xml:space="preserve"><value>Erweiterungs-ID</value></data>
+  <data name="Ui.Browsers.Policies" xml:space="preserve"><value>Richtlinien</value></data>
+  <data name="Ui.Browsers.Set" xml:space="preserve"><value>Festlegen</value></data>
+  <data name="Ui.Browsers.DisableDoh" xml:space="preserve"><value>DNS über HTTPS deaktivieren (damit ein DNS-Filter jede Website sieht)</value></data>
+  <data name="Ui.Browsers.DisablePrivate" xml:space="preserve"><value>Privates Surfen deaktivieren</value></data>
+  <data name="Ui.Browsers.Help" xml:space="preserve"><value>Jede Richtlinie kann über ihren Namen festgelegt werden: Chrome (chromeenterprise.google/policies), Edge (learn.microsoft.com/deployedge), Firefox (mozilla.github.io/policy-templates). Ganze Zahlen und true/false werden als Zahlen gespeichert, alles andere als Text.</value></data>
+  <data name="Ui.Audit.Run" xml:space="preserve"><value>Prüfung starten</value></data>
+  <data name="Ui.Audit.NotRun" xml:space="preserve"><value>Die Prüfung wurde noch nicht ausgeführt.</value></data>
+  <data name="Ui.Settings.Language" xml:space="preserve"><value>Sprache</value></data>
+  <data name="Ui.Settings.AutoHeader" xml:space="preserve"><value>Programme an beschreibbaren Orten sperren</value></data>
+  <data name="Ui.Settings.Auto.SystemDriveRoot" xml:space="preserve"><value>Ordner im Stammverzeichnis des Systemlaufwerks (C:\…)</value></data>
+  <data name="Ui.Settings.Auto.WritableDriveRoots" xml:space="preserve"><value>Andere Laufwerke, auf die Standardbenutzer schreiben können</value></data>
+  <data name="Ui.Settings.Auto.OtherDriveLetters" xml:space="preserve"><value>USB-, Netzwerk- und neu hinzugefügte Laufwerke</value></data>
+  <data name="Ui.Settings.Auto.RecycleBins" xml:space="preserve"><value>Papierkorb</value></data>
+  <data name="Ui.Settings.Auto.SystemWritableFolders" xml:space="preserve"><value>Beschreibbare Ordner in Windows, ProgramData und Users\Public</value></data>
+  <data name="Ui.Settings.Auto.WritableProgramFolders" xml:space="preserve"><value>Programmordner, die Standardbenutzer ändern können</value></data>
+  <data name="Ui.Settings.Store" xml:space="preserve"><value>Nur Administratoren dürfen Apps aus dem Microsoft Store installieren</value></data>
+  <data name="Ui.Settings.Admins" xml:space="preserve"><value>Administratoren</value></data>
+  <data name="Ui.Settings.PrivateFolders" xml:space="preserve"><value>Private Ordner</value></data>
+  <data name="Ui.Settings.HiddenAccounts" xml:space="preserve"><value>Auf dem Anmeldebildschirm ausgeblendete Konten</value></data>
+  <data name="Ui.Settings.KnownRemoteServices" xml:space="preserve"><value>Bekannte Fernzugriffsdienste</value></data>
+  <data name="Ui.Settings.BackupHeader" xml:space="preserve"><value>Sicherung</value></data>
+  <data name="Ui.Settings.Export" xml:space="preserve"><value>Einstellungen exportieren…</value></data>
+  <data name="Ui.Settings.Import" xml:space="preserve"><value>Einstellungen importieren…</value></data>
+  <data name="Ui.Settings.ConfirmImport" xml:space="preserve"><value>Alle Einstellungen durch den Inhalt der Datei ersetzen und anwenden?</value></data>
+  <data name="AuditDetail.AccountMissing" xml:space="preserve"><value>Es gibt kein lokales Konto „{0}“.</value></data>
+  <data name="AuditDetail.AccountIsAdmin" xml:space="preserve"><value>{0} ist ein Administrator und kann nicht eingeschränkt werden.</value></data>
+  <data name="AuditDetail.NoUsers" xml:space="preserve"><value>Es sind noch keine Konten eingeschränkt.</value></data>
+  <data name="AuditDetail.ServicesWritable" xml:space="preserve"><value>Standardbenutzer können diese Dienstprogramme ändern (ein Weg zu SYSTEM-Rechten): {0}</value></data>
+  <data name="AuditDetail.ServicesOk" xml:space="preserve"><value>Kein Dienstprogramm und kein Dienstordner kann von Standardbenutzern geändert werden ({0} geprüft).</value></data>
+  <data name="AuditDetail.WritableOff" xml:space="preserve"><value>Das automatische Sperren beschreibbarer Orte ist ausgeschaltet (Seite „Windows-Einschränkungen“).</value></data>
+  <data name="AuditDetail.WritableBlocked" xml:space="preserve"><value>Standardbenutzer können hier schreiben, daher können Programme an diesen Orten nicht starten (automatisch gesperrt): {0}</value></data>
+  <data name="AuditDetail.WritableNone" xml:space="preserve"><value>Es wurde kein Programmordner gefunden, den Standardbenutzer ändern können.</value></data>
+  <data name="AuditDetail.AllowedWritable" xml:space="preserve"><value>Erlaubt, aber für Standardbenutzer beschreibbar (ein kopiertes Programm würde laufen): {0}</value></data>
+  <data name="AuditDetail.AllowedOk" xml:space="preserve"><value>{0} erlaubte(r) Ordner; keiner kann von Standardbenutzern geändert werden.</value></data>
+  <data name="AuditDetail.PrivateMissing" xml:space="preserve"><value>Der Ordner existiert nicht.</value></data>
+  <data name="AuditDetail.PrivateOpen" xml:space="preserve"><value>Andere können ihn öffnen: {0}</value></data>
+  <data name="AuditDetail.PrivateOk" xml:space="preserve"><value>Nur Administratoren, SYSTEM und die in den Berechtigungen eingetragenen Besitzer können ihn öffnen.</value></data>
+  <data name="AuditDetail.AdminsUnexpected" xml:space="preserve"><value>Unerwartete Mitglieder: {0}</value></data>
+  <data name="AuditDetail.AdminsOk" xml:space="preserve"><value>Mitglieder: {0}</value></data>
+  <data name="AuditDetail.AdminsNotChecked" xml:space="preserve"><value>Mitglieder: {0}. Tragen Sie unten die erwarteten ein, um bei anderen gewarnt zu werden.</value></data>
+  <data name="AuditDetail.BuiltinEnabled" xml:space="preserve"><value>Das integrierte Administratorkonto ist aktiviert.</value></data>
+  <data name="AuditDetail.BuiltinDisabled" xml:space="preserve"><value>Das integrierte Administratorkonto ist deaktiviert.</value></data>
+  <data name="AuditDetail.EmptyPasswords" xml:space="preserve"><value>Können ein leeres Kennwort haben (Abhilfe: net user &lt;Name&gt; /passwordreq:yes): {0}</value></data>
+  <data name="AuditDetail.EmptyPasswordsOk" xml:space="preserve"><value>Kein aktiviertes Konto kann ein leeres Kennwort haben.</value></data>
+  <data name="AuditDetail.HiddenVisible" xml:space="preserve"><value>Auf dem Anmeldebildschirm sichtbar: {0}</value></data>
+  <data name="AuditDetail.HiddenOk" xml:space="preserve"><value>Ausgeblendet: {0}</value></data>
+  <data name="AuditDetail.UacOk" xml:space="preserve"><value>Administratoren bestätigen jede Rechteerhöhung auf dem sicheren Desktop (EnableLUA={0}, ConsentPromptBehaviorAdmin={1}, PromptOnSecureDesktop={2}, ConsentPromptBehaviorUser={3}).</value></data>
+  <data name="AuditDetail.UacWeak" xml:space="preserve"><value>Programme von Administratoren können ohne Nachfrage volle Rechte erhalten. Empfohlen: 1, 5, 1, 3; derzeit EnableLUA={0}, ConsentPromptBehaviorAdmin={1}, PromptOnSecureDesktop={2}, ConsentPromptBehaviorUser={3}.</value></data>
+  <data name="AuditDetail.AieOn" xml:space="preserve"><value>AlwaysInstallElevated ist aktiv: Jede .msi wird mit SYSTEM-Rechten installiert.</value></data>
+  <data name="AuditDetail.AieOff" xml:space="preserve"><value>Aus.</value></data>
+  <data name="AuditDetail.RdpOff" xml:space="preserve"><value>Remotedesktop ist ausgeschaltet.</value></data>
+  <data name="AuditDetail.RdpUnknown" xml:space="preserve"><value>Remotedesktop ist eingeschaltet; die Firewallregeln konnten nicht gelesen werden.</value></data>
+  <data name="AuditDetail.RdpNoRule" xml:space="preserve"><value>Remotedesktop ist eingeschaltet, aber keine Firewallregel lässt ihn zu.</value></data>
+  <data name="AuditDetail.RdpOn" xml:space="preserve"><value>Remotedesktop ist mit Authentifizierung auf Netzwerkebene eingeschaltet; erlaubt von: {0}</value></data>
+  <data name="AuditDetail.RdpOnNoNla" xml:space="preserve"><value>Remotedesktop ist OHNE Authentifizierung auf Netzwerkebene eingeschaltet; erlaubt von: {0}</value></data>
+  <data name="AuditDetail.RemoteUnknown" xml:space="preserve"><value>Fernzugriffsdienste, die Sie nicht als bekannt eingetragen haben: {0}. Stellen Sie sicher, dass Sie sie kennen.</value></data>
+  <data name="AuditDetail.RemoteKnown" xml:space="preserve"><value>Nur bekannte Fernzugriffsdienste: {0}</value></data>
+  <data name="AuditDetail.RemoteNone" xml:space="preserve"><value>Keine Fernzugriffsdienste gefunden.</value></data>
+  <data name="AuditDetail.DefenderOn" xml:space="preserve"><value>Echtzeitschutz ist aktiv; Signaturen vom {0}.</value></data>
+  <data name="AuditDetail.DefenderOff" xml:space="preserve"><value>Echtzeitschutz ist AUS; Signaturen vom {0}.</value></data>
+  <data name="AuditDetail.DefenderUnknown" xml:space="preserve"><value>Status nicht verfügbar (anderes Antivirenprogramm?).</value></data>
+  <data name="AuditDetail.FirewallOn" xml:space="preserve"><value>Für alle Netzwerke aktiv.</value></data>
+  <data name="AuditDetail.FirewallOff" xml:space="preserve"><value>Aus für: {0}</value></data>
+  <data name="AuditDetail.FirewallUnknown" xml:space="preserve"><value>Status nicht verfügbar.</value></data>
+  <data name="AuditDetail.RestrictionsUnreadable" xml:space="preserve"><value>Die Einstellungen dieses Kontos konnten nicht gelesen werden.</value></data>
+  <data name="AuditDetail.RestrictionsMissing" xml:space="preserve"><value>Die Einschränkungen sind NICHT aktiv.</value></data>
+  <data name="AuditDetail.RestrictionsOk" xml:space="preserve"><value>Aktiv: {0} gesperrte und {1} erlaubte Ordner, {2} gesperrte Dateien, {3} gesperrte Namen; das Konto kann sie nicht ändern.</value></data>
+  <data name="AuditDetail.RestrictionsUnlocked" xml:space="preserve"><value>Aktiv ({0} gesperrte und {1} erlaubte Ordner, {2} Dateien, {3} Namen), aber das Konto KÖNNTE sie ändern.</value></data>
+  <data name="Ui.Nav.Restrictions" xml:space="preserve"><value>Windows-Einschränkungen</value></data>
+  <data name="Ui.Restrictions.ToolsHeader" xml:space="preserve"><value>Windows-Tools sperren</value></data>
+  <data name="Ui.Restrictions.CommandPrompt" xml:space="preserve"><value>Eingabeaufforderung und .bat/.cmd-Skripte</value></data>
+  <data name="Ui.Restrictions.RegistryEditor" xml:space="preserve"><value>Registrierungs-Editor</value></data>
+  <data name="Ui.Restrictions.TaskManager" xml:space="preserve"><value>Task-Manager</value></data>
+  <data name="Ui.Restrictions.ControlPanel" xml:space="preserve"><value>Systemsteuerung und Einstellungen</value></data>
+  <data name="Ui.Restrictions.RunDialog" xml:space="preserve"><value>Dialogfeld „Ausführen“ (Win+R)</value></data>
+  <data name="Ui.Restrictions.Autorun" xml:space="preserve"><value>Automatische Wiedergabe von USB-Laufwerken und Datenträgern</value></data>
+  <data name="Ui.Restrictions.PasswordChange" xml:space="preserve"><value>Ändern des Kontokennworts</value></data>
+  <data name="Ui.Restrictions.ToolsHelp" xml:space="preserve"><value>Mit Eingabeaufforderung, Registrierungs-Editor und PowerShell ließen sich Einschränkungen aufheben, daher sind sie standardmäßig gesperrt. PowerShell und ähnliche Tools werden unter „Apps und Spiele“ nach Namen gesperrt.</value></data>
+  <data name="Ui.Restrictions.InstallHelp" xml:space="preserve"><value>Store-Apps werden ohne Administratorkennwort installiert. Ist dieser Schalter aktiv, können nur Administratoren sie installieren. Gilt für alle Konten auf diesem PC.</value></data>
+  <data name="Ui.Audit.ExpectHeader" xml:space="preserve"><value>Erwartete Einstellungen (eine pro Zeile)</value></data>
+  <data name="Ui.Audit.ExpectSave" xml:space="preserve"><value>Speichern</value></data>
+  <data name="Ui.Settings.DataFolder" xml:space="preserve"><value>Einstellungsordner</value></data>
+  <data name="Ui.Settings.LanguageHelp" xml:space="preserve"><value>Gilt nur für dieses Fenster. uc.exe verwendet die Anzeigesprache von Windows (oder --lang).</value></data>
+  <data name="Error.InstallSourceIncomplete" xml:space="preserve"><value>{0} enthält {1} nicht. Führen Sie uc install aus dem Ordner mit den veröffentlichten Programmen aus.</value></data>
+  <data name="Error.InstallFolderNotSafe" xml:space="preserve"><value>{0} kann von Standardbenutzern geändert werden ({1}); korrigieren Sie zuerst die Berechtigungen.</value></data>
+  <data name="Error.InstallFailed" xml:space="preserve"><value>Installationsschritt fehlgeschlagen: {0}</value></data>
+  <data name="Install.Stopped" xml:space="preserve"><value>Dienst angehalten.</value></data>
+  <data name="Install.Copied" xml:space="preserve"><value>Programme nach {0} kopiert.</value></data>
+  <data name="Install.ServiceCreated" xml:space="preserve"><value>Dienst registriert: startet mit Windows, läuft als SYSTEM und startet nach einem Fehler selbst neu.</value></data>
+  <data name="Install.ServiceUpdated" xml:space="preserve"><value>Dienst aktualisiert.</value></data>
+  <data name="Install.PathAdded" xml:space="preserve"><value>{0} zu PATH hinzugefügt: „uc“ funktioniert in jeder neuen Konsole.</value></data>
+  <data name="Install.Shortcuts" xml:space="preserve"><value>Verknüpfungen im Startmenü und auf dem Desktop erstellt.</value></data>
+  <data name="Install.Started" xml:space="preserve"><value>Dienst gestartet.</value></data>
+  <data name="Install.ServiceRemoved" xml:space="preserve"><value>Dienst entfernt.</value></data>
+  <data name="Install.PathRemoved" xml:space="preserve"><value>Aus PATH entfernt.</value></data>
+  <data name="Install.FilesRemoved" xml:space="preserve"><value>{0} wird entfernt.</value></data>
+  <data name="Install.DataRemoved" xml:space="preserve"><value>Konfiguration entfernt: {0}</value></data>
+  <data name="Install.DataKept" xml:space="preserve"><value>Konfiguration in {0} beibehalten (uc uninstall --purge entfernt sie).</value></data>
+  <data name="Install.LegacyConfigMoved" xml:space="preserve"><value>Konfiguration der PowerShell-Version übernommen (eingeschränkte Konten: {0}).</value></data>
+  <data name="Install.LegacyTaskRemoved" xml:space="preserve"><value>Geplante Aufgabe der PowerShell-Version entfernt: {0}.</value></data>
+  <data name="Install.LegacyFilesRemoved" xml:space="preserve"><value>Dateien der PowerShell-Version entfernt.</value></data>
+  <data name="Cli.InstallWaiting" xml:space="preserve"><value>Warte auf Antwort des Dienstes…</value></data>
+  <data name="Cli.InstallDone" xml:space="preserve"><value>UseControl ist installiert und läuft. Öffnen Sie „UseControl“ im Startmenü oder führen Sie aus: uc status</value></data>
+  <data name="Cli.InstallNoAnswer" xml:space="preserve"><value>Der Dienst wurde gestartet, antwortet aber noch nicht. Prüfen Sie in einer Minute „uc status“ oder das Windows-Ereignisprotokoll (Quelle UseControl).</value></data>
+  <data name="Cli.ConfirmUninstall" xml:space="preserve"><value>UseControl entfernen und alle Einschränkungen aufheben? Geben Sie YES ein, um fortzufahren</value></data>
+  <data name="Cli.ConfirmUninstallKeep" xml:space="preserve"><value>UseControl entfernen, aber die Einschränkungen beibehalten? Geben Sie YES ein, um fortzufahren</value></data>
+  <data name="Cli.UninstallLiftFailed" xml:space="preserve"><value>Die Einschränkungen konnten über den Dienst nicht aufgehoben werden: {0}. Deinstallation abgebrochen; mit --keep-restrictions wird UseControl trotzdem entfernt.</value></data>
+  <data name="Cli.UninstallDone" xml:space="preserve"><value>UseControl wurde entfernt.</value></data>
+  <data name="Ui.Accounts.IsRestricted" xml:space="preserve"><value>Eingeschränkt</value></data>
+  <data name="Ui.Accounts.NotRestricted" xml:space="preserve"><value>Nicht eingeschränkt</value></data>
+  <data name="Ui.Accounts.Missing" xml:space="preserve"><value>Auf diesem PC nicht gefunden</value></data>
+  <data name="Ui.Accounts.Empty" xml:space="preserve"><value>Auf diesem PC gibt es noch keine Standardkonten. Erstellen Sie eines unter Windows-Einstellungen › Konten, melden Sie sich einmal damit an und kehren Sie dann hierher zurück.</value></data>
+  <data name="Ui.Block.Empty" xml:space="preserve"><value>Noch keine Einträge.</value></data>
+  <data name="Ui.Games.TimeHeader" xml:space="preserve"><value>Spielzeit</value></data>
+  <data name="Ui.Access.Preset" xml:space="preserve"><value>Zugriff</value></data>
+  <data name="Ui.Access.Preset.NoAccess" xml:space="preserve"><value>Kein Zugriff</value></data>
+  <data name="Ui.Access.Preset.ReadOnly" xml:space="preserve"><value>Nur lesen</value></data>
+  <data name="Ui.Access.Preset.NoRun" xml:space="preserve"><value>Keine Programmausführung</value></data>
+  <data name="Ui.Access.Preset.FullAllow" xml:space="preserve"><value>Vollzugriff</value></data>
+  <data name="Ui.Access.ForAccounts" xml:space="preserve"><value>Konten</value></data>
+  <data name="Error.PresetNotFound" xml:space="preserve"><value>Es gibt kein Profil „{0}“.</value></data>
+  <data name="Error.InvalidPresetName" xml:space="preserve"><value>„{0}“ kann kein Profilname sein (1 bis 40 Zeichen).</value></data>
+  <data name="Error.PresetExists" xml:space="preserve"><value>Ein Profil „{0}“ ist bereits vorhanden.</value></data>
+  <data name="Error.PresetRequired" xml:space="preserve"><value>Es gibt mehrere Profile ({0}); wählen Sie eines mit --profile &lt;Name&gt;.</value></data>
+  <data name="Error.AccountInTwoPresets" xml:space="preserve"><value>{0} ist in zwei Profilen; ein Konto kann nur in einem sein.</value></data>
+  <data name="Error.InvalidTime" xml:space="preserve"><value>„{0}“ ist keine Uhrzeit (zum Beispiel 16:00).</value></data>
+  <data name="Error.WindowEndsBeforeStart" xml:space="preserve"><value>Der Zeitraum {0}–{1} endet, bevor er beginnt.</value></data>
+  <data name="Error.NoDays" xml:space="preserve"><value>Wählen Sie mindestens einen Tag.</value></data>
+  <data name="Error.NotRestricted" xml:space="preserve"><value>{0} ist kein eingeschränktes Konto.</value></data>
+  <data name="Error.NoPresets" xml:space="preserve"><value>Es gibt noch keine Profile: Schränken Sie zuerst ein Konto ein (uc users add &lt;Name&gt;).</value></data>
+  <data name="Notify.Title" xml:space="preserve"><value>UseControl</value></data>
+  <data name="Notify.GamesEndSoon" xml:space="preserve"><value>Die Spielzeit endet in {0} Min. Speichere dein Spiel.</value></data>
+  <data name="Notify.GamesOver" xml:space="preserve"><value>Die Spielzeit ist vorbei.</value></data>
+  <data name="Notify.GamesOverClosing" xml:space="preserve"><value>Die Spielzeit ist vorbei. Spiele werden in einer Minute beendet: Speichere jetzt.</value></data>
+  <data name="Games.State.Allowed" xml:space="preserve"><value>erlaubt bis {0}</value></data>
+  <data name="Games.State.PlayTime" xml:space="preserve"><value>noch {0} Spielzeit (zählt nur, während ein Spiel läuft)</value></data>
+  <data name="Games.State.Schedule" xml:space="preserve"><value>laut Zeitplan erlaubt bis {0}</value></data>
+  <data name="Games.State.ScheduleLimit" xml:space="preserve"><value>laut Zeitplan erlaubt bis {0}, heute noch {1} Spielzeit</value></data>
+  <data name="Games.State.Blocked" xml:space="preserve"><value>gesperrt</value></data>
+  <data name="Games.State.Locked" xml:space="preserve"><value>bis zum Ende des Tages gesperrt</value></data>
+  <data name="Games.State.LockedNext" xml:space="preserve"><value>bis zum Ende des Tages gesperrt, nächstes Mal {0}</value></data>
+  <data name="Games.State.LimitReached" xml:space="preserve"><value>das heutige Limit ist aufgebraucht</value></data>
+  <data name="Games.State.LimitReachedNext" xml:space="preserve"><value>das heutige Limit ist aufgebraucht, nächstes Mal {0}</value></data>
+  <data name="Games.State.OutsideSchedule" xml:space="preserve"><value>gesperrt, nächstes Mal {0}</value></data>
+  <data name="Games.State.NoWindows" xml:space="preserve"><value>gesperrt: der Zeitplan ist leer</value></data>
+  <data name="Games.Minutes" xml:space="preserve"><value>{0} Min.</value></data>
+  <data name="Games.Hours" xml:space="preserve"><value>{0} Std.</value></data>
+  <data name="Games.HoursMinutes" xml:space="preserve"><value>{0} Std. {1} Min.</value></data>
+  <data name="Games.Tomorrow" xml:space="preserve"><value>morgen um {0}</value></data>
+  <data name="Games.OnDay" xml:space="preserve"><value>{0} um {1}</value></data>
+  <data name="Games.EveryDay" xml:space="preserve"><value>jeden Tag</value></data>
+  <data name="Games.UpTo" xml:space="preserve"><value>bis zu {0}</value></data>
+  <data name="Cli.UserInPreset" xml:space="preserve"><value>{0} ({1})</value></data>
+  <data name="Cli.PresetsNone" xml:space="preserve"><value>Noch keine Profile: uc users add &lt;Name&gt; erstellt eines für das Konto.</value></data>
+  <data name="Cli.PresetLine" xml:space="preserve"><value>{0}: Konten {1}; Spiele: {2}</value></data>
+  <data name="Cli.ScheduleHeader" xml:space="preserve"><value>Spielzeitplan des Profils {0}:</value></data>
+  <data name="Cli.GamesAccount" xml:space="preserve"><value>[{0}] Spiele {1}; heute gespielt {2} {3}</value></data>
+  <data name="Cli.GamesPlaying" xml:space="preserve"><value>(spielt gerade)</value></data>
+  <data name="Ui.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Ui.Cancel" xml:space="preserve"><value>Abbrechen</value></data>
+  <data name="Ui.Preset.Label" xml:space="preserve"><value>Profil</value></data>
+  <data name="Ui.Preset.New" xml:space="preserve"><value>Neues Profil</value></data>
+  <data name="Ui.Preset.Rename" xml:space="preserve"><value>Profil umbenennen</value></data>
+  <data name="Ui.Preset.Delete" xml:space="preserve"><value>Profil löschen</value></data>
+  <data name="Ui.Preset.For" xml:space="preserve"><value>Gilt für: {0}</value></data>
+  <data name="Ui.Preset.NoAccounts" xml:space="preserve"><value>Noch keinem Konto zugewiesen. Weisen Sie es auf der Seite „Konten“ zu.</value></data>
+  <data name="Ui.Preset.NoneYet" xml:space="preserve"><value>Noch keine Profile: Schränken Sie zuerst auf der Seite „Konten“ ein Konto ein.</value></data>
+  <data name="Ui.Preset.NewPrompt" xml:space="preserve"><value>Name des neuen Profils (es beginnt als Kopie des aktuellen):</value></data>
+  <data name="Ui.Preset.RenamePrompt" xml:space="preserve"><value>Neuer Name für das Profil {0}:</value></data>
+  <data name="Ui.Preset.ConfirmDelete" xml:space="preserve"><value>Profil {0} löschen?</value></data>
+  <data name="Ui.Preset.ConfirmDeleteAccounts" xml:space="preserve"><value>Profil {0} löschen? {1} wird dann nicht mehr eingeschränkt.</value></data>
+  <data name="Ui.Accounts.OwnPreset" xml:space="preserve"><value>Neues Profil: {0}</value></data>
+  <data name="Ui.Accounts.WholePc" xml:space="preserve"><value>Gesamter PC</value></data>
+  <data name="Ui.Restrictions.AutoHelp" xml:space="preserve"><value>Programme, die das Konto herunterlädt oder kopiert, können an diesen Orten nicht starten. Installationsprogramme, die Administratorrechte benötigen, fragen ohnehin nach einem Kennwort. Ausnahmen legen Sie unter „Apps und Spiele“ › „Immer erlaubt“ fest.</value></data>
+  <data name="Ui.Settings.ThemeHeader" xml:space="preserve"><value>Design</value></data>
+  <data name="Ui.Settings.Theme.System" xml:space="preserve"><value>Wie in Windows</value></data>
+  <data name="Ui.Settings.Theme.Light" xml:space="preserve"><value>Hell</value></data>
+  <data name="Ui.Settings.Theme.Dark" xml:space="preserve"><value>Dunkel</value></data>
+  <data name="Ui.Games.Locked" xml:space="preserve"><value>{0}: Spiele sind bis zum Ende des Tages gesperrt.</value></data>
+  <data name="Ui.Games.PlayedToday" xml:space="preserve"><value>Heute gespielt: {0}</value></data>
+  <data name="Ui.Games.PlayingNow" xml:space="preserve"><value>Spielt gerade</value></data>
+  <data name="Ui.Games.WhenHeader" xml:space="preserve"><value>Zeitplan</value></data>
+  <data name="Ui.Games.NoWindows" xml:space="preserve"><value>Der Zeitplan ist leer, daher sind Spiele gesperrt.</value></data>
+  <data name="Ui.Games.Limit" xml:space="preserve"><value>Limit</value></data>
+  <data name="Ui.Games.NoLimit" xml:space="preserve"><value>Ohne Limit</value></data>
+  <data name="Ui.Games.AddWindow" xml:space="preserve"><value>+ Zeit hinzufügen</value></data>
+  <data name="Ui.Games.ScheduleHelp" xml:space="preserve"><value>Spiele laufen nur in diesen Zeiten. Das Limit zählt nur die Zeit, in der tatsächlich ein Spiel läuft, über den ganzen Tag. Zum Beispiel: Mo–Fr 16:00–20:00, Limit 1 Std.; Sa–So 10:00–21:00, Limit 3 Std.</value></data>
+  <data name="Ui.Games.CloseWhenOver" xml:space="preserve"><value>Spiele beenden, wenn die Zeit abgelaufen ist (eine Minute nach der Warnung)</value></data>
+  <data name="Ui.Games.Unlock" xml:space="preserve"><value>Zurück zum Zeitplan</value></data>
+  <data name="Ui.Games.Unlocked" xml:space="preserve"><value>{0}: Der Zeitplan gilt wieder.</value></data>
+  <data name="Ui.AdminOnly" xml:space="preserve"><value>UseControl kann nur von Administratoren verwendet werden.
+
+Als Administrator neu starten? Windows fragt nach einem Administratorkennwort.</value></data>
+  <data name="Ui.Nav.Status.Subtitle" xml:space="preserve"><value>Schutzstatus dieses PCs</value></data>
+  <data name="Ui.Nav.Accounts.Subtitle" xml:space="preserve"><value>Welche Konten eingeschränkt sind und mit welchem Profil</value></data>
+  <data name="Ui.Nav.Apps" xml:space="preserve"><value>Apps und Spiele</value></data>
+  <data name="Ui.Nav.FileAccess.Subtitle" xml:space="preserve"><value>Private Dateien und Ordner vor eingeschränkten Konten schützen</value></data>
+  <data name="Ui.Nav.Audit.Subtitle" xml:space="preserve"><value>Schwachstellen, mit denen ein eingeschränktes Konto die Einschränkungen umgehen könnte</value></data>
+  <data name="Ui.Nav.ProfileSection" xml:space="preserve"><value>PROFIL</value></data>
+  <data name="Ui.Nav.ComputerSection" xml:space="preserve"><value>DIESER PC</value></data>
+  <data name="Ui.Status.Details" xml:space="preserve"><value>Dienst {0} · zuletzt angewendet {1}</value></data>
+  <data name="Ui.Status.Applied" xml:space="preserve"><value>Einschränkungen sind aktiv</value></data>
+  <data name="Ui.Status.NoAccounts" xml:space="preserve"><value>Es sind noch keine Konten eingeschränkt. Wählen Sie eines auf der Seite „Konten“ aus.</value></data>
+  <data name="Ui.Accounts.Header" xml:space="preserve"><value>Konten auf diesem PC</value></data>
+  <data name="Ui.Games.FindHelp" xml:space="preserve"><value>Sucht nach Spieleordnern (Steam, Epic, GOG und andere), die noch nicht in der Liste sind.</value></data>
+  <data name="Ui.Apps.ListHeader" xml:space="preserve"><value>Apps und Spiele</value></data>
+  <data name="Ui.Apps.Help" xml:space="preserve"><value>Jeder Eintrag ist ein Programm, ein Programmname oder ein Ordner. Einträge mit „Spiel“ laufen nur während der Spielzeit, „Immer gesperrt“ nie.
+
+Ein Programm wird an seinem Inhalt erkannt, Umbenennen, Verschieben oder Kopieren hilft also nicht, und sein Name sperrt auch neuere Versionen. Ein Ordner umfasst alle Programme darin.</value></data>
+  <data name="Ui.Apps.AddAs" xml:space="preserve"><value>Hinzufügen als</value></data>
+  <data name="Ui.Apps.AddPrograms" xml:space="preserve"><value>Programme…</value></data>
+  <data name="Ui.Apps.AddFolders" xml:space="preserve"><value>Ordner…</value></data>
+  <data name="Ui.Apps.AddNames" xml:space="preserve"><value>Nach Name…</value></data>
+  <data name="Ui.Apps.NamePrompt" xml:space="preserve"><value>Dateinamen von Programmen, durch Kommas getrennt (zum Beispiel game.exe, launcher.exe):</value></data>
+  <data name="Ui.Apps.PickPrograms" xml:space="preserve"><value>Programme auswählen (Mehrfachauswahl möglich)</value></data>
+  <data name="Ui.Apps.PickFolders" xml:space="preserve"><value>Ordner auswählen: Die Regel gilt für alle Programme darin (Mehrfachauswahl möglich)</value></data>
+  <data name="Ui.Apps.ProgramsFilter" xml:space="preserve"><value>Programme</value></data>
+  <data name="Ui.Apps.Rule.Game" xml:space="preserve"><value>Spiel, nach Zeitplan</value></data>
+  <data name="Ui.Apps.Rule.Blocked" xml:space="preserve"><value>Immer gesperrt</value></data>
+  <data name="Ui.Apps.Filter.All" xml:space="preserve"><value>Alle</value></data>
+  <data name="Ui.Apps.Filter.Games" xml:space="preserve"><value>Spiele</value></data>
+  <data name="Ui.Apps.Filter.Blocked" xml:space="preserve"><value>Gesperrt</value></data>
+  <data name="Ui.Apps.Search" xml:space="preserve"><value>Suchen</value></data>
+  <data name="Ui.Apps.Kind.Program" xml:space="preserve"><value>Programm, nach Inhalt und Name</value></data>
+  <data name="Ui.Apps.Kind.Name" xml:space="preserve"><value>Programmname</value></data>
+  <data name="Ui.Apps.Kind.Folder" xml:space="preserve"><value>Ordner</value></data>
+  <data name="Ui.Apps.AllowedHeader" xml:space="preserve"><value>Immer erlaubt</value></data>
+  <data name="Ui.Apps.AllowedHelp" xml:space="preserve"><value>Programmordner, die auch an einem gesperrten Ort laufen. Ein Schulprogramm in C:\Tools würde zum Beispiel ohne diese Ausnahme nicht starten, weil das Stammverzeichnis von C: gesperrt ist.</value></data>
+  <data name="Ui.Apps.AddAllowed" xml:space="preserve"><value>Ordner hinzufügen…</value></data>
+  <data name="Ui.Apps.PickAllowFolders" xml:space="preserve"><value>Programmordner, die immer laufen sollen (Mehrfachauswahl möglich)</value></data>
+  <data name="Ui.Access.NewHeader" xml:space="preserve"><value>Neue Regel</value></data>
+  <data name="Ui.Access.Folders" xml:space="preserve"><value>Ordner hinzufügen…</value></data>
+  <data name="Ui.Access.Files" xml:space="preserve"><value>Dateien hinzufügen…</value></data>
+  <data name="Ui.Access.PickFolders" xml:space="preserve"><value>Zu schützende Ordner (Mehrfachauswahl möglich)</value></data>
+  <data name="Ui.Access.PickFiles" xml:space="preserve"><value>Zu schützende Dateien (Mehrfachauswahl möglich)</value></data>
+  <data name="Ui.Access.ChooseAccounts" xml:space="preserve"><value>Wählen Sie mindestens ein Konto aus.</value></data>
+  <data name="Ui.Browsers.ExtensionsHelp" xml:space="preserve"><value>Sind andere Erweiterungen gesperrt, können nur die hier aufgeführten installiert werden. Die ID ist der 32-stellige Buchstabencode am Ende der Store-Adresse der Erweiterung.</value></data>
+  <data name="Ui.Browsers.PolicyName" xml:space="preserve"><value>Richtlinienname</value></data>
+</root>

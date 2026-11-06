@@ -45,6 +45,21 @@ public sealed class InverseBoolConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => value is not true;
 }
 
+/// <summary>
+/// Text colour of a yes/no state: true is green; false is grey, or red with the parameter "Danger"
+/// (games allowed or not, protection on or off).
+/// </summary>
+public sealed class OkBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        var key = value is true ? "Ok" : parameter is "Danger" ? "Danger" : "TextMuted";
+        return Application.Current.TryFindResource(key) as Brush ?? Brushes.Transparent;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
+}
+
 /// <summary>Picks a theme brush for a state: "Text" for the foreground, anything else for the background.</summary>
 public sealed class StateBrushConverter : IValueConverter
 {

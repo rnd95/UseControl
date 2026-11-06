@@ -9,7 +9,7 @@
     <AssemblyName>UseControl</AssemblyName>
     <ApplicationIcon>..\..\assets\uc.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <SatelliteResourceLanguages>uk</SatelliteResourceLanguages>
+    <SatelliteResourceLanguages>uk;de;pl</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

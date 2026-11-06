@@ -19,14 +19,14 @@
       <l:ZeroToVisibilityConverter x:Key="ZeroToVisibility" />
       <l:StatusGlyphConverter x:Key="StatusGlyph" />
       <l:StateBrushConverter x:Key="StateBrush" />
+      <l:OkBrushConverter x:Key="OkBrush" />
       <l:HoursConverter x:Key="Hours" />
 
       <!-- Which view draws which page: replace a view here to redesign a page. -->
       <DataTemplate DataType="{x:Type pages:StatusPageViewModel}"><views:StatusView /></DataTemplate>
       <DataTemplate DataType="{x:Type pages:AccountsPageViewModel}"><views:AccountsView /></DataTemplate>
       <DataTemplate DataType="{x:Type pages:RestrictionsPageViewModel}"><views:RestrictionsView /></DataTemplate>
-      <DataTemplate DataType="{x:Type pages:GamesPageViewModel}"><views:GamesView /></DataTemplate>
-      <DataTemplate DataType="{x:Type pages:ProgramsPageViewModel}"><views:ProgramsView /></DataTemplate>
+      <DataTemplate DataType="{x:Type pages:AppsPageViewModel}"><views:AppsView /></DataTemplate>
       <DataTemplate DataType="{x:Type pages:FileAccessPageViewModel}"><views:FileAccessView /></DataTemplate>
       <DataTemplate DataType="{x:Type pages:BrowsersPageViewModel}"><views:BrowsersView /></DataTemplate>
       <DataTemplate DataType="{x:Type pages:AuditPageViewModel}"><views:AuditView /></DataTemplate>

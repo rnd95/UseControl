@@ -7,21 +7,37 @@ using UseControl.Localization;
 
 namespace UseControl.Admin.ViewModels.Pages;
 
-public sealed record StatusLine(string Label, string Value, bool Warning = false);
+/// <summary>One restricted account on the overview: its profile, whether its restrictions are in place, its games now.</summary>
+public sealed record AccountOverview(
+    string User,
+    string Profile,
+    string Restrictions,
+    bool RestrictionsWarning,
+    string Games,
+    bool GamesAllowed,
+    string Played,
+    bool Playing);
 
+/// <summary>The first page: is protection on, and how is every restricted account doing.</summary>
 public sealed partial class StatusPageViewModel : PageViewModel
 {
     public StatusPageViewModel(PanelSession session) : base(session, "Ui.Nav.Status", "") { }
 
-    public ObservableCollection<StatusLine> Summary { get; } = [];
+    /// <summary>"Protection is on" or "Restrictions are suspended".</summary>
+    [ObservableProperty]
+    private string _headline = "";
 
-    public ObservableCollection<StatusLine> Accounts { get; } = [];
-
-    /// <summary>Games time of every restricted account.</summary>
-    public ObservableCollection<StatusLine> Games { get; } = [];
+    /// <summary>Service version and when the restrictions were last applied.</summary>
+    [ObservableProperty]
+    private string _details = "";
 
     [ObservableProperty]
     private bool _isEnabled = true;
+
+    public ObservableCollection<AccountOverview> Accounts { get; } = [];
+
+    /// <summary>Accounts the last apply failed for, with the reason.</summary>
+    public ObservableCollection<string> Problems { get; } = [];
 
     public override Task ActivateAsync() => Session.RefreshAsync();
 
@@ -53,30 +69,37 @@ public sealed partial class StatusPageViewModel : PageViewModel
         var s = Session.Status;
         if (s is null)
         {
-            Summary.Clear();
+            Headline = "";
+            Details = "";
             Accounts.Clear();
-            Games.Clear();
+            Problems.Clear();
             return;
         }
         IsEnabled = s.Enabled;
-        Replace(Summary,
-        [
-            new(Loc.T("Ui.Status.Service"), s.Version),
-            new(Loc.T("Ui.Status.Restrictions"), Loc.T(s.Enabled ? "Ui.Status.On" : "Ui.Status.Suspended"), !s.Enabled),
-            new(Loc.T("Ui.Status.LastApplied"), s.LastApplied is { } la ? Local(la) : Loc.T("Cli.StatusNever")),
-            new(Loc.T("Ui.Status.Store"), Loc.T(s.StoreInstallsAdminOnly ? "Ui.Status.StoreAdmins" : "Ui.Status.StoreEveryone")),
-        ]);
+        Headline = Loc.T(s.Enabled ? "Ui.Status.On" : "Ui.Status.Suspended");
+        Details = Loc.T("Ui.Status.Details", s.Version, s.LastApplied is { } la ? Local(la) : Loc.T("Cli.StatusNever"));
+
         Replace(Accounts, s.Accounts.Select(a =>
         {
-            if (a.State is not { } st) return new StatusLine(a.User, Loc.T("Ui.Status.Unreadable"), true);
-            if (!st.Applied) return new StatusLine(a.User, Loc.T("Ui.Status.NotApplied"), true);
-            return new StatusLine(a.User, Loc.T("Ui.Status.AccountRules", st.BlockedPathRules, st.AllowedPathRules, st.HashRules / 2, st.BlockedNames)
-                + (st.KeysLocked ? "" : " · " + Loc.T("Ui.Status.Unlocked")), !st.KeysLocked);
+            var (text, warning) = a.State switch
+            {
+                null => (Loc.T("Ui.Status.Unreadable"), true),
+                { Applied: false } => (Loc.T("Ui.Status.NotApplied"), true),
+                { KeysLocked: false } => (Loc.T("Ui.Status.Unlocked"), true),
+                _ => (Loc.T("Ui.Status.Applied"), false),
+            };
+            var g = s.Games.FirstOrDefault(x => x.User.Equals(a.User, StringComparison.OrdinalIgnoreCase));
+            return new AccountOverview(
+                a.User,
+                g?.Preset ?? Session.Config?.PresetOf(a.User)?.Name ?? "",
+                text,
+                warning,
+                g is null ? "" : GameTimeViewModel.StateText(g),
+                g?.Allowed ?? false,
+                g is null ? "" : Loc.T("Ui.Games.PlayedToday", GamesText.Duration(g.PlayedToday)),
+                g?.Playing ?? false);
         }));
-        foreach (var f in s.LastResults.Where(r => !r.Success)) Accounts.Add(new StatusLine(f.User, f.Error ?? "?", true));
-        Replace(Games, s.Games.Select(g => new StatusLine(g.User,
-            GamesPageViewModel.StateText(g) + " · " + Loc.T("Ui.Games.PlayedToday", GamesText.Duration(g.PlayedToday)) + (g.Playing ? " · " + Loc.T("Ui.Games.PlayingNow") : ""),
-            g.Allowed)));
+        Replace(Problems, s.LastResults.Where(r => !r.Success).Select(r => r.User + ": " + (r.Error ?? "?")));
     }
 
     internal static string Local(DateTimeOffset t) => t.ToLocalTime().ToString("g", Loc.Culture ?? CultureInfo.CurrentCulture);

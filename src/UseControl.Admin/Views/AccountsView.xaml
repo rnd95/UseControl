@@ -3,72 +3,77 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:l="clr-namespace:UseControl.Admin.Infrastructure">
   <StackPanel>
-    <TextBlock Text="{l:Tr Ui.Accounts.Help}" Style="{StaticResource Help}" Margin="0,0,0,12" />
-
-    <TextBlock Text="{l:Tr Ui.Accounts.Empty}" Style="{StaticResource Help}"
-               Visibility="{Binding Accounts.Count, Converter={StaticResource ZeroToVisibility}}" />
-
-    <!-- One card per account: name, state, its preset, and the one button that applies to it. -->
-    <ItemsControl ItemsSource="{Binding Accounts}">
-      <ItemsControl.ItemTemplate>
-        <DataTemplate>
-          <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,0,8">
-            <Grid>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="36" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-              </Grid.ColumnDefinitions>
-              <TextBlock Text="&#xE77B;" FontFamily="{StaticResource IconFont}" FontSize="18" VerticalAlignment="Center"
-                         Foreground="{DynamicResource TextMuted}" />
-              <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" />
-                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                  <Border CornerRadius="4" Padding="8,1">
-                    <Border.Style>
-                      <Style TargetType="Border">
-                        <Setter Property="Background" Value="{DynamicResource Subtle}" />
-                        <Style.Triggers>
-                          <DataTrigger Binding="{Binding IsRestricted}" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource AccentLight}" />
-                          </DataTrigger>
-                          <DataTrigger Binding="{Binding Exists}" Value="False">
-                            <Setter Property="Background" Value="{DynamicResource WarningLight}" />
-                          </DataTrigger>
-                        </Style.Triggers>
-                      </Style>
-                    </Border.Style>
-                    <TextBlock Text="{Binding StatusText}" FontSize="12" />
-                  </Border>
-                </StackPanel>
-              </StackPanel>
-              <!-- The preset: for a restricted account changing it moves the account; otherwise it is the preset it will get. -->
-              <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
-                <TextBlock Text="{l:Tr Ui.Preset.Label}" Style="{StaticResource Label}" />
-                <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding Preset}" DisplayMemberPath="Text" MinWidth="190" />
-              </StackPanel>
-              <Grid Grid.Column="3" VerticalAlignment="Center">
-                <Button Content="{l:Tr Ui.Accounts.Add}" Style="{StaticResource PrimaryButton}" Margin="0" MinWidth="150"
-                        Command="{Binding DataContext.RestrictCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
-                        Visibility="{Binding IsRestricted, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
-                <Button Content="{l:Tr Ui.Accounts.Remove}" Margin="0" MinWidth="150"
-                        Command="{Binding DataContext.UnrestrictCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
-                        Visibility="{Binding IsRestricted, Converter={StaticResource BoolToVisibility}}" />
-              </Grid>
-            </Grid>
-          </Border>
-        </DataTemplate>
-      </ItemsControl.ItemTemplate>
-    </ItemsControl>
-    <TextBlock Text="{l:Tr Ui.Accounts.PresetHelp}" Style="{StaticResource Help}" Margin="0,0,0,16" />
-
-    <!-- For the whole PC, whatever the presets say. -->
     <Border Style="{StaticResource Card}">
       <StackPanel>
-        <TextBlock Text="{l:Tr Ui.Accounts.WholePc}" Style="{StaticResource SectionTitle}" />
-        <CheckBox Content="{l:Tr Ui.Settings.Store}" IsChecked="{Binding BlockStoreInstalls}" />
-        <TextBlock Text="{l:Tr Ui.Restrictions.InstallHelp}" Style="{StaticResource Help}" />
+        <StackPanel Style="{StaticResource CardHeader}">
+          <TextBlock Text="{l:Tr Ui.Accounts.Header}" Style="{StaticResource CardTitle}" />
+          <ToggleButton Style="{StaticResource HelpTip}" Tag="{l:Tr Ui.Accounts.Help}" />
+        </StackPanel>
+
+        <TextBlock Text="{l:Tr Ui.Accounts.Empty}" Style="{StaticResource Help}" Margin="0"
+                   Visibility="{Binding Accounts.Count, Converter={StaticResource ZeroToVisibility}}" />
+
+        <!-- One row per account: name, state, its profile, and the one button that applies to it. -->
+        <ItemsControl ItemsSource="{Binding Accounts}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Style="{StaticResource ListRow}" Padding="0,10">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <Border Style="{StaticResource Avatar}" Width="36" Height="36" Margin="0,0,12,0">
+                    <TextBlock Text="&#xE77B;" FontFamily="{StaticResource IconFont}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{DynamicResource AccentText}" />
+                  </Border>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" />
+                    <TextBlock Text="{Binding StatusText}" FontSize="12" Margin="0,1,0,0">
+                      <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsRestricted}" Value="True">
+                              <Setter Property="Foreground" Value="{DynamicResource Ok}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Exists}" Value="False">
+                              <Setter Property="Foreground" Value="{DynamicResource Warning}" />
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </TextBlock.Style>
+                    </TextBlock>
+                  </StackPanel>
+                  <!-- For a restricted account changing the profile moves it; otherwise it is the profile it will get. -->
+                  <ComboBox Grid.Column="2" ItemsSource="{Binding Presets}" SelectedItem="{Binding Preset}" DisplayMemberPath="Text" Width="200"
+                            VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="{l:Tr Ui.Preset.Label}" />
+                  <Grid Grid.Column="3" VerticalAlignment="Center">
+                    <Button Content="{l:Tr Ui.Accounts.Add}" Style="{StaticResource PrimaryButton}" Margin="0" MinWidth="140"
+                            Command="{Binding DataContext.RestrictCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                            Visibility="{Binding IsRestricted, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+                    <Button Content="{l:Tr Ui.Accounts.Remove}" Margin="0" MinWidth="140"
+                            Command="{Binding DataContext.UnrestrictCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                            Visibility="{Binding IsRestricted, Converter={StaticResource BoolToVisibility}}" />
+                  </Grid>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+
+    <!-- For the whole PC, whatever the profiles say. -->
+    <Border Style="{StaticResource Card}" Padding="16,12,16,4">
+      <StackPanel>
+        <StackPanel Style="{StaticResource CardHeader}" Margin="0,0,0,4">
+          <TextBlock Text="{l:Tr Ui.Accounts.WholePc}" Style="{StaticResource CardTitle}" />
+          <ToggleButton Style="{StaticResource HelpTip}" Tag="{l:Tr Ui.Restrictions.InstallHelp}" />
+        </StackPanel>
+        <CheckBox Style="{StaticResource Switch}" Content="{l:Tr Ui.Settings.Store}" IsChecked="{Binding BlockStoreInstalls}" BorderThickness="0" />
       </StackPanel>
     </Border>
   </StackPanel>

@@ -23,9 +23,24 @@ public partial class App : Application
         ThemeManager.Apply(theme);
 
         // --demo: sample data, no service needed (for screenshots and working on the look).
-        // --page N: open the N-th page (0 = Status). --lang uk|en: language for this run.
+        // --page N: open the N-th page (0 = Overview). --lang en|uk|de|pl: language for this run.
         var demo = e.Args.Contains("--demo", StringComparer.OrdinalIgnoreCase);
         if (Arg(e.Args, "--lang") is { } argLang) TranslationSource.Instance.Culture = Loc.Pick(argLang);
+
+        // The service only answers elevated administrators: check first, instead of a window that cannot connect.
+        if (!demo && !Elevation.IsElevated())
+        {
+            if (Elevation.IsAdministratorWithoutElevation())
+            {
+                Elevation.RestartElevated(e.Args);   // the usual Windows prompt; cancelled = nothing more
+            }
+            else if (MessageBox.Show(Loc.T("Ui.AdminOnly"), Loc.T("Ui.App.Title"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                Elevation.RestartElevated(e.Args);   // Windows asks for an administrator's password
+            }
+            Shutdown();
+            return;
+        }
 
         IServiceClient client = demo ? new ViewModels.Demo.DemoServiceClient() : new UcClient();
         var session = new PanelSession(client, new DialogService(), WindowsSystemPaths.Current);

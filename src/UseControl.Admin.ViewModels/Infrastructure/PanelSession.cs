@@ -96,10 +96,24 @@ public sealed partial class PanelSession : ObservableObject
         return EditAsync(c => change(c.GetPreset(name)));
     }
 
+    /// <summary>How long a success or info message stays; errors stay until closed.</summary>
+    public TimeSpan MessageLifetime { get; set; } = TimeSpan.FromSeconds(10);
+
+    private int _messageVersion;
+
     public void ShowMessage(MessageKind kind, string? text)
     {
         MessageKind = text is null ? MessageKind.None : kind;
         Message = text;
+        var version = ++_messageVersion;
+        if (text is not null && kind != MessageKind.Error && MessageLifetime > TimeSpan.Zero) _ = HideLaterAsync(version);
+    }
+
+    // The message goes away by itself unless another one replaced it in the meantime.
+    private async Task HideLaterAsync(int version)
+    {
+        await Task.Delay(MessageLifetime).ConfigureAwait(true);
+        if (version == _messageVersion) ClearMessage();
     }
 
     public void ClearMessage() => ShowMessage(MessageKind.None, null);

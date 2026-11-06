@@ -1,14 +1,27 @@
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using UseControl.Admin.ViewModels.Infrastructure;
 using UseControl.Core.Configuration;
 
 namespace UseControl.Admin.ViewModels.Pages;
 
-/// <summary>What restricted accounts may not do: Windows tools, installing, places blocked automatically.</summary>
+/// <summary>
+/// What restricted accounts may not do in Windows: tools, and places programs cannot start from.
+/// Every switch is saved and applied as soon as it is clicked.
+/// </summary>
 public sealed partial class RestrictionsPageViewModel : PageViewModel
 {
-    public RestrictionsPageViewModel(PanelSession session) : base(session, "Ui.Nav.Restrictions", "") { }
+    private static readonly HashSet<string> Switches =
+    [
+        nameof(DisableCommandPrompt), nameof(DisableRegistryEditor), nameof(DisableTaskManager), nameof(DisableControlPanel),
+        nameof(DisableRunDialog), nameof(DisableAutorun), nameof(DisablePasswordChange),
+        nameof(SystemDriveRoot), nameof(WritableDriveRoots), nameof(OtherDriveLetters), nameof(RecycleBins),
+        nameof(SystemWritableFolders), nameof(WritableProgramFolders),
+    ];
+
+    private bool _loading;
+
+    public RestrictionsPageViewModel(PanelSession session) : base(session, "Ui.Nav.Restrictions", "") { }
 
     public override bool UsesPreset => true;
 
@@ -27,20 +40,13 @@ public sealed partial class RestrictionsPageViewModel : PageViewModel
     [ObservableProperty] private bool _systemWritableFolders;
     [ObservableProperty] private bool _writableProgramFolders;
 
-    /// <summary>Exceptions: program folders that run although they are inside a blocked place.</summary>
-    public System.Collections.ObjectModel.ObservableCollection<ProgramRow> AllowedFolders { get; } = [];
-
-    [RelayCommand]
-    private Task AllowFolder()
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
-        var path = Session.Dialogs.PickFolder(Localization.Loc.T("Ui.Programs.PickAllowFolder"));
-        return path is null ? Task.CompletedTask : Session.EditPresetAsync(c => ConfigEditor.AddAllowedPath(c, path));
+        ArgumentNullException.ThrowIfNull(e);
+        base.OnPropertyChanged(e);
+        if (!_loading && e.PropertyName is { } name && Switches.Contains(name)) _ = Save();
     }
 
-    [RelayCommand]
-    private Task RemoveAllowedFolder(ProgramRow? row) => row is null ? Task.CompletedTask : Session.EditPresetAsync(c => ConfigEditor.RemoveAllowedPath(c, row.Key));
-
-    [RelayCommand]
     private Task Save()
     {
         var restrictions = new AccountRestrictions
@@ -72,24 +78,27 @@ public sealed partial class RestrictionsPageViewModel : PageViewModel
     protected override void Rebuild()
     {
         var c = Session.Preset;
-        if (c is null)
+        if (c is null) return;
+        _loading = true;
+        try
         {
-            AllowedFolders.Clear();
-            return;
+            DisableCommandPrompt = c.Restrictions.DisableCommandPrompt;
+            DisableRegistryEditor = c.Restrictions.DisableRegistryEditor;
+            DisableTaskManager = c.Restrictions.DisableTaskManager;
+            DisableControlPanel = c.Restrictions.DisableControlPanel;
+            DisableRunDialog = c.Restrictions.DisableRunDialog;
+            DisableAutorun = c.Restrictions.DisableAutorun;
+            DisablePasswordChange = c.Restrictions.DisablePasswordChange;
+            SystemDriveRoot = c.Auto.SystemDriveRoot;
+            WritableDriveRoots = c.Auto.WritableDriveRoots;
+            OtherDriveLetters = c.Auto.OtherDriveLetters;
+            RecycleBins = c.Auto.RecycleBins;
+            SystemWritableFolders = c.Auto.SystemWritableFolders;
+            WritableProgramFolders = c.Auto.WritableProgramFolders;
         }
-        Replace(AllowedFolders, c.AllowedPaths.Select(e => new ProgramRow(e.Path, e.Path, "", e.Note)));
-        DisableCommandPrompt = c.Restrictions.DisableCommandPrompt;
-        DisableRegistryEditor = c.Restrictions.DisableRegistryEditor;
-        DisableTaskManager = c.Restrictions.DisableTaskManager;
-        DisableControlPanel = c.Restrictions.DisableControlPanel;
-        DisableRunDialog = c.Restrictions.DisableRunDialog;
-        DisableAutorun = c.Restrictions.DisableAutorun;
-        DisablePasswordChange = c.Restrictions.DisablePasswordChange;
-        SystemDriveRoot = c.Auto.SystemDriveRoot;
-        WritableDriveRoots = c.Auto.WritableDriveRoots;
-        OtherDriveLetters = c.Auto.OtherDriveLetters;
-        RecycleBins = c.Auto.RecycleBins;
-        SystemWritableFolders = c.Auto.SystemWritableFolders;
-        WritableProgramFolders = c.Auto.WritableProgramFolders;
+        finally
+        {
+            _loading = false;
+        }
     }
 }

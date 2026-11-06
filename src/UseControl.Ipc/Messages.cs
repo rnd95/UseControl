@@ -16,7 +16,7 @@ public static class Commands
     public const string SetConfig = "setConfig";
     public const string Apply = "apply";
     public const string Suspend = "suspend";
-    public const string AllowGames = "allowGames";
+    public const string UnlockGames = "unlockGames";
     public const string LockGames = "lockGames";
     public const string Preview = "preview";
     public const string Audit = "audit";
@@ -34,12 +34,12 @@ public sealed record AccountStatus(string User, RestrictionState? State, string?
 
 /// <summary>Games of one restricted account now.</summary>
 /// <param name="User">The account.</param>
-/// <param name="Preset">Its preset.</param>
+/// <param name="Preset">Its profile.</param>
 /// <param name="Allowed">Whether games may run now.</param>
 /// <param name="Reason">Why.</param>
-/// <param name="Until">When allowed: when it ends at the latest.</param>
-/// <param name="MinutesLeft">When counted by play: minutes of play left.</param>
-/// <param name="NextStart">When blocked by the schedule: when the next time window starts.</param>
+/// <param name="Until">When allowed: the end of the time window.</param>
+/// <param name="MinutesLeft">When the window has a daily limit: minutes of play left today.</param>
+/// <param name="NextStart">When blocked: when the next time window starts.</param>
 /// <param name="PlayedToday">Minutes a game ran today.</param>
 /// <param name="Playing">A game is running now.</param>
 public sealed record AccountGames(string User, string Preset, bool Allowed, GamesReason Reason, DateTimeOffset? Until, double? MinutesLeft, DateTimeOffset? NextStart, double PlayedToday, bool Playing);
@@ -56,12 +56,7 @@ public sealed record ServiceStatus(
     string DataDirectory);
 
 /// <param name="User">One account, or null for every restricted account.</param>
-/// <param name="Hours">How long.</param>
-/// <param name="CountPlayOnly">True: the time counts only while a game runs (the timer starts when a game starts). False: from now on.</param>
-public sealed record AllowGamesRequest(string? User, double Hours, bool CountPlayOnly);
-
-/// <param name="User">One account, or null for every restricted account.</param>
-public sealed record LockGamesRequest(string? User);
+public sealed record GamesRequest(string? User);
 
 public sealed record SetConfigResult(ApplyResult? Applied, IReadOnlyList<AccountResult> Removed);
 

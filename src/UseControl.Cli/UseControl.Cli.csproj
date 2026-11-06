@@ -7,7 +7,7 @@
     <RootNamespace>UseControl.Cli</RootNamespace>
     <AssemblyName>uc</AssemblyName>
     <ApplicationIcon>..\..\assets\uc.ico</ApplicationIcon>
-    <SatelliteResourceLanguages>uk</SatelliteResourceLanguages>
+    <SatelliteResourceLanguages>uk;de;pl</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

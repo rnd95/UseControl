@@ -12,16 +12,22 @@ public sealed class DialogService : IDialogService
     public bool Confirm(string message) =>
         MessageBox.Show(Application.Current.MainWindow, message, Loc.T("Ui.App.Title"), MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 
-    public string? PickFolder(string title)
+    public IReadOnlyList<string> PickFolders(string title)
     {
-        var d = new OpenFolderDialog { Title = title, Multiselect = false };
-        return d.ShowDialog(Application.Current.MainWindow) == true ? d.FolderName : null;
+        var d = new OpenFolderDialog { Title = title, Multiselect = true };
+        return d.ShowDialog(Application.Current.MainWindow) == true ? d.FolderNames : [];
     }
 
     public string? PickFile(string title, string filter)
     {
         var d = new OpenFileDialog { Title = title, Filter = filter, CheckFileExists = true };
         return d.ShowDialog(Application.Current.MainWindow) == true ? d.FileName : null;
+    }
+
+    public IReadOnlyList<string> PickFiles(string title, string filter)
+    {
+        var d = new OpenFileDialog { Title = title, Filter = filter, CheckFileExists = true, Multiselect = true };
+        return d.ShowDialog(Application.Current.MainWindow) == true ? d.FileNames : [];
     }
 
     public string? PickSaveFile(string title, string filter, string defaultName)

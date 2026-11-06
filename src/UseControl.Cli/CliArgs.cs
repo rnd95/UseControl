@@ -6,7 +6,7 @@ namespace UseControl.Cli;
 /// </summary>
 internal sealed class CliArgs
 {
-    private static readonly HashSet<string> ValueOptions = new(StringComparer.OrdinalIgnoreCase) { "category", "rights", "users", "lang", "from", "preset", "user", "limit" };
+    private static readonly HashSet<string> ValueOptions = new(StringComparer.OrdinalIgnoreCase) { "category", "rights", "users", "lang", "from", "preset", "profile", "user", "limit" };
 
     private readonly List<string> _words = [];
     private readonly Dictionary<string, string> _options = new(StringComparer.OrdinalIgnoreCase);
