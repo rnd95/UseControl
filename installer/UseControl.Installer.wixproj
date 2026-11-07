@@ -1,0 +1,22 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+
+  <!--
+    The Windows installer (UseControl-<version>-x64.msi) for the programs published into PublishDir.
+    Built by build\package.ps1 after build\publish.ps1; not part of UseControl.slnx.
+  -->
+  <PropertyGroup>
+    <OutputName>UseControl</OutputName>
+    <Platform>x64</Platform>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <Version Condition="'$(Version)' == ''">0.1.0</Version>
+    <PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildThisFileDirectory)..\artifacts\UseControl</PublishDir>
+    <DefineConstants>Version=$(Version);PublishDir=$(PublishDir);AssetsDir=$(MSBuildThisFileDirectory)..\assets</DefineConstants>
+    <!-- ICE43/ICE57 treat the shortcuts of a per-machine package as per-user ones (a known false alarm). -->
+    <SuppressIces>ICE43;ICE57</SuppressIces>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.2" />
+  </ItemGroup>
+
+</Project>

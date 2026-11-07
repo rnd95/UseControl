@@ -5,13 +5,13 @@ using UseControl.Ipc;
 namespace UseControl.Service;
 
 /// <summary>Starts the controller, the control pipe and the one-minute timer.</summary>
-public sealed partial class ServiceWorker(UcController controller, ILogger<ServiceWorker> log) : BackgroundService
+public sealed partial class ServiceWorker(UcController controller, Updater updater, ILogger<ServiceWorker> log) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // The pipe opens first: applying the restrictions at start can take a while (drive scan, account
         // registries), and commands arriving meanwhile simply wait for it.
-        var handler = new CommandHandler(controller);
+        var handler = new CommandHandler(controller, updater);
         var server = new PipeServer(PipeProtocol.PipeName, handler.HandleAsync,
             new PipeServerOptions { Security = PipeServer.AdministratorsOnly(), RequireAdministrator = true },
             (message, e) => LogPipe(log, message, e));
@@ -40,6 +40,7 @@ public sealed partial class ServiceWorker(UcController controller, ILogger<Servi
                 try
                 {
                     await controller.TickAsync(ct).ConfigureAwait(false);
+                    await updater.TickAsync(ct).ConfigureAwait(false);
                 }
                 catch (Exception e) when (e is Core.UcException or IOException or UnauthorizedAccessException or InvalidOperationException)
                 {

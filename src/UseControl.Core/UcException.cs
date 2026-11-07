@@ -73,6 +73,11 @@ public static class ErrorCodes
     public const string NoDays = nameof(NoDays);
     public const string NotRestricted = nameof(NotRestricted);
     public const string NoPresets = nameof(NoPresets);
+    public const string NoUpdate = nameof(NoUpdate);
+    public const string UpdateCheckFailed = nameof(UpdateCheckFailed);
+    public const string UpdateNotVerified = nameof(UpdateNotVerified);
+    public const string UpdateNeedsInstaller = nameof(UpdateNeedsInstaller);
+    public const string UpdateInProgress = nameof(UpdateInProgress);
 }
 
 /// <summary>English texts of the error codes (the fallback when no translation exists).</summary>
@@ -124,6 +129,11 @@ public static class ErrorMessages
         [ErrorCodes.NoDays] = "Choose at least one day.",
         [ErrorCodes.NotRestricted] = "{0} is not a restricted account.",
         [ErrorCodes.NoPresets] = "There are no profiles yet: restrict an account first (uc users add <name>).",
+        [ErrorCodes.NoUpdate] = "There is no newer version.",
+        [ErrorCodes.UpdateCheckFailed] = "Could not check for updates: {0}",
+        [ErrorCodes.UpdateNotVerified] = "The downloaded update failed verification and was deleted: {0}",
+        [ErrorCodes.UpdateNeedsInstaller] = "This copy was installed with uc install and cannot update itself. Install the .msi from the release page once; later updates are automatic.",
+        [ErrorCodes.UpdateInProgress] = "An update is already being installed.",
     };
 
     public static string Format(string code, params object[] args)

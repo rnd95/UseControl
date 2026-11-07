@@ -47,6 +47,35 @@ public sealed class CliTests : IDisposable
     }
 
     [Fact]
+    public async Task Update_shows_the_new_version_installs_it_and_switches_the_automatic_installation()
+    {
+        Assert.Equal(CliApp.Ok, await Run("update"));
+        Assert.Contains("This is the latest version.", Out, StringComparison.Ordinal);
+        Assert.Equal(CliApp.Failed, await Run("update install"));   // nothing newer
+        Assert.Contains("no newer version", _err.ToString(), StringComparison.Ordinal);
+
+        _svc.Update = _svc.Update with { Latest = "0.2.0", Available = true, PageUrl = "https://github.com/rnd95/UseControl/releases/tag/v0.2.0" };
+        Assert.Equal(CliApp.Ok, await Run("update check"));
+        Assert.Contains("Version 0.2.0 is available", Out, StringComparison.Ordinal);
+        Assert.Equal(CliApp.Ok, await Run("update install"));
+        Assert.Equal(1, _svc.InstallUpdateCalls);
+        Assert.Contains("Installing UseControl 0.2.0", Out, StringComparison.Ordinal);
+
+        Assert.Equal(CliApp.Ok, await Run("update auto on"));
+        Assert.True(_svc.Config.Updates.InstallAutomatically);
+        Assert.Equal(CliApp.Ok, await Run("update daily off"));
+        Assert.False(_svc.Config.Updates.CheckDaily);
+        Assert.Equal(CliApp.Usage, await Run("update auto maybe"));
+        Assert.Contains("uc update", (await HelpText()), StringComparison.Ordinal);
+    }
+
+    private async Task<string> HelpText()
+    {
+        await Run("help");
+        return Out;
+    }
+
+    [Fact]
     public async Task Unknown_commands_and_missing_arguments_are_usage_errors()
     {
         Assert.Equal(CliApp.Usage, await Run("frobnicate"));

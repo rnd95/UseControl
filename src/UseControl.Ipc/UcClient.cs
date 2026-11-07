@@ -55,6 +55,10 @@ public sealed class UcClient : IServiceClient
 
     public Task<IReadOnlyList<string>> FindGamesAsync(CancellationToken ct = default) => SendAsync<IReadOnlyList<string>>(Commands.FindGames, null, ct);
 
+    public Task<UpdateStatus> CheckUpdateAsync(CancellationToken ct = default) => SendAsync<UpdateStatus>(Commands.CheckUpdate, null, ct);
+
+    public Task<UpdateStatus> InstallUpdateAsync(CancellationToken ct = default) => SendAsync<UpdateStatus>(Commands.InstallUpdate, null, ct);
+
     public async Task<T> SendAsync<T>(string command, object? payload, CancellationToken ct = default)
     {
         var response = await SendRawAsync(new Request(command, payload is null ? null : IpcJson.ToElement(payload)), ct).ConfigureAwait(false);

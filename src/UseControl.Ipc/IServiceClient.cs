@@ -31,4 +31,10 @@ public interface IServiceClient
 
     /// <summary>Game folders found on the PC (whether a preset lists them already is up to the caller).</summary>
     Task<IReadOnlyList<string>> FindGamesAsync(CancellationToken ct = default);
+
+    /// <summary>Looks for a new release now.</summary>
+    Task<UpdateStatus> CheckUpdateAsync(CancellationToken ct = default);
+
+    /// <summary>Downloads and checks the new release, then starts its installer (which restarts the service).</summary>
+    Task<UpdateStatus> InstallUpdateAsync(CancellationToken ct = default);
 }

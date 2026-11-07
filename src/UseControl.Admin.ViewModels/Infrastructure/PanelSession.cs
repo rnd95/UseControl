@@ -63,6 +63,11 @@ public sealed partial class PanelSession : ObservableObject
     /// <summary>Raised after <see cref="Config"/> or <see cref="Status"/> were reloaded, or another preset was chosen.</summary>
     public event EventHandler? Reloaded;
 
+    /// <summary>The panel should close (an update is replacing it).</summary>
+    public event EventHandler? ExitRequested;
+
+    public void RequestExit() => ExitRequested?.Invoke(this, EventArgs.Empty);
+
     /// <summary>
     /// The preset the Restrictions, Games, Programs and Browsers pages show and change. Kept when the
     /// configuration is reloaded; the first preset when it no longer exists.

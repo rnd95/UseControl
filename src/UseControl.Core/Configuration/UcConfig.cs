@@ -1,6 +1,7 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 using UseControl.Core.Games;
+using UseControl.Core.Updates;
 
 namespace UseControl.Core.Configuration;
 
@@ -22,6 +23,9 @@ public sealed class UcConfig
     public List<FileAccessRule> FileAccess { get; set; } = [];
 
     public AuditSettings Audit { get; set; } = new();
+
+    /// <summary>How UseControl updates itself.</summary>
+    public UpdateSettings Updates { get; set; } = new();
 
     /// <summary>Every restricted account, in the order of the presets.</summary>
     [JsonIgnore]

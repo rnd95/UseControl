@@ -88,6 +88,20 @@ internal sealed class FakeService : IServiceClient
 
     public Task<IReadOnlyList<string>> FindGamesAsync(CancellationToken ct = default) => Task.FromResult<IReadOnlyList<string>>([@"D:\NewGames"]);
 
+    /// <summary>What the update checks answer; tests change it.</summary>
+    public UpdateStatus Update { get; set; } = new("0.1.0", "0.1.0", false, DateTimeOffset.Now, null, [], false, null, true);
+
+    public int InstallUpdateCalls { get; private set; }
+
+    public Task<UpdateStatus> CheckUpdateAsync(CancellationToken ct = default) => Task.FromResult(Update);
+
+    public Task<UpdateStatus> InstallUpdateAsync(CancellationToken ct = default)
+    {
+        if (!Update.Available) throw new Core.UcException(Core.ErrorCodes.NoUpdate);
+        InstallUpdateCalls++;
+        return Task.FromResult(Update = Update with { Installing = true });
+    }
+
     private ApplyResult Applied() => new([.. Config.Users.Select(u => new AccountResult(u, true, null, 40, 4, Config.PresetOf(u)!.BlockedNames.Count, Config.PresetOf(u)!.BlockedFiles.Count, u == "kid"))], []);
 
     private List<AccountGames> Games() => [.. Config.Presets.SelectMany(p => p.Accounts.Select(u =>
@@ -97,5 +111,5 @@ internal sealed class FakeService : IServiceClient
         return new AccountGames(u, p.Name, d.Allowed, d.Reason, d.Until, d.MinutesLeft, d.NextStart, st.PlayedToday, false);
     }))];
 
-    private ServiceStatus Status() => new("0.1.0", Enabled, Games(), DateTimeOffset.Now, [], [.. Config.Users.Select(u => new AccountStatus(u, null, "x"))], true, @"C:\ProgramData\UseControl");
+    private ServiceStatus Status() => new("0.1.0", Enabled, Games(), DateTimeOffset.Now, [], [.. Config.Users.Select(u => new AccountStatus(u, null, "x"))], true, @"C:\ProgramData\UseControl", Update);
 }

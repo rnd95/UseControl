@@ -1,0 +1,85 @@
+<!--
+  UseControl for the whole PC: the programs in Program Files\UseControl, the UseControl service (LocalSystem,
+  starts with Windows, restarts after a failure), uc.exe on PATH, shortcuts to the panel.
+
+  - A newer version replaces an older one (the service updates itself this way: msiexec /i <new.msi> /qn).
+  - Removing UseControl first lifts the restrictions through the service; the settings in
+    C:\ProgramData\UseControl stay.
+  - A copy installed earlier with "uc install" is taken over: its service is replaced.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Package Name="UseControl" Manufacturer="Rate Software" Version="$(var.Version)"
+           UpgradeCode="950bc3cf-e4a9-44a6-b9df-4a362182bbfc" Scope="perMachine" Compressed="yes" InstallerVersion="500">
+    <SummaryInformation Description="UseControl: parental control for Windows" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of UseControl is already installed." Schedule="afterInstallInitialize" />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="UseControl.ico" SourceFile="$(var.AssetsDir)\uc.ico" />
+    <Property Id="ARPPRODUCTICON" Value="UseControl.ico" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/rnd95/UseControl" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/rnd95/UseControl" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="UseControl" />
+    </StandardDirectory>
+    <StandardDirectory Id="System64Folder" />
+
+    <Feature Id="Main" Title="UseControl" AllowAbsent="no">
+      <ComponentGroupRef Id="Programs" />
+    </Feature>
+
+    <ComponentGroup Id="Programs" Directory="INSTALLFOLDER">
+      <!-- Everything published, except the three programs that need their own components. -->
+      <Files Include="$(var.PublishDir)\**">
+        <Exclude Files="$(var.PublishDir)\UseControl.Service.exe" />
+        <Exclude Files="$(var.PublishDir)\UseControl.exe" />
+        <Exclude Files="$(var.PublishDir)\uc.exe" />
+      </Files>
+
+      <Component Id="Service">
+        <File Id="ServiceExe" Source="$(var.PublishDir)\UseControl.Service.exe" KeyPath="yes" />
+        <ServiceInstall Name="UseControl" DisplayName="UseControl" Description="UseControl: restrictions for standard Windows accounts."
+                        Type="ownProcess" Start="auto" ErrorControl="normal" Account="LocalSystem" Vital="yes">
+          <util:ServiceConfig FirstFailureActionType="restart" SecondFailureActionType="restart" ThirdFailureActionType="restart"
+                              RestartServiceDelayInSeconds="5" ResetPeriodInDays="1" />
+        </ServiceInstall>
+        <ServiceControl Id="UseControlService" Name="UseControl" Start="install" Stop="both" Remove="uninstall" Wait="yes" />
+      </Component>
+
+      <Component Id="Panel">
+        <File Id="PanelExe" Source="$(var.PublishDir)\UseControl.exe" KeyPath="yes">
+          <Shortcut Id="StartMenu" Directory="ProgramMenuFolder" Name="UseControl" WorkingDirectory="INSTALLFOLDER" Icon="UseControl.ico" Advertise="no" />
+          <Shortcut Id="Desktop" Directory="DesktopFolder" Name="UseControl" WorkingDirectory="INSTALLFOLDER" Icon="UseControl.ico" Advertise="no" />
+        </File>
+      </Component>
+
+      <Component Id="Cli">
+        <File Id="CliExe" Source="$(var.PublishDir)\uc.exe" KeyPath="yes" />
+        <Environment Id="Path" Name="PATH" Value="[INSTALLFOLDER]" Part="last" Action="set" System="yes" Permanent="no" />
+      </Component>
+
+      <!-- Tells the service it was installed this way, so it may update itself. -->
+      <Component Id="InstalledBy">
+        <RegistryValue Root="HKLM" Key="SOFTWARE\UseControl" Name="InstalledBy" Value="msi" Type="string" KeyPath="yes" />
+        <RegistryValue Root="HKLM" Key="SOFTWARE\UseControl" Name="InstallFolder" Value="[INSTALLFOLDER]" Type="string" />
+      </Component>
+    </ComponentGroup>
+
+    <StandardDirectory Id="ProgramMenuFolder" />
+    <StandardDirectory Id="DesktopFolder" />
+
+    <!-- A service left by "uc install" has the same name: remove it, so this package can install its own. -->
+    <CustomAction Id="RemoveOldService" Directory="System64Folder" ExeCommand="&quot;[System64Folder]sc.exe&quot; delete UseControl"
+                  Execute="deferred" Impersonate="no" Return="ignore" />
+
+    <!-- Removing UseControl (not upgrading it) lifts the restrictions while the service still runs. -->
+    <CustomAction Id="LiftRestrictions" FileRef="CliExe" ExeCommand="suspend --yes"
+                  Execute="deferred" Impersonate="no" Return="ignore" />
+
+    <InstallExecuteSequence>
+      <Custom Action="LiftRestrictions" Before="StopServices" Condition="REMOVE~=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />
+      <Custom Action="RemoveOldService" Before="InstallServices" Condition="NOT Installed AND NOT WIX_UPGRADE_DETECTED" />
+    </InstallExecuteSequence>
+  </Package>
+</Wix>

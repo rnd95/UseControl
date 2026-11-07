@@ -4,6 +4,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:l="clr-namespace:UseControl.Admin.Infrastructure">
   <StackPanel>
+    <!-- A new version is out -->
+    <Border DataContext="{Binding Update}" Background="{DynamicResource AccentLight}" CornerRadius="{StaticResource Radius}" Padding="16,10" Margin="0,0,0,12"
+            Visibility="{Binding ShowBanner, Converter={StaticResource BoolToVisibility}}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button Content="{l:Tr Ui.Update.WhatsNew}" Style="{StaticResource LinkButton}" Command="{Binding OpenPageCommand}" Margin="0,0,16,0" />
+          <Button Content="{l:Tr Ui.Update.Install}" Style="{StaticResource PrimaryButton}" Command="{Binding InstallCommand}" Margin="0"
+                  Visibility="{Binding CanUpdateNow, Converter={StaticResource BoolToVisibility}}" />
+        </StackPanel>
+        <TextBlock Text="&#xE896;" FontFamily="{StaticResource IconFont}" FontSize="16" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="{DynamicResource AccentText}" />
+        <TextBlock Text="{Binding BannerText}" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource AccentText}" />
+      </DockPanel>
+    </Border>
+
     <Border Style="{StaticResource Card}" Padding="20,16">
       <Grid>
         <Grid.ColumnDefinitions>

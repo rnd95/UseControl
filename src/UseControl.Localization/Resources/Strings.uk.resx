@@ -114,11 +114,13 @@
   uc config export &lt;файл&gt; | import &lt;файл&gt;
   uc install [--from &lt;папка&gt;]       встановити або оновити (запускати з папки з опублікованими програмами)
   uc uninstall [--keep-restrictions] [--purge] [--yes]
+  uc update [check] | install       шукати нову версію / встановити її
+  uc update daily on|off | auto on|off  перевіряти щодня / встановлювати самостійно
   uc ping | help
 
 Команди, що змінюють профіль (games, block, unblock, allow, ext, policy), приймають --profile &lt;назва&gt;,
 коли профілів більше одного.
-Параметри: --json (status, preview, audit, games find), --lang en|uk|de|pl|de|pl</value></data>
+Параметри: --json (status, preview, audit, games find), --lang en|uk|de|pl|de|pl|de|pl</value></data>
   <data name="Audit.account" xml:space="preserve"><value>Обмежений обліковий запис</value></data>
   <data name="Audit.services" xml:space="preserve"><value>Служби</value></data>
   <data name="Audit.writableFolders" xml:space="preserve"><value>Папки програм із записом</value></data>
@@ -437,4 +439,31 @@
   <data name="Ui.Access.ChooseAccounts" xml:space="preserve"><value>Позначте хоча б один обліковий запис.</value></data>
   <data name="Ui.Browsers.ExtensionsHelp" xml:space="preserve"><value>Коли інші розширення заблоковано, встановити можна лише розширення з цього списку. ID — це код із 32 літер у кінці адреси сторінки розширення в магазині.</value></data>
   <data name="Ui.Browsers.PolicyName" xml:space="preserve"><value>Назва політики</value></data>
+  <data name="Ui.Update.Header" xml:space="preserve"><value>Оновлення</value></data>
+  <data name="Ui.Update.Help" xml:space="preserve"><value>UseControl раз на день шукає нову версію на GitHub. Оновлення встановлюється лише після перевірки контрольної суми (а для підписаних версій — і підпису). Під час встановлення обмеження продовжують діяти.</value></data>
+  <data name="Ui.Update.Available" xml:space="preserve"><value>Доступна версія {0}</value></data>
+  <data name="Ui.Update.UpToDate" xml:space="preserve"><value>У вас найновіша версія</value></data>
+  <data name="Ui.Update.NotChecked" xml:space="preserve"><value>Ще не перевірялося</value></data>
+  <data name="Ui.Update.LastCheck" xml:space="preserve"><value>Перевірено {0}</value></data>
+  <data name="Ui.Update.Check" xml:space="preserve"><value>Перевірити зараз</value></data>
+  <data name="Ui.Update.Install" xml:space="preserve"><value>Оновити</value></data>
+  <data name="Ui.Update.WhatsNew" xml:space="preserve"><value>Що нового</value></data>
+  <data name="Ui.Update.Installing" xml:space="preserve"><value>Встановлюється оновлення…</value></data>
+  <data name="Ui.Update.CheckDaily" xml:space="preserve"><value>Перевіряти оновлення щодня</value></data>
+  <data name="Ui.Update.Auto" xml:space="preserve"><value>Встановлювати оновлення автоматично</value></data>
+  <data name="Ui.Update.Confirm" xml:space="preserve"><value>Встановити версію {0}?
+
+Панель закриється, а служба сама перезапуститься приблизно за хвилину. Обмеження продовжують діяти.</value></data>
+  <data name="Ui.Update.Started" xml:space="preserve"><value>Оновлення встановлюється. Відкрийте UseControl знову за хвилину.</value></data>
+  <data name="Ui.Update.Banner" xml:space="preserve"><value>Доступна версія UseControl {0}</value></data>
+  <data name="Error.NoUpdate" xml:space="preserve"><value>Новішої версії немає.</value></data>
+  <data name="Error.UpdateCheckFailed" xml:space="preserve"><value>Не вдалося перевірити оновлення: {0}</value></data>
+  <data name="Error.UpdateNotVerified" xml:space="preserve"><value>Завантажене оновлення не пройшло перевірку й видалене: {0}</value></data>
+  <data name="Error.UpdateNeedsInstaller" xml:space="preserve"><value>Цю копію встановлено через uc install, вона не може оновлюватися сама. Один раз встановіть .msi зі сторінки релізу; далі оновлення будуть автоматичними.</value></data>
+  <data name="Error.UpdateInProgress" xml:space="preserve"><value>Оновлення вже встановлюється.</value></data>
+  <data name="Cli.UpdateCurrent" xml:space="preserve"><value>Встановлена версія: {0}</value></data>
+  <data name="Cli.UpdateAvailable" xml:space="preserve"><value>Доступна версія {0}: {1}
+Встановити: uc update install</value></data>
+  <data name="Cli.UpdateNone" xml:space="preserve"><value>Це найновіша версія.</value></data>
+  <data name="Cli.UpdateInstalling" xml:space="preserve"><value>Встановлюється UseControl {0}: служба перезапуститься приблизно за хвилину; обмеження продовжують діяти.</value></data>
 </root>

@@ -114,6 +114,8 @@
   uc config export &lt;plik&gt; | import &lt;plik&gt;
   uc install [--from &lt;folder&gt;]      zainstaluj lub zaktualizuj (uruchamiaj z folderu z opublikowanymi programami)
   uc uninstall [--keep-restrictions] [--purge] [--yes]
+  uc update [check] | install       szukaj nowej wersji / zainstaluj ją
+  uc update daily on|off | auto on|off  sprawdzaj codziennie / instaluj samodzielnie
   uc ping | help
 
 Polecenia zmieniające profil (games, block, unblock, allow, ext, policy) wymagają --profile &lt;nazwa&gt;,
@@ -437,4 +439,31 @@ Program jest rozpoznawany po zawartości, więc zmiana nazwy, przeniesienie ani 
   <data name="Ui.Access.ChooseAccounts" xml:space="preserve"><value>Zaznacz co najmniej jedno konto.</value></data>
   <data name="Ui.Browsers.ExtensionsHelp" xml:space="preserve"><value>Gdy inne rozszerzenia są zablokowane, można zainstalować tylko te z listy. Identyfikator to 32-literowy kod na końcu adresu rozszerzenia w sklepie.</value></data>
   <data name="Ui.Browsers.PolicyName" xml:space="preserve"><value>Nazwa zasady</value></data>
+  <data name="Ui.Update.Header" xml:space="preserve"><value>Aktualizacje</value></data>
+  <data name="Ui.Update.Help" xml:space="preserve"><value>UseControl raz dziennie sprawdza w serwisie GitHub, czy jest nowa wersja. Aktualizacja jest instalowana dopiero po sprawdzeniu sumy kontrolnej (a w wersjach podpisanych także podpisu). Podczas instalacji ograniczenia nadal działają.</value></data>
+  <data name="Ui.Update.Available" xml:space="preserve"><value>Dostępna jest wersja {0}</value></data>
+  <data name="Ui.Update.UpToDate" xml:space="preserve"><value>Masz najnowszą wersję</value></data>
+  <data name="Ui.Update.NotChecked" xml:space="preserve"><value>Jeszcze nie sprawdzano</value></data>
+  <data name="Ui.Update.LastCheck" xml:space="preserve"><value>Sprawdzono {0}</value></data>
+  <data name="Ui.Update.Check" xml:space="preserve"><value>Sprawdź teraz</value></data>
+  <data name="Ui.Update.Install" xml:space="preserve"><value>Aktualizuj</value></data>
+  <data name="Ui.Update.WhatsNew" xml:space="preserve"><value>Co nowego</value></data>
+  <data name="Ui.Update.Installing" xml:space="preserve"><value>Trwa instalacja aktualizacji…</value></data>
+  <data name="Ui.Update.CheckDaily" xml:space="preserve"><value>Sprawdzaj aktualizacje codziennie</value></data>
+  <data name="Ui.Update.Auto" xml:space="preserve"><value>Instaluj aktualizacje automatycznie</value></data>
+  <data name="Ui.Update.Confirm" xml:space="preserve"><value>Zainstalować wersję {0}?
+
+Panel zostanie zamknięty, a usługa sama uruchomi się ponownie po około minucie. Ograniczenia nadal działają.</value></data>
+  <data name="Ui.Update.Started" xml:space="preserve"><value>Aktualizacja jest instalowana. Otwórz UseControl ponownie za minutę.</value></data>
+  <data name="Ui.Update.Banner" xml:space="preserve"><value>Dostępny jest UseControl {0}</value></data>
+  <data name="Error.NoUpdate" xml:space="preserve"><value>Nie ma nowszej wersji.</value></data>
+  <data name="Error.UpdateCheckFailed" xml:space="preserve"><value>Nie udało się sprawdzić aktualizacji: {0}</value></data>
+  <data name="Error.UpdateNotVerified" xml:space="preserve"><value>Pobrana aktualizacja nie przeszła weryfikacji i została usunięta: {0}</value></data>
+  <data name="Error.UpdateNeedsInstaller" xml:space="preserve"><value>Ta kopia została zainstalowana przez uc install i nie może aktualizować się sama. Zainstaluj raz plik .msi ze strony wydania; kolejne aktualizacje będą automatyczne.</value></data>
+  <data name="Error.UpdateInProgress" xml:space="preserve"><value>Aktualizacja jest już instalowana.</value></data>
+  <data name="Cli.UpdateCurrent" xml:space="preserve"><value>Zainstalowana wersja: {0}</value></data>
+  <data name="Cli.UpdateAvailable" xml:space="preserve"><value>Dostępna jest wersja {0}: {1}
+Instalacja: uc update install</value></data>
+  <data name="Cli.UpdateNone" xml:space="preserve"><value>To jest najnowsza wersja.</value></data>
+  <data name="Cli.UpdateInstalling" xml:space="preserve"><value>Instalowanie UseControl {0}: usługa uruchomi się ponownie po około minucie; ograniczenia nadal działają.</value></data>
 </root>

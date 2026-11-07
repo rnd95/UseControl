@@ -1,0 +1,46 @@
+# A tag "v1.2.3" builds the release: tests, programs, installer, ZIP and checksums, then a draft
+# GitHub release with them. Check the draft and publish it; installed copies find it within a day.
+name: Release
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Version from the tag
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Tag ${{ github.ref_name }} is not vX.Y.Z" }
+          "VERSION=$version" >> $env:GITHUB_ENV
+
+      - name: Test
+        run: dotnet test -c Release -p:Version=${{ env.VERSION }}
+
+      - name: Publish the programs
+        shell: pwsh
+        run: ./build/publish.ps1 -Version $env:VERSION
+
+      - name: Installer, ZIP and checksums
+        shell: pwsh
+        run: ./build/package.ps1 -Version $env:VERSION
+
+      - name: Draft release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create '${{ github.ref_name }}' (Get-ChildItem artifacts/release -File).FullName `
+            --draft --generate-notes --title "UseControl $env:VERSION"

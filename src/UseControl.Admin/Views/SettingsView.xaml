@@ -24,6 +24,48 @@
       </Grid>
     </Border>
 
+    <!-- Updates of UseControl itself -->
+    <Border Style="{StaticResource Card}" DataContext="{Binding Update}">
+      <StackPanel>
+        <DockPanel Margin="0,0,0,8">
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+            <Button Content="{l:Tr Ui.Update.Check}" Command="{Binding CheckCommand}" />
+            <Button Content="{l:Tr Ui.Update.Install}" Style="{StaticResource PrimaryButton}" Command="{Binding InstallCommand}" Margin="0"
+                    Visibility="{Binding CanUpdateNow, Converter={StaticResource BoolToVisibility}}" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+            <TextBlock Text="{l:Tr Ui.Update.Header}" Style="{StaticResource CardTitle}" />
+            <ToggleButton Style="{StaticResource HelpTip}" Tag="{l:Tr Ui.Update.Help}" />
+          </StackPanel>
+        </DockPanel>
+        <TextBlock TextWrapping="Wrap">
+          <Run Text="{Binding StatusText, Mode=OneWay}" FontWeight="SemiBold">
+            <Run.Style>
+              <Style TargetType="Run">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding IsError}" Value="True">
+                    <Setter Property="Foreground" Value="{DynamicResource Danger}" />
+                  </DataTrigger>
+                  <DataTrigger Binding="{Binding Available}" Value="True">
+                    <Setter Property="Foreground" Value="{DynamicResource AccentText}" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Run.Style>
+          </Run>
+        </TextBlock>
+        <StackPanel Orientation="Horizontal" Margin="0,2,0,6">
+          <TextBlock Text="{Binding LastCheckText}" Foreground="{DynamicResource TextMuted}" FontSize="12" Margin="0,0,12,0" VerticalAlignment="Center" />
+          <Button Content="{l:Tr Ui.Update.WhatsNew}" Style="{StaticResource LinkButton}" Command="{Binding OpenPageCommand}" FontSize="12"
+                  Visibility="{Binding Available, Converter={StaticResource BoolToVisibility}}" />
+        </StackPanel>
+        <TextBlock Text="{l:Tr Error.UpdateNeedsInstaller}" Style="{StaticResource Help}" Foreground="{DynamicResource Warning}" Margin="0,0,0,6"
+                   Visibility="{Binding CanInstall, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+        <CheckBox Style="{StaticResource Switch}" Content="{l:Tr Ui.Update.CheckDaily}" IsChecked="{Binding CheckDaily}" />
+        <CheckBox Style="{StaticResource Switch}" Content="{l:Tr Ui.Update.Auto}" IsChecked="{Binding InstallAutomatically}" BorderThickness="0" />
+      </StackPanel>
+    </Border>
+
     <Border Style="{StaticResource Card}">
       <StackPanel>
         <TextBlock Text="{l:Tr Ui.Settings.BackupHeader}" Style="{StaticResource SectionTitle}" />

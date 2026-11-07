@@ -114,11 +114,13 @@
   uc config export &lt;file&gt; | import &lt;file&gt;
   uc install [--from &lt;folder&gt;]      install or update (run from the folder with the published programs)
   uc uninstall [--keep-restrictions] [--purge] [--yes]
+  uc update [check] | install       look for a new version / install it
+  uc update daily on|off | auto on|off  check every day / install by itself
   uc ping | help
 
 Commands that change a profile (games, block, unblock, allow, ext, policy) take --profile &lt;name&gt;
 when there is more than one profile.
-Options: --json (status, preview, audit, games find), --lang en|uk|de|pl|de|pl</value></data>
+Options: --json (status, preview, audit, games find), --lang en|uk|de|pl|de|pl|de|pl</value></data>
   <data name="Audit.account" xml:space="preserve"><value>Restricted account</value></data>
   <data name="Audit.services" xml:space="preserve"><value>Services</value></data>
   <data name="Audit.writableFolders" xml:space="preserve"><value>Writable program folders</value></data>
@@ -437,4 +439,31 @@ A program is recognised by its content, so renaming, moving or copying it does n
   <data name="Ui.Access.ChooseAccounts" xml:space="preserve"><value>Tick at least one account.</value></data>
   <data name="Ui.Browsers.ExtensionsHelp" xml:space="preserve"><value>When other extensions are blocked, only the extensions listed here can be installed. The ID is the 32-letter code at the end of the extension&apos;s store address.</value></data>
   <data name="Ui.Browsers.PolicyName" xml:space="preserve"><value>Policy name</value></data>
+  <data name="Ui.Update.Header" xml:space="preserve"><value>Updates</value></data>
+  <data name="Ui.Update.Help" xml:space="preserve"><value>UseControl looks for a new version on GitHub once a day. An update is installed only after its checksum (and, for signed versions, its signature) has been verified. Restrictions stay in place while it installs.</value></data>
+  <data name="Ui.Update.Available" xml:space="preserve"><value>Version {0} is available</value></data>
+  <data name="Ui.Update.UpToDate" xml:space="preserve"><value>You have the latest version</value></data>
+  <data name="Ui.Update.NotChecked" xml:space="preserve"><value>Not checked yet</value></data>
+  <data name="Ui.Update.LastCheck" xml:space="preserve"><value>Checked {0}</value></data>
+  <data name="Ui.Update.Check" xml:space="preserve"><value>Check now</value></data>
+  <data name="Ui.Update.Install" xml:space="preserve"><value>Update</value></data>
+  <data name="Ui.Update.WhatsNew" xml:space="preserve"><value>What&apos;s new</value></data>
+  <data name="Ui.Update.Installing" xml:space="preserve"><value>Installing the update…</value></data>
+  <data name="Ui.Update.CheckDaily" xml:space="preserve"><value>Check for updates every day</value></data>
+  <data name="Ui.Update.Auto" xml:space="preserve"><value>Install updates automatically</value></data>
+  <data name="Ui.Update.Confirm" xml:space="preserve"><value>Install version {0}?
+
+The panel closes, and the service restarts by itself in about a minute. Restrictions stay in place.</value></data>
+  <data name="Ui.Update.Started" xml:space="preserve"><value>The update is being installed. Open UseControl again in a minute.</value></data>
+  <data name="Ui.Update.Banner" xml:space="preserve"><value>UseControl {0} is available</value></data>
+  <data name="Error.NoUpdate" xml:space="preserve"><value>There is no newer version.</value></data>
+  <data name="Error.UpdateCheckFailed" xml:space="preserve"><value>Could not check for updates: {0}</value></data>
+  <data name="Error.UpdateNotVerified" xml:space="preserve"><value>The downloaded update failed verification and was deleted: {0}</value></data>
+  <data name="Error.UpdateNeedsInstaller" xml:space="preserve"><value>This copy was installed with uc install and cannot update itself. Install the .msi from the release page once; later updates are automatic.</value></data>
+  <data name="Error.UpdateInProgress" xml:space="preserve"><value>An update is already being installed.</value></data>
+  <data name="Cli.UpdateCurrent" xml:space="preserve"><value>Installed version: {0}</value></data>
+  <data name="Cli.UpdateAvailable" xml:space="preserve"><value>Version {0} is available: {1}
+Install it: uc update install</value></data>
+  <data name="Cli.UpdateNone" xml:space="preserve"><value>This is the latest version.</value></data>
+  <data name="Cli.UpdateInstalling" xml:space="preserve"><value>Installing UseControl {0}: the service restarts in about a minute; restrictions stay in place.</value></data>
 </root>

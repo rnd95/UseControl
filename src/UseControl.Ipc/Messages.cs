@@ -21,6 +21,8 @@ public static class Commands
     public const string Preview = "preview";
     public const string Audit = "audit";
     public const string FindGames = "findGames";
+    public const string CheckUpdate = "checkUpdate";
+    public const string InstallUpdate = "installUpdate";
 }
 
 public sealed record Request(string Command, JsonElement? Payload = null);
@@ -53,7 +55,29 @@ public sealed record ServiceStatus(
     IReadOnlyList<AccountResult> LastResults,
     IReadOnlyList<AccountStatus> Accounts,
     bool StoreInstallsAdminOnly,
-    string DataDirectory);
+    string DataDirectory,
+    UpdateStatus? Update = null);
+
+/// <summary>Updates of UseControl itself.</summary>
+/// <param name="Current">The running version.</param>
+/// <param name="Latest">The newest published version found, or null before the first check.</param>
+/// <param name="Available">A newer version than the running one exists.</param>
+/// <param name="LastCheck">When releases were last looked at.</param>
+/// <param name="ErrorCode">Why the last check or installation failed (an error code), or null.</param>
+/// <param name="ErrorArgs">The values of that error.</param>
+/// <param name="Installing">The installer has been started.</param>
+/// <param name="PageUrl">The release page of <paramref name="Latest"/>.</param>
+/// <param name="CanInstall">This copy can update itself (it was installed by the installer).</param>
+public sealed record UpdateStatus(
+    string Current,
+    string? Latest,
+    bool Available,
+    DateTimeOffset? LastCheck,
+    string? ErrorCode,
+    IReadOnlyList<string> ErrorArgs,
+    bool Installing,
+    string? PageUrl,
+    bool CanInstall);
 
 /// <param name="User">One account, or null for every restricted account.</param>
 public sealed record GamesRequest(string? User);

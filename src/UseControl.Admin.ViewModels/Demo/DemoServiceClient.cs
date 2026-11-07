@@ -121,7 +121,17 @@ public sealed class DemoServiceClient : IServiceClient
             _enabled ? new RestrictionState(true, 47, 4, _config.PresetOf(u)!.BlockedFiles.Count * 2, _config.PresetOf(u)!.BlockedNames.Count, new Dictionary<string, int>(), true) : new RestrictionState(false, 0, 0, 0, 0, new Dictionary<string, int>(), false),
             null))],
         true,
-        @"C:\ProgramData\UseControl");
+        @"C:\ProgramData\UseControl",
+        _update);
+
+    // The demo shows a newer version, so the update card and banner can be seen.
+    private UpdateStatus _update = new("0.1.0", "0.2.0", true, DateTimeOffset.Now.AddHours(-2), null, [], false, "https://github.com/rnd95/UseControl/releases", true);
+
+    public Task<UpdateStatus> CheckUpdateAsync(CancellationToken ct = default) =>
+        Task.FromResult(_update = _update with { LastCheck = DateTimeOffset.Now });
+
+    public Task<UpdateStatus> InstallUpdateAsync(CancellationToken ct = default) =>
+        Task.FromResult(_update = _update with { Installing = true });
 
     private static UcConfig Copy(UcConfig c) => ConfigSerializer.Parse(ConfigSerializer.Serialize(c));
 }

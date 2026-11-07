@@ -37,6 +37,10 @@ internal sealed class FakeDialogs : IDialogService
 
     public string? PickSaveFile(string title, string filter, string defaultName) => File;
 
+    public List<string> OpenedUrls { get; } = [];
+
+    public void OpenUrl(string url) => OpenedUrls.Add(url);
+
     public string? PromptAnswer { get; set; }
 
     public string? Prompt(string message, string initial) => PromptAnswer;
@@ -57,6 +61,8 @@ internal sealed class MissingService : IServiceClient
     public Task<PreviewResult> PreviewAsync(CancellationToken ct = default) => Fail<PreviewResult>();
     public Task<IReadOnlyList<AuditCheck>> AuditAsync(CancellationToken ct = default) => Fail<IReadOnlyList<AuditCheck>>();
     public Task<IReadOnlyList<string>> FindGamesAsync(CancellationToken ct = default) => Fail<IReadOnlyList<string>>();
+    public Task<UpdateStatus> CheckUpdateAsync(CancellationToken ct = default) => Fail<UpdateStatus>();
+    public Task<UpdateStatus> InstallUpdateAsync(CancellationToken ct = default) => Fail<UpdateStatus>();
 }
 
 [CollectionDefinition("Culture", DisableParallelization = true)]
@@ -462,16 +468,16 @@ public sealed class PanelTests
     [Fact]
     public async Task Success_messages_hide_by_themselves_and_errors_stay()
     {
-        Session.MessageLifetime = TimeSpan.FromMilliseconds(100);
+        Session.MessageLifetime = TimeSpan.FromMilliseconds(300);
         Session.ShowMessage(MessageKind.Success, "done");
         Session.ShowMessage(MessageKind.Info, "newer");   // the newer one gets its own full time
-        await Task.Delay(60);
+        await Task.Delay(100);
         Assert.Equal("newer", Session.Message);
-        await Task.Delay(200);
+        for (var i = 0; i < 100 && Session.Message is not null; i++) await Task.Delay(20);
         Assert.Null(Session.Message);
 
         Session.ShowMessage(MessageKind.Error, "broken");
-        await Task.Delay(250);
+        await Task.Delay(600);
         Assert.Equal("broken", Session.Message);
         await Task.CompletedTask;
     }
@@ -503,6 +509,42 @@ public sealed class PanelTests
         Assert.Equal("Restrictions are suspended", page.Headline);
         await page.ApplyCommand.ExecuteAsync(null);
         Assert.True(_svc.Enabled);
+    }
+
+    [Fact]
+    public async Task A_new_version_is_shown_and_installed_after_confirmation_and_then_the_panel_closes()
+    {
+        var exits = 0;
+        Session.ExitRequested += (_, _) => exits++;
+        await _main.StartAsync();
+        var update = _main.Update;
+        Assert.Equal("You have the latest version", update.StatusText);
+        Assert.False(update.ShowBanner);
+
+        _svc.Update = _svc.Update with { Latest = "0.2.0", Available = true, PageUrl = "https://github.com/rnd95/UseControl/releases/tag/v0.2.0" };
+        await update.CheckCommand.ExecuteAsync(null);
+        Assert.Equal("Version 0.2.0 is available", update.StatusText);
+        Assert.True(update.ShowBanner);
+        Assert.True(update.CanUpdateNow);
+        Assert.Same(update, Page<StatusPageViewModel>().Update);   // the overview banner and the settings card are one
+
+        update.OpenPageCommand.Execute(null);
+        Assert.Equal(["https://github.com/rnd95/UseControl/releases/tag/v0.2.0"], _dialogs.OpenedUrls);
+
+        _dialogs.Answer = false;
+        await update.InstallCommand.ExecuteAsync(null);
+        Assert.Equal(0, _svc.InstallUpdateCalls);
+        _dialogs.Answer = true;
+        await update.InstallCommand.ExecuteAsync(null);
+        Assert.Equal(1, _svc.InstallUpdateCalls);
+        Assert.True(update.Installing);
+        Assert.False(update.CanUpdateNow);
+        Assert.Equal(1, exits);
+
+        // The switches are saved in the configuration.
+        update.InstallAutomatically = true;
+        await Task.Delay(50);
+        Assert.True(_svc.Config.Updates.InstallAutomatically);
     }
 
     [Fact]

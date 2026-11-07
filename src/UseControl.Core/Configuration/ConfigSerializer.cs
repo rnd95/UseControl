@@ -1,8 +1,9 @@
 using System.Text.Encodings.Web;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 using UseControl.Core.Games;
+using UseControl.Core.Updates;
 
 namespace UseControl.Core.Configuration;
 
@@ -174,6 +175,7 @@ public static class ConfigSerializer
         foreach (var r in c.FileAccess) r.Users ??= [];
 
         c.Audit ??= new AuditSettings();
+        c.Updates ??= new UpdateSettings();
         c.Audit.Admins = Clean(c.Audit.Admins);
         c.Audit.PrivateFolders = Clean(c.Audit.PrivateFolders);
         c.Audit.HiddenAccounts = Clean(c.Audit.HiddenAccounts);

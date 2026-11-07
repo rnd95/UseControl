@@ -114,6 +114,8 @@
   uc config export &lt;Datei&gt; | import &lt;Datei&gt;
   uc install [--from &lt;Ordner&gt;]      installieren oder aktualisieren (aus dem Ordner mit den veröffentlichten Programmen)
   uc uninstall [--keep-restrictions] [--purge] [--yes]
+  uc update [check] | install       nach neuer Version suchen / sie installieren
+  uc update daily on|off | auto on|off  täglich prüfen / selbst installieren
   uc ping | help
 
 Befehle, die ein Profil ändern (games, block, unblock, allow, ext, policy), benötigen --profile &lt;Name&gt;,
@@ -437,4 +439,31 @@ Ein Programm wird an seinem Inhalt erkannt, Umbenennen, Verschieben oder Kopiere
   <data name="Ui.Access.ChooseAccounts" xml:space="preserve"><value>Wählen Sie mindestens ein Konto aus.</value></data>
   <data name="Ui.Browsers.ExtensionsHelp" xml:space="preserve"><value>Sind andere Erweiterungen gesperrt, können nur die hier aufgeführten installiert werden. Die ID ist der 32-stellige Buchstabencode am Ende der Store-Adresse der Erweiterung.</value></data>
   <data name="Ui.Browsers.PolicyName" xml:space="preserve"><value>Richtlinienname</value></data>
+  <data name="Ui.Update.Header" xml:space="preserve"><value>Updates</value></data>
+  <data name="Ui.Update.Help" xml:space="preserve"><value>UseControl sucht einmal täglich auf GitHub nach einer neuen Version. Ein Update wird erst installiert, nachdem seine Prüfsumme (und bei signierten Versionen seine Signatur) geprüft wurde. Die Einschränkungen bleiben während der Installation aktiv.</value></data>
+  <data name="Ui.Update.Available" xml:space="preserve"><value>Version {0} ist verfügbar</value></data>
+  <data name="Ui.Update.UpToDate" xml:space="preserve"><value>Sie haben die neueste Version</value></data>
+  <data name="Ui.Update.NotChecked" xml:space="preserve"><value>Noch nicht geprüft</value></data>
+  <data name="Ui.Update.LastCheck" xml:space="preserve"><value>Geprüft {0}</value></data>
+  <data name="Ui.Update.Check" xml:space="preserve"><value>Jetzt prüfen</value></data>
+  <data name="Ui.Update.Install" xml:space="preserve"><value>Aktualisieren</value></data>
+  <data name="Ui.Update.WhatsNew" xml:space="preserve"><value>Neuerungen</value></data>
+  <data name="Ui.Update.Installing" xml:space="preserve"><value>Update wird installiert…</value></data>
+  <data name="Ui.Update.CheckDaily" xml:space="preserve"><value>Täglich nach Updates suchen</value></data>
+  <data name="Ui.Update.Auto" xml:space="preserve"><value>Updates automatisch installieren</value></data>
+  <data name="Ui.Update.Confirm" xml:space="preserve"><value>Version {0} installieren?
+
+Das Fenster wird geschlossen, und der Dienst startet in etwa einer Minute von selbst neu. Die Einschränkungen bleiben aktiv.</value></data>
+  <data name="Ui.Update.Started" xml:space="preserve"><value>Das Update wird installiert. Öffnen Sie UseControl in einer Minute erneut.</value></data>
+  <data name="Ui.Update.Banner" xml:space="preserve"><value>UseControl {0} ist verfügbar</value></data>
+  <data name="Error.NoUpdate" xml:space="preserve"><value>Es gibt keine neuere Version.</value></data>
+  <data name="Error.UpdateCheckFailed" xml:space="preserve"><value>Updates konnten nicht geprüft werden: {0}</value></data>
+  <data name="Error.UpdateNotVerified" xml:space="preserve"><value>Das heruntergeladene Update hat die Prüfung nicht bestanden und wurde gelöscht: {0}</value></data>
+  <data name="Error.UpdateNeedsInstaller" xml:space="preserve"><value>Diese Kopie wurde mit uc install installiert und kann sich nicht selbst aktualisieren. Installieren Sie einmal die .msi von der Release-Seite; spätere Updates erfolgen automatisch.</value></data>
+  <data name="Error.UpdateInProgress" xml:space="preserve"><value>Ein Update wird bereits installiert.</value></data>
+  <data name="Cli.UpdateCurrent" xml:space="preserve"><value>Installierte Version: {0}</value></data>
+  <data name="Cli.UpdateAvailable" xml:space="preserve"><value>Version {0} ist verfügbar: {1}
+Installieren: uc update install</value></data>
+  <data name="Cli.UpdateNone" xml:space="preserve"><value>Dies ist die neueste Version.</value></data>
+  <data name="Cli.UpdateInstalling" xml:space="preserve"><value>UseControl {0} wird installiert: Der Dienst startet in etwa einer Minute neu; die Einschränkungen bleiben aktiv.</value></data>
 </root>

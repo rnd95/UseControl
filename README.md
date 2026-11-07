@@ -61,6 +61,39 @@ dotnet build
 dotnet test
 ```
 
+## Installing
+
+Download `UseControl-<version>-x64.msi` from the [releases](https://github.com/rnd95/UseControl/releases) and run it.
+It installs the programs to `C:\Program Files\UseControl`, registers and starts the `UseControl` service,
+adds `uc` to PATH and creates Start menu and desktop shortcuts. Removing UseControl in Windows Settings
+lifts the restrictions first; the settings in `C:\ProgramData\UseControl` stay.
+
+A copy installed earlier with `uc install` is taken over by the installer (its service is replaced).
+
+## Updates
+
+The service looks for a new release once a day (GitHub Releases of this repository). The panel shows a new
+version on the Overview page and in Settings › Updates; **Update** downloads the installer, checks it and runs
+it, and the service restarts with the new version. Restrictions stay in place all the time.
+
+An installer is used only when its SHA-256 matches `SHA256SUMS.txt` of the same release and, once
+UseControl is code-signed, when it is signed by the same publisher as the running copy. Only a copy
+installed with the `.msi` updates itself.
+
+From the command line: `uc update` (check), `uc update install`, `uc update auto on|off` (install by itself),
+`uc update daily on|off` (the daily check).
+
+## Releasing
+
+1. Push a tag: `git tag v0.2.0` and `git push origin v0.2.0`.
+2. GitHub Actions (`.github/workflows/release.yml`) runs the tests, publishes the programs and creates a
+   **draft** release with `UseControl-0.2.0-x64.msi`, `UseControl-0.2.0-x64.zip` and `SHA256SUMS.txt`.
+3. Check the draft, write what is new, and publish it. Installed copies find it within a day.
+
+The same files can be built locally: `.\build\publish.ps1 -Version 0.2.0` and then `.\build\package.ps1 -Version 0.2.0`
+(the installer needs the WiX SDK, which `dotnet build` downloads by itself). The repository must be public for
+installed copies to see its releases.
+
 ## Installing from source
 
 ```
@@ -75,7 +108,7 @@ dotnet test
 - adds `uc` to PATH;
 - creates a Start menu and desktop shortcut to the panel.
 
-Running it again updates an existing installation.
+Running it again updates an existing installation. Such a copy does not update itself; install the `.msi` once to get updates.
 
 An installation of the PowerShell version is replaced: its configuration becomes the service's configuration, and its scheduled task and scripts are removed.
 

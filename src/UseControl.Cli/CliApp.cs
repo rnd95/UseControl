@@ -106,8 +106,51 @@ internal sealed class CliApp
         "config" => Config(a),
         "install" => Install(a),
         "uninstall" => Uninstall(a),
+        "update" or "updates" => Update(a),
         _ => throw new UsageException(Loc.T("Cli.UnknownCommand", a.Value(0))),
     };
+
+    // ---------------------------------------------------------------- updates
+
+    private async Task<int> Update(CliArgs a)
+    {
+        switch (a.Word(1))
+        {
+            case "" or "check" or "status":
+                var st = await _client.CheckUpdateAsync().ConfigureAwait(false);
+                if (a.Flag("json")) return await Json(st).ConfigureAwait(false);
+                await PrintUpdate(st).ConfigureAwait(false);
+                return Ok;
+            case "install":
+                var started = await _client.InstallUpdateAsync().ConfigureAwait(false);
+                await Line("Cli.UpdateInstalling", started.Latest ?? "?").ConfigureAwait(false);
+                return Ok;
+            case "auto":
+                var auto = OnOff(a.Word(2));
+                return await Edit(c => c.Updates.InstallAutomatically = auto).ConfigureAwait(false);
+            case "daily":
+                var daily = OnOff(a.Word(2));
+                return await Edit(c => c.Updates.CheckDaily = daily).ConfigureAwait(false);
+            default:
+                throw new UsageException(Loc.T("Cli.UnknownCommand", "update " + a.Value(1)));
+        }
+    }
+
+    private static bool OnOff(string word) => word switch
+    {
+        "on" => true,
+        "off" => false,
+        _ => throw new UsageException(Loc.T("Cli.MissingArgument", "on|off")),
+    };
+
+    private async Task PrintUpdate(UpdateStatus st)
+    {
+        await Line("Cli.UpdateCurrent", st.Current).ConfigureAwait(false);
+        if (st.ErrorCode is { } code) await Line("Cli.ErrorPrefix", Loc.Error(code, st.ErrorArgs, code)).ConfigureAwait(false);
+        else if (st.Available) await Line("Cli.UpdateAvailable", st.Latest, st.PageUrl).ConfigureAwait(false);
+        else await Line("Cli.UpdateNone").ConfigureAwait(false);
+        if (st.Available && !st.CanInstall) await Line("Error.UpdateNeedsInstaller").ConfigureAwait(false);
+    }
 
     // ---------------------------------------------------------------- installation
 

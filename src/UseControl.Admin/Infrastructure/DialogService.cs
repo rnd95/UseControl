@@ -36,6 +36,9 @@ public sealed class DialogService : IDialogService
         return d.ShowDialog(Application.Current.MainWindow) == true ? d.FileName : null;
     }
 
+    public void OpenUrl(string url) =>
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true })?.Dispose();
+
     /// <summary>A small window with a message, a text box, OK and Cancel, in the colours of the panel.</summary>
     public string? Prompt(string message, string initial)
     {

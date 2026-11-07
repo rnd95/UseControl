@@ -64,6 +64,12 @@ public partial class App : Application
             window.DataContext = null;
             window.DataContext = main;
         };
+        // An update replaces the panel: it closes after showing for a moment that the update has started.
+        session.ExitRequested += async (_, _) =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+            if (!demo) Shutdown();
+        };
         MainWindow = window;
         window.Show();
         _ = StartAsync(main, demo);

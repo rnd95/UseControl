@@ -17,10 +17,11 @@ public sealed partial class SettingsPageViewModel : PageViewModel
     private readonly Action<CultureInfo> _saveLanguage;
     private readonly ThemeChoices _themes;
 
-    public SettingsPageViewModel(PanelSession session, Action<CultureInfo> saveLanguage, ThemeChoices themes)
+    public SettingsPageViewModel(PanelSession session, Action<CultureInfo> saveLanguage, ThemeChoices themes, UpdateViewModel? update = null)
         : base(session, "Ui.Nav.Settings", "")
     {
         _saveLanguage = saveLanguage;
+        Update = update ?? new UpdateViewModel(session);
         _themes = themes;
         BuildThemes(themes.Current);
         Languages = [.. Loc.Available.Select(c => new LanguageChoice(c, char.ToUpper(c.NativeName[0], c) + c.NativeName[1..]))];
@@ -28,6 +29,8 @@ public sealed partial class SettingsPageViewModel : PageViewModel
     }
 
     public override NavSection Section => NavSection.Computer;
+
+    public UpdateViewModel Update { get; }
 
     public IReadOnlyList<LanguageChoice> Languages { get; }
 

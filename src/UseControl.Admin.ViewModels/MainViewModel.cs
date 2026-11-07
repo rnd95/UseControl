@@ -23,19 +23,22 @@ public sealed partial class MainViewModel : ObservableObject
         TranslationSource.Instance.CultureChanged += (_, _) => OnSubtitleChanged();
         Pages =
         [
-            new StatusPageViewModel(session),
+            new StatusPageViewModel(session, Update = new UpdateViewModel(session)),
             new AccountsPageViewModel(session, standardAccounts),
             new AppsPageViewModel(session, fingerprint),
             new RestrictionsPageViewModel(session),
             new BrowsersPageViewModel(session),
             new FileAccessPageViewModel(session),
             new AuditPageViewModel(session),
-            new SettingsPageViewModel(session, saveLanguage, themes ?? ThemeChoices.None),
+            new SettingsPageViewModel(session, saveLanguage, themes ?? ThemeChoices.None, Update),
         ];
         _selectedPage = Pages[0];
     }
 
     public PanelSession Session { get; }
+
+    /// <summary>Updates of UseControl (settings page and overview banner).</summary>
+    public UpdateViewModel Update { get; }
 
     public IReadOnlyList<PageViewModel> Pages { get; }
 

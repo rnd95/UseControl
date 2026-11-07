@@ -21,7 +21,13 @@ public sealed record AccountOverview(
 /// <summary>The first page: is protection on, and how is every restricted account doing.</summary>
 public sealed partial class StatusPageViewModel : PageViewModel
 {
-    public StatusPageViewModel(PanelSession session) : base(session, "Ui.Nav.Status", "") { }
+    public StatusPageViewModel(PanelSession session, UpdateViewModel? update = null) : base(session, "Ui.Nav.Status", "")
+    {
+        Update = update ?? new UpdateViewModel(session);
+    }
+
+    /// <summary>The banner shown when a new version is out.</summary>
+    public UpdateViewModel Update { get; }
 
     /// <summary>"Protection is on" or "Restrictions are suspended".</summary>
     [ObservableProperty]

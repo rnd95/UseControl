@@ -13,7 +13,9 @@
 param(
     [string]$Configuration = 'Release',
     [string]$Runtime = 'win-x64',
-    [string]$Output = (Join-Path $PSScriptRoot '..\artifacts\UseControl')
+    [string]$Output = (Join-Path $PSScriptRoot '..\artifacts\UseControl'),
+    # "1.2.3": the version written into the programs (default: the one in Directory.Build.props).
+    [string]$Version = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -24,9 +26,11 @@ $env:DOTNET_NOLOGO = '1'
 if (Test-Path $Output) { Remove-Item $Output -Recurse -Force }
 New-Item -ItemType Directory -Force $Output | Out-Null
 
+$versionArgs = @()
+if ($Version) { $versionArgs += "-p:Version=$Version" }
 foreach ($project in 'UseControl.Service', 'UseControl.Cli', 'UseControl.Admin') {
     Write-Host "Publishing $project..." -ForegroundColor Cyan
-    dotnet publish (Join-Path $root "src\$project") -c $Configuration -r $Runtime --self-contained true -o $Output -p:DebugType=none
+    dotnet publish (Join-Path $root "src\$project") -c $Configuration -r $Runtime --self-contained true -o $Output -p:DebugType=none @versionArgs
     if ($LASTEXITCODE -ne 0) { throw "Publishing $project failed." }
 }
 

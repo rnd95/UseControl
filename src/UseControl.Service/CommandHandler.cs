@@ -5,7 +5,7 @@ using UseControl.Ipc;
 namespace UseControl.Service;
 
 /// <summary>Turns pipe requests into controller calls.</summary>
-public sealed class CommandHandler(UcController controller)
+public sealed class CommandHandler(UcController controller, Updater? updater = null)
 {
     public async Task<Response> HandleAsync(Request request, CancellationToken ct)
     {
@@ -13,7 +13,7 @@ public sealed class CommandHandler(UcController controller)
         object result = request.Command switch
         {
             Commands.Ping => new PingResult(typeof(CommandHandler).Assembly.GetName().Version?.ToString(3) ?? "?", Environment.ProcessId),
-            Commands.GetStatus => await controller.GetStatusAsync(ct).ConfigureAwait(false),
+            Commands.GetStatus => await controller.GetStatusAsync(ct).ConfigureAwait(false) with { Update = updater?.Status },
             Commands.GetConfig => await controller.GetConfigAsync(ct).ConfigureAwait(false),
             Commands.SetConfig => await controller.SetConfigAsync(Payload<UcConfig>(request), ct).ConfigureAwait(false),
             Commands.Apply => await controller.ApplyAsync(ct).ConfigureAwait(false),
@@ -23,10 +23,14 @@ public sealed class CommandHandler(UcController controller)
             Commands.Preview => await Preview(ct).ConfigureAwait(false),
             Commands.Audit => await controller.AuditAsync(ct).ConfigureAwait(false),
             Commands.FindGames => await controller.FindGamesAsync(ct).ConfigureAwait(false),
+            Commands.CheckUpdate => await Updates().CheckAsync(ct).ConfigureAwait(false),
+            Commands.InstallUpdate => await Updates().InstallAsync(ct).ConfigureAwait(false),
             _ => throw new UcException(ErrorCodes.UnknownCommand, request.Command),
         };
         return new Response(true, IpcJson.ToElement(result));
     }
+
+    private Updater Updates() => updater ?? throw new UcException(ErrorCodes.UnknownCommand, "update");
 
     private async Task<PreviewResult> Preview(CancellationToken ct)
     {
