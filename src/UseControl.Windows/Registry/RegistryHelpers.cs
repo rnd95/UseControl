@@ -55,12 +55,17 @@ internal static class RegistryHelpers
         k.SetAccessControl(sec);
     }
 
-    /// <summary>True when the key is owned by Administrators and neither the user nor everyone can change it.</summary>
+    /// <summary>
+    /// True when the key is locked the way <see cref="Lock"/> does it: it inherits nothing, is owned by
+    /// Administrators, and neither the user nor everyone can change it. An elevated administrator owns new keys
+    /// through the Administrators group, so the owner alone does not tell a locked key from an ordinary one.
+    /// </summary>
     public static bool IsLocked(RegistryKey parent, string path, string userSid)
     {
         using var k = parent.OpenSubKey(path, RegistryKeyPermissionCheck.ReadSubTree, RegistryRights.ReadPermissions);
         if (k is null) return false;
         var sec = k.GetAccessControl(AccessControlSections.Owner | AccessControlSections.Access);
+        if (!sec.AreAccessRulesProtected) return false;
         if (sec.GetOwner(typeof(SecurityIdentifier)) is not SecurityIdentifier owner || owner != Administrators) return false;
         const RegistryRights write = RegistryRights.SetValue | RegistryRights.CreateSubKey | RegistryRights.Delete | RegistryRights.ChangePermissions | RegistryRights.TakeOwnership;
         string[] weak = [userSid, "S-1-5-11", "S-1-1-0", "S-1-5-32-545", "S-1-5-4"];
